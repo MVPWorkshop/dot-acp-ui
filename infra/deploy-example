@@ -1,0 +1,27 @@
+### AWS ###
+export CDK_PROFILE=dot # aws sso profile
+
+### CDK APPLICATION ###
+export APPLICATION_NAME="dot-ui" # must be unique
+
+###GIT###
+export GIT_OWNER="xxxx"  # github owner
+export GIT_TOKEN="xxxxx" # github token #read #webhook read/write
+
+### DNS ###
+export HOSTED_ZONE_NAME="xxxxx" # DNS Zone name
+export HOSTED_ZONE_ID="xxxxx"   # DNS Zone ID
+
+export FRONTEND_NODEJS_VERSION=16
+
+### DOT UI
+export DOT_UI_HOSTNAME=dot-acp
+export DOT_UI_BUCKET_NAME=dot-acp-dev
+export DOT_UI_REPO_BRANCH=main
+export DOT_UI_REPO_NAME="dot-acp-ui"
+
+export CDK_DEBUG=true
+# cdk bootstrap --profile $CDK_PROFILE
+cdk deploy --all --profile $CDK_PROFILE
+
+# cdk destroy --profile $AWS_PROFILE
