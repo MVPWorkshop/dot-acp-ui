@@ -38,7 +38,7 @@ const App: FC = () => {
     (async () => {
       const time = await api?.query.timestamp.now();
       console.log(time.toPrimitive());
-      console.log(api);
+      //   console.log(api);
     })();
   }, [api]);
 
