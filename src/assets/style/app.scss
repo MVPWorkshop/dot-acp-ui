@@ -1,3 +1,9 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import "fonts.scss";
+
+
+body {
+    @apply font-inter text-[16px];
+  }
