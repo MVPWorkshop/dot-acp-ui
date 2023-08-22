@@ -1,15 +1,16 @@
 import Button from "../../components/atom/button";
+import { ReactComponent as AddIcon } from "../../assets/img/addIcon.svg";
 
 const HomePage = () => {
   return (
     <h1>
       <Button
         type="button"
-        text="{Enter button text}"
+        text="Deposit"
         onClick={() => console.log("click")}
-        styles="button-primary-small"
-        hasAddIcon={true}
-        disabled={false}
+        variant="primary"
+        size="small"
+        icon={<AddIcon />}
       />
     </h1>
   );
