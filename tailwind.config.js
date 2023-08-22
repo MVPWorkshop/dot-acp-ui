@@ -6,6 +6,7 @@ export default {
       fontFamily: {
         "unbounded-variable": ["UnboundedVariable", "sans-serif"],
         inter: ["Inter", "sans-serif"],
+        titillium: ['TitilliumWeb', 'sans-serif']
       },
       colors: {
         pink: "#E6007A",
@@ -52,6 +53,8 @@ export default {
           "label-dark": "#FFFFFF80",
           "disabled-dark": "#FFFFFF59",
         },
+        modalHeaderBorderColor: "#0000000F",
+        modalBorderColor: "#FFFFFF4D"
       },
       fontSize: {
         "heading-1": "48px",
@@ -60,6 +63,7 @@ export default {
         "heading-4": "28px",
         "heading-5": "23px",
         "heading-6": "19px",
+        extraLarge: "18px",
         large: "16px",
         medium: "13px",
         small: "11px",
