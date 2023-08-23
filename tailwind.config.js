@@ -1,6 +1,6 @@
-/** @type {import('tailwindcss').Config} */
+/** @type {import("tailwindcss").Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -8,7 +8,9 @@ export default {
         inter: ["Inter", "sans-serif"],
       },
       colors: {
-        pink: "#E6007A",
+        pink: {
+          DEFAULT: "#E6007A",
+        },
         purple: {
           400: "#6D3AEE",
           500: "#6D3AEE",
@@ -29,14 +31,14 @@ export default {
           600: "#BEE52E",
           700: "#A9CC29",
         },
-        purpleDark: {
+        "purple-dark": {
           700: "#321D47",
           800: "#28123E",
           900: "#1C0533",
           925: "#160527",
           950: "#140523",
         },
-        purpleLight: {
+        "purple-light": {
           50: "#FBFCFE",
           100: "#F3F5FB",
           200: "#E6EAF6",
