@@ -1,3 +1,7 @@
+import { useState } from "react";
+import { ReactComponent as DownArrowBlack } from "../../../assets/img/downArrowBlack.svg";
+import { ReactComponent as DownArrowWhite } from "../../../assets/img/downArrowWhite.svg";
+
 type ButtonProps = {
   text: string;
   onClick: () => void;
@@ -5,11 +9,12 @@ type ButtonProps = {
   disabled?: boolean;
   className?: string;
   icon?: React.ReactNode;
-  variant: "primary" | "secondary" | "interactive";
+  variant: "primary" | "secondary" | "interactive" | "primary-select" | "secondary-select";
   size?: "small" | "large";
 };
 
 const Button = ({ text, onClick, disabled, className, icon, variant, size, type = "button", ...rest }: ButtonProps) => {
+  const [isButtonHover, setIsButtonHover] = useState(false);
   const getButtonSizeStyle = () => {
     switch (size) {
       case "small":
@@ -63,6 +68,40 @@ const Button = ({ text, onClick, disabled, className, icon, variant, size, type 
             {...rest}
           >
             {text}
+          </button>
+        );
+      case "primary-select":
+        return (
+          <button
+            className={`flex h-[31px] w-[145px] items-center justify-center gap-2
+              rounded-[100px] bg-[#e6007a] px-3 py-[6px] text-[16px] font-normal text-white
+              hover:bg-black ${className ? className : null}`}
+            onClick={() => (!disabled ? onClick() : null)}
+            disabled={disabled}
+            type={"button"}
+            {...rest}
+          >
+            Select token
+            <DownArrowWhite />
+          </button>
+        );
+      case "secondary-select":
+        return (
+          <button
+            className={`flex max-h-[36px] max-w-[145px] items-center justify-center
+              gap-2 rounded-[100px] px-6 py-4 font-normal ${className ? className : null}
+              ${!disabled ? "bg-[#E6EAF6] text-black hover:bg-black hover:text-white " : "bg-[#a6a6a6] text-black"}`}
+            onClick={() => (!disabled ? onClick() : null)}
+            disabled={disabled}
+            onMouseEnter={() => setIsButtonHover(true)}
+            onMouseLeave={() => setIsButtonHover(false)}
+            type={"button"}
+            {...rest}
+          >
+            {icon ? icon : null}
+            {text}
+            {isButtonHover && !disabled ? <DownArrowWhite /> : null}
+            {!isButtonHover && !disabled ? <DownArrowBlack /> : null}
           </button>
         );
     }
