@@ -3,7 +3,7 @@ import { ReactComponent as DownArrowBlack } from "../../../assets/img/downArrowB
 import { ReactComponent as DownArrowWhite } from "../../../assets/img/downArrowWhite.svg";
 
 type ButtonProps = {
-  text: string;
+  text?: string;
   onClick: () => void;
   type: HTMLButtonElement["type"];
   disabled?: boolean;
@@ -44,7 +44,7 @@ const Button = ({ text, onClick, disabled, className, icon, variant, size, type 
         return (
           <button
             className={`flex h-[38px] w-[165px] items-center justify-center rounded-[100px] 
-            border border-solid border-black bg-white px-6 py-4 text-[11px] text-base
+            border border-solid border-black bg-white px-6 py-4 text-[11px]
             font-normal text-black hover:border-0 hover:bg-[#e6007a] hover:text-white ${className ? className : null}`}
             onClick={() => (!disabled ? onClick() : null)}
             disabled={disabled}
