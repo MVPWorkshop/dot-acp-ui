@@ -28,13 +28,7 @@ const HomePage = () => {
       <br />
       <Button text="{Enter button text}" type="button" onClick={() => console.log("click")} variant="secondary" />
       <br />
-      <Button
-        text="Select token"
-        type="button"
-        onClick={() => console.log("click")}
-        variant="primary-select"
-        disabled={true}
-      />
+      <Button text="Select token" type="button" onClick={() => console.log("click")} variant="primary-select" />
       <br />
       <Button
         text="DOT"
