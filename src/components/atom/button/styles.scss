@@ -5,22 +5,22 @@
     @apply flex items-center justify-center gap-2 rounded-[100px] bg-[#e6007a] px-6 py-4 font-normal text-white hover:bg-black;
   }
   .btn-secondary {
-    @apply flex h-[38px] w-[165px] items-center justify-center rounded-[100px] border border-solid border-black bg-white px-6 py-4 text-[11px] font-normal text-black hover:border-0 hover:bg-[#e6007a] hover:text-white;
+    @apply flex items-center justify-center rounded-[100px] border border-solid border-black bg-white px-6 py-4 text-[11px] font-normal text-black hover:border-0 hover:bg-[#e6007a] hover:text-white;
   }
   .btn-interactive {
-    @apply flex h-[51px] w-[424px] items-center justify-center gap-2 rounded-lg bg-[#e6007a] px-6 py-4 font-normal text-white hover:bg-black;
+    @apply flex min-w-[424px] items-center justify-center gap-2 rounded-lg bg-[#e6007a] px-6 py-4 font-normal text-white hover:bg-black;
   }
   .btn-primary-select {
-    @apply flex h-[31px] w-[145px] items-center justify-center gap-2 rounded-[100px] bg-[#e6007a] px-3 py-[6px] text-[16px] font-normal text-white hover:bg-black;
+    @apply flex items-center justify-center gap-2 rounded-[100px] bg-[#e6007a] px-3 py-[6px] text-[16px] font-normal text-white hover:bg-black;
   }
   .btn-secondary-select {
-    @apply flex h-[36px] w-[145px] items-center justify-center gap-2 rounded-[100px] bg-[#E6EAF6] px-6 py-4 font-normal text-black hover:bg-black hover:text-white;
+    @apply flex items-center justify-center gap-2 rounded-[100px] bg-[#E6EAF6] px-6 py-4 font-normal text-black hover:bg-black hover:text-white;
   }
   .btn-large {
-    @apply h-[48px] w-[152px] text-[13px];
+    @apply text-[13px];
   }
   .btn-small {
-    @apply h-[38px] w-[110px] text-[11px];
+    @apply text-[11px];
   }
   .btn-disabled {
     @apply bg-[#a6a6a6] text-black hover:bg-[#a6a6a6] hover:text-black;
