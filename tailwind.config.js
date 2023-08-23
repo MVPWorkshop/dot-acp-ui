@@ -11,9 +11,18 @@ export default {
       colors: {
         pink: "#E6007A",
         purple: {
+          50: "#FBFCFE",
+          100: "#F3F5FB",
+          200: "#E6EAF6",
+          300: "#DAE0F2",
           400: "#6D3AEE",
           500: "#6D3AEE",
           600: "#442299",
+          700: "#321D47",
+          800: "#28123E",
+          900: "#1C0533",
+          925: "#160527",
+          950: "#140523",
         },
         cyan: {
           500: "#00B2FF",
@@ -29,19 +38,6 @@ export default {
           500: "#D3FF33",
           600: "#BEE52E",
           700: "#A9CC29",
-        },
-        "purple-dark": {
-          700: "#321D47",
-          800: "#28123E",
-          900: "#1C0533",
-          925: "#160527",
-          950: "#140523",
-        },
-        "purple-light": {
-          50: "#FBFCFE",
-          100: "#F3F5FB",
-          200: "#E6EAF6",
-          300: "#DAE0F2",
         },
         "text-color": {
           "header-light": "#000000E5",
@@ -70,7 +66,6 @@ export default {
         large: "16px",
         medium: "13px",
         small: "11px",
-        "modal-header-text": "19px",
       },
     },
   },
