@@ -30,8 +30,8 @@ const Button = ({ text, onClick, disabled, className, icon, variant, size, type 
         "btn-interactive": variant === "interactive",
         "btn-primary-select": variant === "primary-select",
         "btn-secondary-select": variant === "secondary-select",
-        "btn-small": size === "small",
-        "btn-large": size === "large",
+        "text-small": size === "small",
+        "text-medium": size === "large",
         "btn-disabled": variant === "secondary-select" && disabled,
         "btn-interactive-disabled": variant === "interactive" && disabled,
       })}
