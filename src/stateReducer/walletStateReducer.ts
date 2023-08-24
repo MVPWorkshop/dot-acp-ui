@@ -2,26 +2,6 @@ import type { AnyJson } from "@polkadot/types/types/codec";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { ApiPromise } from "@polkadot/api";
 
-// interface AssetTokenMetadata {
-//   decimals: string;
-//   deposit: string;
-//   isFrozen: boolean;
-//   name: string;
-//   symbol: string;
-// }
-
-// interface TokenAsset {
-//   balance: string;
-//   extra: string | null;
-//   reason: string;
-//   status: string;
-// }
-
-// interface AssetItem {
-//   tokenId: string;
-//   assetTokenMetadata: AssetTokenMetadata;
-//   tokenAsset: TokenAsset;
-// }
 interface TokenData {
   balance: AnyJson;
   ss58Format: AnyJson;
