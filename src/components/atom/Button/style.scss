@@ -4,7 +4,7 @@ button {
   }
 
   &.btn-primary {
-    @apply justify-center gap-2 rounded-full px-6 py-4 font-inter font-normal text-white hover:bg-black bg-[#E6007A];
+    @apply justify-center gap-2 rounded-full px-6 py-4 font-unbounded-variable font-normal text-white hover:bg-black bg-[#E6007A];
   }
 
   &.btn-secondary {
@@ -24,10 +24,10 @@ button {
   }
 
   &.btn-disabled {
-    @apply bg-[#a6a6a6] text-black hover:bg-[#a6a6a6] hover:text-black;
+    @apply bg-text-color-disabled-light text-black hover:bg-[#a6a6a6] hover:text-black;
   }
 
   &.btn-interactive-disabled {
-    @apply bg-[#a6a6a6] text-[#686868] hover:bg-[#a6a6a6] hover:text-[#686868];
+    @apply bg-text-color-disabled-light text-[#686868] hover:bg-[#a6a6a6] hover:text-[#686868];
   }
 }

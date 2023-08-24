@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
+import Button from "../../atom/Button/index.tsx";
 
 const HeaderTopNav = () => {
   const [activeLink, setActiveLink] = useState<string | null>("swap");
@@ -10,7 +11,7 @@ const HeaderTopNav = () => {
       <div>
         <Logo className="" />
       </div>
-      <div className="flex gap-16 text-textColor-label-light">
+      <div className="text-textColor-label-light flex gap-16">
         <NavLink
           to={SWAP_ROUTE}
           className={`font-unbounded-variable tracking-[.96px] ${
@@ -31,7 +32,9 @@ const HeaderTopNav = () => {
         </NavLink>
       </div>
       <div>
-        <button>Connect</button>
+        <Button onClick={() => console.log("click")} variant="primary" size="large">
+          Connect Wallet
+        </Button>
       </div>
     </nav>
   );
