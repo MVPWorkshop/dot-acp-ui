@@ -6,15 +6,25 @@ export default {
       fontFamily: {
         "unbounded-variable": ["UnboundedVariable", "sans-serif"],
         inter: ["Inter", "sans-serif"],
+        titillium: ['TitilliumWeb', 'sans-serif']
       },
       colors: {
         pink: {
           DEFAULT: "#E6007A",
         },
         purple: {
+          50: "#FBFCFE",
+          100: "#F3F5FB",
+          200: "#E6EAF6",
+          300: "#DAE0F2",
           400: "#6D3AEE",
           500: "#6D3AEE",
           600: "#442299",
+          700: "#321D47",
+          800: "#28123E",
+          900: "#1C0533",
+          925: "#160527",
+          950: "#140523",
         },
         cyan: {
           500: "#00B2FF",
@@ -31,20 +41,7 @@ export default {
           600: "#BEE52E",
           700: "#A9CC29",
         },
-        "purple-dark": {
-          700: "#321D47",
-          800: "#28123E",
-          900: "#1C0533",
-          925: "#160527",
-          950: "#140523",
-        },
-        "purple-light": {
-          50: "#FBFCFE",
-          100: "#F3F5FB",
-          200: "#E6EAF6",
-          300: "#DAE0F2",
-        },
-        textColor: {
+        "text-color": {
           "header-light": "#000000E5",
           "body-light": "#000000B2",
           "label-light": "#00000080",
@@ -54,6 +51,11 @@ export default {
           "label-dark": "#FFFFFF80",
           "disabled-dark": "#FFFFFF59",
         },
+        "modal-header-border-color": "#0000000F",
+        "modal-border-color": "#FFFFFF4D"
+      },
+      boxShadow: {
+        "modal-box-shadow": "0px 0px 0px 0px rgba(226, 228, 233, 0.10), 3px 12px 27px 0px rgba(226, 228, 233, 0.10), 13px 48px 50px 0px rgba(226, 228, 233, 0.09), 29px 108px 67px 0px rgba(226, 228, 233, 0.05), 52px 193px 80px 0px rgba(226, 228, 233, 0.01), 82px 301px 87px 0px rgba(226, 228, 233, 0.00)",
       },
       fontSize: {
         "heading-1": "48px",
@@ -62,6 +64,7 @@ export default {
         "heading-4": "28px",
         "heading-5": "23px",
         "heading-6": "19px",
+        "extra-large": "18px",
         large: "16px",
         medium: "13px",
         small: "11px",
