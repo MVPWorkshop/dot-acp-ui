@@ -1,29 +1,19 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useReducer } from "react";
 import { ReactComponent as Logo } from "./assets/img/logo.svg";
 import { RouterProvider } from "react-router-dom";
 import router from "./app/router";
-import { ApiPromise } from "@polkadot/api";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
-import type { AnyJson } from "@polkadot/types/types/codec";
-import { setupPolkadotApi, getWalletTokensBalance } from "./services/polkadotServices";
+import { setupPolkadotApi, getWalletTokensBalance, toUnit } from "./services/polkadotServices";
+import { reducer, initialState } from "./stateReducer/walletStateReducer";
 
-interface TokenData {
-  balance: AnyJson;
-  ss58Format: AnyJson;
-  tokenDecimals: AnyJson;
-  tokenSymbol: AnyJson;
-}
 const App: FC = () => {
-  const [api, setApi] = useState<ApiPromise>();
-  const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([]);
-  const [selectedAccount, setsSelectedAccount] = useState<InjectedAccountWithMeta>();
-  const [tokenBalances, setTokenBalances] = useState<TokenData>();
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const { api, accounts, selectedAccount, tokenBalances } = state;
 
   const callApiSetup = async () => {
     try {
       const polkaApi = await setupPolkadotApi();
-      setApi(polkaApi);
+      dispatch({ type: "SET_API", payload: polkaApi });
     } catch (error) {
       console.error("Error setting up Polkadot API:", error);
     }
@@ -33,14 +23,13 @@ const App: FC = () => {
     callApiSetup();
   }, []);
 
-  useEffect(() => {
-    if (!api) return;
-    (async () => {
-      const time = await api?.query.timestamp.now();
-      console.log(time.toPrimitive());
-      //   console.log(api);
-    })();
-  }, [api]);
+  // useEffect(() => {
+  //   if (!api) return;
+  //   (async () => {
+  //     const time = await api?.query.timestamp.now();
+  //     console.log(time.toPrimitive());
+  //   })();
+  // }, [api]);
 
   const handleConnection = async () => {
     const extensions = await web3Enable("DOT-ACP-UI");
@@ -50,14 +39,14 @@ const App: FC = () => {
     console.log(extensions);
     const allAccounts = await web3Accounts();
     console.log(allAccounts);
-    setAccounts(allAccounts);
-    setsSelectedAccount(allAccounts[0]);
+    dispatch({ type: "SET_ACCOUNTS", payload: allAccounts });
+    dispatch({ type: "SET_SELECTED_ACCOUNT", payload: allAccounts[0] });
     console.log("accounts", accounts);
     if (api) {
       try {
         const walletTokens = await getWalletTokensBalance(api, allAccounts[0].address);
         console.log(walletTokens);
-        setTokenBalances(walletTokens);
+        dispatch({ type: "SET_TOKEN_BALANCES", payload: walletTokens });
       } catch (error) {
         console.error("Error setting token balances:", error);
       }
@@ -74,6 +63,20 @@ const App: FC = () => {
         Balance: {tokenBalances?.balance ? tokenBalances?.balance.toString() : ""}{" "}
         {tokenBalances?.tokenSymbol ? tokenBalances?.tokenSymbol.toString() : ""}
       </p>
+      <p>Assets:</p>
+      <div>
+        {tokenBalances?.assets?.map((item: any, index: number) => (
+          <div key={index}>
+            <ul>
+              <li>Name: {item.assetTokenMetadata.name}</li>
+              <li>
+                {toUnit(item.tokenAsset.balance.replace(/[, ]/g, "").toString(), item.assetTokenMetadata.decimals)}{" "}
+                {item.assetTokenMetadata.symbol}
+              </li>
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
