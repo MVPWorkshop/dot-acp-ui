@@ -41,9 +41,9 @@ const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
                   <div className="flex w-full justify-center font-unbounded-variable text-heading-6 leading-[120%]">
                     {title}
                   </div>
-                  <div className="flex cursor-pointer justify-end" onClick={onClose}>
+                  <button className="flex justify-end" onClick={onClose}>
                     <ModalCloseIcon />
-                  </div>
+                  </button>
                 </div>
                 {children}
               </Dialog.Panel>

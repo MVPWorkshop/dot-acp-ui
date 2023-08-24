@@ -1,6 +1,6 @@
-/** @type {import('tailwindcss').Config} */
+/** @type {import("tailwindcss").Config} */
 export default {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
       fontFamily: {
@@ -9,7 +9,9 @@ export default {
         titillium: ['TitilliumWeb', 'sans-serif']
       },
       colors: {
-        pink: "#E6007A",
+        pink: {
+          DEFAULT: "#E6007A",
+        },
         purple: {
           50: "#FBFCFE",
           100: "#F3F5FB",
