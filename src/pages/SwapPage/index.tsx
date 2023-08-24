@@ -1,7 +1,7 @@
 import { FC, useEffect, useReducer } from "react";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import { setupPolkadotApi, getWalletTokensBalance, toUnit } from "../../services/polkadotWalletServices";
-import { reducer, initialState } from "../../state/wallet/walletState";
+import { reducer, initialState } from "../../state/wallet";
 import dotAcpToast from "../../helper/toast";
 
 const SwapPage: FC = () => {
