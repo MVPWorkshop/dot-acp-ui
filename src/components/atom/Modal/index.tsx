@@ -4,12 +4,12 @@ import { ReactComponent as ModalCloseIcon } from "../../../assets/img/modal-clos
 
 interface ModalProps {
   isOpen: boolean;
-  modalHeaderText?: string;
+  title?: string;
   onClose: () => void;
   children: ReactNode;
 }
 
-const Modal: FC<ModalProps> = ({ isOpen, onClose, children, modalHeaderText }) => {
+const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -39,7 +39,7 @@ const Modal: FC<ModalProps> = ({ isOpen, onClose, children, modalHeaderText }) =
               <Dialog.Panel className="relative z-10 transform overflow-hidden rounded rounded-2xl border border-modal-border-color bg-white p-[18px] shadow-modal-box-shadow">
                 <div className="mb-[6px] flex items-center border-b border-b-modal-header-border-color pb-[8px] pr-[24px] pt-[10px]">
                   <div className="flex w-full justify-center font-unbounded-variable text-heading-6 leading-[120%]">
-                    {modalHeaderText}
+                    {title}
                   </div>
                   <div className="flex cursor-pointer justify-end" onClick={onClose}>
                     <ModalCloseIcon />
