@@ -1,40 +1,25 @@
+import { useRef, useState } from "react";
 import { ReactComponent as DotToken } from "../../assets/img/dotToken.svg";
 import { ReactComponent as AddToken } from "../../assets/img/addIcon.svg";
 import Button from "../../components/atom/Button";
 import TokenAmountInput from "../../components/molecule/tokenAmountInput";
-import { useEffect, useRef, useState } from "react";
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useOutsideAlerter(ref: any, onSetIsFocused: any) {
-  useEffect(() => {
-    /**
-     * Alert if clicked on outside of element
-     */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    function handleClickOutside(event: any) {
-      if (ref.current && !ref.current.contains(event.target)) {
-        onSetIsFocused(false);
-      }
-    }
-    // Bind the event listener
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      // Unbind the event listener on clean up
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [ref]);
-}
+import { useOutsideAlerter } from "../../app/helper";
 
 const HomePage = () => {
-  const [isFocused, setIsFocused] = useState(false);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  const [tokenValue, setTokenValue] = useState<number>();
+
+  const onSetTokenValue = (value: number) => {
+    setTokenValue(value);
+  };
 
   const onSetIsFocused = (focus: boolean) => {
     setIsFocused(focus);
   };
-  const wrapperRef = useRef(null);
-  useOutsideAlerter(wrapperRef, onSetIsFocused);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useOutsideAlerter({ wrapperRef, onSetIsFocused });
   return (
-    <h1>
+    <div>
       <Button onClick={() => console.log("click")} variant="primary" size="large">
         New Position
       </Button>
@@ -77,11 +62,34 @@ const HomePage = () => {
         ref={wrapperRef}
         tokenText="DOT"
         tokenIcon={<DotToken />}
+        tokenValue={tokenValue}
+        disabled={true}
         onClick={() => console.log("open modal")}
         onSetIsFocused={onSetIsFocused}
+        onSetTokenValue={onSetTokenValue}
         isFocused={isFocused}
       />
-    </h1>
+      <br />
+      <TokenAmountInput
+        ref={wrapperRef}
+        tokenText="DOT"
+        tokenIcon={<DotToken />}
+        tokenValue={tokenValue}
+        onClick={() => console.log("open modal")}
+        onSetIsFocused={onSetIsFocused}
+        onSetTokenValue={onSetTokenValue}
+        isFocused={isFocused}
+      />
+      <br />
+      <TokenAmountInput
+        ref={wrapperRef}
+        tokenText="DOT"
+        onClick={() => console.log("open modal")}
+        onSetIsFocused={onSetIsFocused}
+        onSetTokenValue={onSetTokenValue}
+        isFocused={isFocused}
+      />
+    </div>
   );
 };
 export default HomePage;

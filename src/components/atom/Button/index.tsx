@@ -43,11 +43,11 @@ const Button = ({ children, onClick, disabled, className, icon, variant, size }:
     >
       {icon && showIcon() ? icon : null}
       {children}
-      {isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite /> : null}
-      {!isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite /> : null}
+      {isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite width={16} height={16} /> : null}
+      {!isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite width={16} height={16} /> : null}
 
-      {isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowWhite /> : null}
-      {!isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowBlack /> : null}
+      {isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowWhite width={16} height={16} /> : null}
+      {!isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowBlack width={16} height={16} /> : null}
     </button>
   );
 };
