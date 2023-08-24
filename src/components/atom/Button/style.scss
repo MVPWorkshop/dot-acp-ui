@@ -20,7 +20,7 @@ button {
   }
 
   &.btn-secondary-select {
-    @apply justify-center gap-2 rounded-full bg-purple-light-200 px-6 py-4 font-inter font-normal text-black hover:bg-black hover:text-white;
+    @apply justify-center gap-2 rounded-full bg-purple-200 px-6 py-4 font-inter font-normal text-black hover:bg-black hover:text-white;
   }
 
   &.btn-disabled {
