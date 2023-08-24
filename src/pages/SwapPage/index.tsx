@@ -1,7 +1,8 @@
 import { FC, useEffect, useReducer } from "react";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import { setupPolkadotApi, getWalletTokensBalance, toUnit } from "../../services/polkadotServices";
-import { reducer, initialState } from "../../stateReducer/walletStateReducer";
+import { setupPolkadotApi, getWalletTokensBalance, toUnit } from "../../services/polkadotWalletServices";
+import { reducer, initialState } from "../../state/wallet/walletState";
+import dotAcpToast from "../../helper/toast";
 
 const SwapPage: FC = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -12,7 +13,7 @@ const SwapPage: FC = () => {
       const polkaApi = await setupPolkadotApi();
       dispatch({ type: "SET_API", payload: polkaApi });
     } catch (error) {
-      console.error("Error setting up Polkadot API:", error);
+      dotAcpToast.error(`Error setting up Polkadot API: ${error}`);
     }
   };
 
@@ -25,18 +26,23 @@ const SwapPage: FC = () => {
     if (!extensions) {
       throw Error("No Extension");
     }
+
     const allAccounts = await web3Accounts();
+
     dispatch({ type: "SET_ACCOUNTS", payload: allAccounts });
     dispatch({ type: "SET_SELECTED_ACCOUNT", payload: allAccounts[0] });
+
     if (api) {
       try {
         const walletTokens = await getWalletTokensBalance(api, allAccounts[0].address);
         dispatch({ type: "SET_TOKEN_BALANCES", payload: walletTokens });
+        dotAcpToast.success("Success");
       } catch (error) {
-        console.error("Error setting token balances:", error);
+        dotAcpToast.error(`Error setting token balances: ${error}`);
       }
     }
   };
+
   return (
     <div className="flex flex-col items-center gap-5 py-10">
       <h1>Swap</h1>
