@@ -1,0 +1,33 @@
+button {
+  &.btn {
+    @apply flex items-center;
+  }
+
+  &.btn-primary {
+    @apply justify-center gap-2 rounded-full px-6 py-4 font-inter font-normal text-white hover:bg-black bg-[#E6007A];
+  }
+
+  &.btn-secondary {
+    @apply justify-center rounded-full border border-solid border-black bg-white px-6 py-4 font-inter text-small font-normal text-black hover:border-transparent hover:bg-pink hover:text-white;
+  }
+
+  &.btn-interactive {
+    @apply min-w-[424px] justify-center gap-2 rounded-lg bg-pink px-6 py-4 font-inter font-normal text-white hover:bg-black;
+  }
+
+  &.btn-primary-select {
+    @apply justify-center gap-2 rounded-full bg-pink px-3 py-1.5 font-inter text-large font-normal text-white hover:bg-black;
+  }
+
+  &.btn-secondary-select {
+    @apply justify-center gap-2 rounded-full bg-purple-light-200 px-6 py-4 font-inter font-normal text-black hover:bg-black hover:text-white;
+  }
+
+  &.btn-disabled {
+    @apply bg-[#a6a6a6] text-black hover:bg-[#a6a6a6] hover:text-black;
+  }
+
+  &.btn-interactive-disabled {
+    @apply bg-[#a6a6a6] text-[#686868] hover:bg-[#a6a6a6] hover:text-[#686868];
+  }
+}
