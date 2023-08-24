@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import HeaderTopNav from "../components/organism/HeaderTopNav/index.tsx";
+import HeaderTopNav from "../components/organism/HeaderTopNav";
 
 const MainLayout = () => {
   return (
