@@ -11,7 +11,6 @@ import { handleConnection } from "../../../services/polkadotWalletServices";
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
   const { api, selectedAccount } = state;
-  console.log(selectedAccount);
   const [activeLink, setActiveLink] = useState<string | null>("swap");
 
   const connectWallet = async () => {
