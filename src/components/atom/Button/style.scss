@@ -4,11 +4,11 @@ button {
   }
 
   &.btn-primary {
-    @apply justify-center gap-2 rounded-full bg-pink px-6 py-4 font-inter font-normal text-white hover:bg-black;
+    @apply justify-center gap-2 rounded-full bg-pink px-6 py-4 font-unbounded-variable font-normal text-white hover:bg-black;
   }
 
   &.btn-secondary {
-    @apply justify-center rounded-full border border-solid border-black bg-white px-6 py-4 font-inter text-small font-normal text-black hover:border-transparent hover:bg-pink hover:text-white;
+    @apply justify-center rounded-full border border-solid border-black bg-white px-6 py-4 font-unbounded-variable text-small font-normal text-black hover:border-transparent hover:bg-pink hover:text-white;
   }
 
   &.btn-interactive {
@@ -20,7 +20,7 @@ button {
   }
 
   &.btn-secondary-select {
-    @apply justify-center gap-2 rounded-full bg-purple-light-200 px-[12px] py-[6px] font-inter font-normal text-black hover:bg-black hover:text-white;
+    @apply justify-center gap-2 rounded-full bg-purple-200 px-[12px] py-[6px] font-inter font-normal text-black hover:bg-black hover:text-white;
   }
 
   &.btn-disabled {
