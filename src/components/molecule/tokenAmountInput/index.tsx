@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../global/enum";
+import useClickOutside from "../../../customHooks/useClickOutside";
+import classNames from "classnames";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -9,44 +11,48 @@ type TokenAmountInputProps = {
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
-  isFocused?: boolean;
   tokenValue?: number;
-  onSetIsFocused: (focus: boolean) => void;
   onSetTokenValue: (value: number) => void;
-  ref: React.RefObject<HTMLDivElement>;
 };
 
-const TokenAmountInput = React.forwardRef(function TokenAmountInput(
-  {
-    tokenIcon,
-    tokenText,
-    disabled,
-    isFocused,
-    tokenValue,
-    onSetTokenValue,
-    onSetIsFocused,
-    onClick,
-  }: TokenAmountInputProps,
-  ref: React.ForwardedRef<HTMLDivElement>
-) {
+const TokenAmountInput = ({
+  tokenIcon,
+  tokenText,
+  disabled,
+  tokenValue,
+  onSetTokenValue,
+  onClick,
+}: TokenAmountInputProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLInputElement>(null);
+  const [isFocused, setIsFocused] = useState<boolean>(false);
+  useClickOutside(wrapperRef, () => {
+    console.log("click outside");
+    setIsFocused(false);
+  });
   return (
     <div
-      ref={ref}
-      className={`relative flex items-center justify-start gap-2 rounded-[8px] bg-purple-100 px-4 py-7 ${
-        isFocused ? "border border-solid border-pink" : null
-      }`}
+      ref={wrapperRef}
+      className={classNames(
+        "relative flex items-center justify-start gap-2 rounded-[8px] border bg-purple-100 px-4 py-7",
+        {
+          "border-pink": isFocused,
+          "border-transparent": !isFocused,
+        }
+      )}
     >
       <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-text-color-label-light">
         You pay
       </label>
       <NumericFormat
         id="token-amount"
+        getInputRef={inputRef}
         allowNegative={false}
         fixedDecimalScale
         displayType={"input"}
         placeholder={"0"}
         className="w-full basis-auto bg-transparent text-heading-4 font-bold text-black outline-none"
-        onFocus={() => onSetIsFocused(true)}
+        onFocus={() => setIsFocused(true)}
         value={tokenValue}
         onValueChange={(values) => {
           const { floatValue } = values;
@@ -77,6 +83,6 @@ const TokenAmountInput = React.forwardRef(function TokenAmountInput(
       )}
     </div>
   );
-});
+};
 
 export default TokenAmountInput;
