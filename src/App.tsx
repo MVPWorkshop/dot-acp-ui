@@ -2,7 +2,7 @@ import { FC, useEffect, useReducer } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./app/router";
 import { setupPolkadotApi } from "./services/polkadotWalletServices";
-import { reducer, initialState } from "./state/wallet";
+import { reducer, initialState } from "./state";
 import dotAcpToast from "./helper/toast";
 import { AppStateProvider } from "./stateProvider";
 

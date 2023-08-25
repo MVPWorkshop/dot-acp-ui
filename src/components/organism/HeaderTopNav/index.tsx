@@ -7,6 +7,8 @@ import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { handleConnection } from "../../../services/polkadotWalletServices";
+import { reduceAddress } from "../../../helper/reduceAddress.ts";
+import classNames from "classnames";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -21,15 +23,6 @@ const HeaderTopNav = () => {
     }
   };
 
-  const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
-    if (address) {
-      const addressLeftPart = address.substring(0, lengthLeft);
-      const addressRightPart = address.substring(48 - lengthRight, 48);
-      return `${addressLeftPart}...${addressRightPart}`;
-    }
-    return "Not connected";
-  };
-
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
       <div className="pr-[140px]">
@@ -38,18 +31,18 @@ const HeaderTopNav = () => {
       <div className="flex gap-16 text-text-color-label-light">
         <NavLink
           to={SWAP_ROUTE}
-          className={`font-unbounded-variable tracking-[.96px] ${
-            activeLink === "swap" ? "text-text-color-header-light" : ""
-          }`}
+          className={classNames("font-unbounded-variable tracking-[.96px]", {
+            "text-text-color-header-light": activeLink === "swap",
+          })}
           onClick={() => setActiveLink("swap")}
         >
           Swap
         </NavLink>
         <NavLink
           to={POOLS_ROUTE}
-          className={`font-unbounded-variable tracking-[.96px] ${
-            activeLink === "pools" ? "text-text-color-header-light" : ""
-          }`}
+          className={classNames("font-unbounded-variable tracking-[.96px]", {
+            "text-text-color-header-light": activeLink === "pools",
+          })}
           onClick={() => setActiveLink("pools")}
         >
           Pool
