@@ -1,6 +1,11 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { BN, formatBalance } from "@polkadot/util";
 import type { AnyJson } from "@polkadot/types/types/codec";
+import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
+import dotAcpToast from "../../helper/toast";
+import { Dispatch } from "react";
+import { Action } from "../../state/wallet/interface";
+import "@polkadot/api-augment";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider("wss://westmint-rpc.polkadot.io");
@@ -28,7 +33,9 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   const tokenMetadata = await api.registry.getChainProperties();
 
   const allAssets = await api.query.assets.asset.entries();
-  const allChainAssets: { tokenData: AnyJson; tokenId: AnyJson }[] = [];
+
+  const allChainAssets: { tokenData: AnyJson; tokenId: any }[] = [];
+
   allAssets.forEach((item) => {
     allChainAssets.push({ tokenData: item[1].toHuman(), tokenId: item[0].toHuman() });
   });
@@ -38,6 +45,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   for (const item of allChainAssets) {
     const cleanedTokenId = item.tokenId[0].replace(/[, ]/g, "");
     const tokenAsset = await api.query.assets.account(cleanedTokenId, walletAddress);
+
     if (tokenAsset.toHuman()) {
       const assetTokenMetadata = await api.query.assets.metadata(cleanedTokenId);
 
@@ -66,4 +74,26 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   };
 
   return tokensInfo;
+};
+
+export const handleConnection = async (dispatch: Dispatch<Action>, api: any) => {
+  const extensions = await web3Enable("DOT-ACP-UI");
+  if (!extensions) {
+    throw Error("No Extension");
+  }
+
+  const allAccounts = await web3Accounts();
+
+  dispatch({ type: "SET_ACCOUNTS", payload: allAccounts });
+  dispatch({ type: "SET_SELECTED_ACCOUNT", payload: allAccounts[0] });
+
+  if (api) {
+    try {
+      const walletTokens = await getWalletTokensBalance(api, allAccounts[0].address);
+      dispatch({ type: "SET_TOKEN_BALANCES", payload: walletTokens });
+      dotAcpToast.success("Success");
+    } catch (error) {
+      dotAcpToast.error(`Error setting token balances: ${error}`);
+    }
+  }
 };
