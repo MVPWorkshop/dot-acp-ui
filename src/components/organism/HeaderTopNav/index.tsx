@@ -5,11 +5,13 @@ import dotAcpToast from "../../../helper/toast";
 import { useAppContext } from "../../../stateProvider";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
+import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { handleConnection } from "../../../services/polkadotWalletServices";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
-  const { api } = state;
+  const { api, selectedAccount } = state;
+  console.log(selectedAccount);
   const [activeLink, setActiveLink] = useState<string | null>("swap");
 
   const connectWallet = async () => {
@@ -18,6 +20,15 @@ const HeaderTopNav = () => {
     } catch (error) {
       dotAcpToast.error(`Error connecting: ${error}`);
     }
+  };
+
+  const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
+    if (address) {
+      const addressLeftPart = address.substring(0, lengthLeft);
+      const addressRightPart = address.substring(48 - lengthRight, 48);
+      return `${addressLeftPart}...${addressRightPart}`;
+    }
+    return "Not connected";
   };
 
   return (
@@ -46,9 +57,23 @@ const HeaderTopNav = () => {
         </NavLink>
       </div>
       <div>
-        <Button onClick={connectWallet} variant="primary" size="large">
-          Connect Wallet
-        </Button>
+        {!selectedAccount?.address ? (
+          <Button onClick={connectWallet} variant="primary" size="large">
+            Connect Wallet
+          </Button>
+        ) : (
+          <>
+            <div className="flex items-center justify-center gap-[26px]">
+              <div className="flex flex-col text-text-color-body-light">
+                <div className="font-[500]">{selectedAccount?.meta.name || "Account"}</div>
+                <div className="text-small">{reduceAddress(selectedAccount?.address, 6, 6)}</div>
+              </div>
+              <div>
+                <AccountImage />
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </nav>
   );
