@@ -4,6 +4,7 @@ import { ReactComponent as AddToken } from "../../assets/img/addIcon.svg";
 import Button from "../../components/atom/Button";
 import TokenAmountInput from "../../components/molecule/TokenAmountInput";
 import { useOutsideAlerter } from "../../app/helper";
+import { ButtonText, ButtonVariants } from "../../global/enum";
 
 const HomePage = () => {
   const [isFocused, setIsFocused] = useState<boolean>(false);
@@ -20,38 +21,48 @@ const HomePage = () => {
   useOutsideAlerter({ wrapperRef, onSetIsFocused });
   return (
     <div>
-      <Button onClick={() => console.log("click")} variant="primary" size="large">
+      <Button onClick={() => console.log("click")} variant={ButtonVariants.btnPrimary} size={ButtonText.btnTextMedium}>
         New Position
       </Button>
       <br />
-      <Button onClick={() => console.log("click")} variant="primary" size="small" icon={<AddToken />}>
+      <Button
+        onClick={() => console.log("click")}
+        variant={ButtonVariants.btnPrimary}
+        size={ButtonText.btnTextSmall}
+        icon={<AddToken />}
+      >
         Deposit
       </Button>
       <br />
-      <Button onClick={() => console.log("click")} variant="interactive">
+      <Button onClick={() => console.log("click")} variant={ButtonVariants.btnInteractive}>
         Enter button text
       </Button>
       <br />
-      <Button type="button" onClick={() => console.log("click")} variant="interactive" disabled>
+      <Button type="button" onClick={() => console.log("click")} variant={ButtonVariants.btnInteractive} disabled>
         Enter button text
       </Button>
       <br />
-      <Button onClick={() => console.log("click")} variant="secondary">
+      <Button onClick={() => console.log("click")} variant={ButtonVariants.btnSecondary}>
         Enter button text
       </Button>
       <br />
-      <Button onClick={() => console.log("click")} variant="primary-select">
+      <Button onClick={() => console.log("click")} variant={ButtonVariants.btnPrimarySelect}>
         Select token
       </Button>
       <br />
-      <Button type="button" onClick={() => console.log("click")} variant="secondary-select" icon={<DotToken />}>
+      <Button
+        type="button"
+        onClick={() => console.log("click")}
+        variant={ButtonVariants.btnSecondarySelect}
+        icon={<DotToken />}
+      >
         DOT
       </Button>
       <br />
       <Button
         type="button"
         onClick={() => console.log("click")}
-        variant="secondary-select"
+        variant={ButtonVariants.btnSecondarySelect}
         icon={<DotToken />}
         disabled
       >

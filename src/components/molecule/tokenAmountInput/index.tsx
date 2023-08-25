@@ -1,6 +1,7 @@
 import React from "react";
 import { NumericFormat } from "react-number-format";
 import Button from "../../atom/Button";
+import { ButtonVariants } from "../../../global/enum";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -58,14 +59,19 @@ const TokenAmountInput = React.forwardRef(function TokenAmountInput(
           icon={tokenIcon}
           type="button"
           onClick={() => onClick()}
-          variant="secondary-select"
+          variant={ButtonVariants.btnSecondarySelect}
           disabled={disabled}
           className="basis-2/5 disabled:basis-[23%]"
         >
           {tokenText}
         </Button>
       ) : (
-        <Button type="button" onClick={() => console.log("click")} variant="primary-select" className="basis-[57%]">
+        <Button
+          type="button"
+          onClick={() => console.log("click")}
+          variant={ButtonVariants.btnPrimarySelect}
+          className="basis-[57%]"
+        >
           Select token
         </Button>
       )}
