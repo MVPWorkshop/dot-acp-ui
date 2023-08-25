@@ -27,6 +27,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@polkadot/api": "^10.9.1",
+    "@polkadot/api-augment": "^10.9.1",
     "@polkadot/extension-dapp": "^0.46.5",
     "@polkadot/extension-inject": "0.34.0-beta.12",
     "@polkadot/keyring": "^12.3.2",
