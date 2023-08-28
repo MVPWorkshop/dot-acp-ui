@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ReactComponent as DotToken } from "../../assets/img/dotToken.svg";
-import { ReactComponent as AddToken } from "../../assets/img/addIcon.svg";
+import { ReactComponent as DotToken } from "../../assets/img/dot-token.svg";
+import { ReactComponent as AddToken } from "../../assets/img/add-icon.svg";
 import Button from "../../components/atom/Button";
 import TokenAmountInput from "../../components/molecule/TokenAmountInput";
 import { ButtonText, ButtonVariants } from "../../global/enum";
