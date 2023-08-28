@@ -57,8 +57,7 @@ const TokenAmountInput = ({
         className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-text-color-body-light outline-none"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
-        onValueChange={(values) => {
-          const { floatValue } = values;
+        onValueChange={({ floatValue }) => {
           onSetTokenValue(floatValue || 0);
         }}
       />
