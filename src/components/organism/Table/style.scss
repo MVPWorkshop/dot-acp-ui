@@ -3,11 +3,11 @@
 
   tr {
     th {
-      @apply px-[20px] py-[24px] text-[14px] font-medium capitalize;
+      @apply px-5 py-6 text-medium font-medium capitalize;
     }
 
     td {
-      @apply px-[20px] py-[24px];
+      @apply px-5 py-6;
     }
   }
 }
