@@ -9,6 +9,7 @@ import { ReactComponent as AccountImage } from "../../../assets/img/account-imag
 import { handleConnection } from "../../../services/polkadotWalletServices";
 import { reduceAddress } from "../../../helper/reduceAddress.ts";
 import classNames from "classnames";
+import { ButtonText, ButtonVariants } from "../../../global/enum.ts";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -50,7 +51,7 @@ const HeaderTopNav = () => {
       </div>
       <div>
         {!selectedAccount?.address ? (
-          <Button onClick={connectWallet} variant="primary" size="large">
+          <Button onClick={connectWallet} variant={ButtonVariants.btnPrimary} size={ButtonText.btnTextMedium}>
             Connect Wallet
           </Button>
         ) : (

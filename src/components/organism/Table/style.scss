@@ -1,0 +1,22 @@
+.custom-table {
+  @apply relative w-full border-separate border-spacing-y-0;
+
+  tr {
+    th {
+      @apply px-5 py-6 text-medium font-medium capitalize;
+    }
+
+    td {
+      @apply px-5 py-6;
+    }
+  }
+}
+
+.my-investment-body {
+  tr {
+    @apply border border-b;
+    &:last-of-type {
+      @apply border-b-0;
+    }
+  }
+}

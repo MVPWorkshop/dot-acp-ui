@@ -6,7 +6,7 @@ export default {
       fontFamily: {
         "unbounded-variable": ["UnboundedVariable", "sans-serif"],
         inter: ["Inter", "sans-serif"],
-        titillium: ['TitilliumWeb', 'sans-serif']
+        titillium: ["TitilliumWeb", "sans-serif"],
       },
       colors: {
         pink: {
@@ -52,10 +52,11 @@ export default {
           "disabled-dark": "#FFFFFF59",
         },
         "modal-header-border-color": "#0000000F",
-        "modal-border-color": "#FFFFFF4D"
+        "modal-border-color": "#FFFFFF4D",
       },
       boxShadow: {
-        "modal-box-shadow": "0px 0px 0px 0px rgba(226, 228, 233, 0.10), 3px 12px 27px 0px rgba(226, 228, 233, 0.10), 13px 48px 50px 0px rgba(226, 228, 233, 0.09), 29px 108px 67px 0px rgba(226, 228, 233, 0.05), 52px 193px 80px 0px rgba(226, 228, 233, 0.01), 82px 301px 87px 0px rgba(226, 228, 233, 0.00)",
+        "modal-box-shadow":
+          "0px 0px 0px 0px rgba(226, 228, 233, 0.10), 3px 12px 27px 0px rgba(226, 228, 233, 0.10), 13px 48px 50px 0px rgba(226, 228, 233, 0.09), 29px 108px 67px 0px rgba(226, 228, 233, 0.05), 52px 193px 80px 0px rgba(226, 228, 233, 0.01), 82px 301px 87px 0px rgba(226, 228, 233, 0.00)",
       },
       fontSize: {
         "heading-1": "48px",

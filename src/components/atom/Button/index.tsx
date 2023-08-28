@@ -1,39 +1,56 @@
 import { ReactNode, useState } from "react";
-import { ReactComponent as DownArrowBlack } from "../../../assets/img/downArrowBlack.svg";
-import { ReactComponent as DownArrowWhite } from "../../../assets/img/downArrowWhite.svg";
+import { ReactComponent as ArrowDownIcon } from "../../../assets/img/down-arrow.svg";
+import { ButtonText, ButtonVariants } from "../../../global/enum";
 import classNames from "classnames";
 import "./style.scss";
 
 type ButtonProps = {
   children?: ReactNode;
-  onClick: () => void;
   type?: HTMLButtonElement["type"];
   disabled?: boolean;
   className?: string;
   icon?: ReactNode;
-  variant?: "primary" | "secondary" | "interactive" | "primary-select" | "secondary-select";
-  size?: "small" | "large";
+  variant?:
+    | ButtonVariants.btnPrimary
+    | ButtonVariants.btnSecondary
+    | ButtonVariants.btnInteractive
+    | ButtonVariants.btnPrimarySelect
+    | ButtonVariants.btnSecondarySelect;
+  size?: ButtonText.btnTextSmall | ButtonText.btnTextMedium;
+  onClick: () => void;
 };
 
-const Button = ({ children, onClick, disabled, className, icon, variant, size }: ButtonProps) => {
+const Button = ({ children, disabled, className, icon, variant, size, onClick }: ButtonProps) => {
   const [isButtonHover, setIsButtonHover] = useState(false);
 
   const showIcon = () => {
-    return variant === "primary" || variant === "secondary-select";
+    return variant === ButtonVariants.btnPrimary || variant === ButtonVariants.btnSecondarySelect;
+  };
+
+  const getIcon = () => {
+    if (variant === ButtonVariants.btnPrimarySelect) {
+      return <ArrowDownIcon width={16} height={16} color="white" />;
+    }
+
+    if (variant === ButtonVariants.btnSecondarySelect) {
+      return <ArrowDownIcon width={16} height={16} color={`${isButtonHover && !disabled ? "white" : "black"}`} />;
+    }
+
+    return null;
   };
 
   return (
     <button
       className={classNames(`btn ${className || ""}`, {
-        "btn-primary": variant === undefined || variant === "primary",
-        "btn-secondary": variant === "secondary",
-        "btn-interactive": variant === "interactive",
-        "btn-primary-select": variant === "primary-select",
-        "btn-secondary-select": variant === "secondary-select",
-        "btn-disabled": variant === "secondary-select" && disabled,
-        "btn-interactive-disabled": variant === "interactive" && disabled,
-        "text-small": size === "small",
-        "text-medium": size === "large",
+        "btn-primary": variant === undefined || variant === ButtonVariants.btnPrimary,
+        "btn-secondary": variant === ButtonVariants.btnSecondary,
+        "btn-interactive": variant === ButtonVariants.btnInteractive,
+        "btn-primary-select": variant === ButtonVariants.btnPrimarySelect,
+        "btn-secondary-select": variant === ButtonVariants.btnSecondarySelect,
+        "btn-disabled": variant === ButtonVariants.btnSecondarySelect && disabled,
+        "btn-interactive-disabled": variant === ButtonVariants.btnInteractive && disabled,
+        "text-small": size === ButtonText.btnTextSmall,
+        "text-medium": size === ButtonText.btnTextMedium,
       })}
       onClick={() => (!disabled ? onClick() : null)}
       disabled={disabled}
@@ -43,11 +60,7 @@ const Button = ({ children, onClick, disabled, className, icon, variant, size }:
     >
       {icon && showIcon() ? icon : null}
       {children}
-      {isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite /> : null}
-      {!isButtonHover && !disabled && variant === "primary-select" ? <DownArrowWhite /> : null}
-
-      {isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowWhite /> : null}
-      {!isButtonHover && !disabled && variant === "secondary-select" ? <DownArrowBlack /> : null}
+      {getIcon()}
     </button>
   );
 };

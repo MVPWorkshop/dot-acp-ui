@@ -1,7 +1,7 @@
 module.exports = {
   env: {
-    "browser": true,
-    "es2021": true,
+    browser: true,
+    es2021: true,
   },
   extends: [
     "eslint:recommended",
@@ -13,16 +13,16 @@ module.exports = {
   ],
   plugins: ["react", "react-hooks", "@typescript-eslint", "jsx-a11y"],
   settings: {
-    "react": {
+    react: {
       version: "detect",
     },
-    "camelcase": [
+    camelcase: [
       "error",
       {
         allow: [],
       },
     ],
-    "eqeqeq": "error",
+    eqeqeq: "error",
     "spaced-comment": "error",
     "no-empty-interface": "off",
     "no-var-requires": "off",
@@ -34,14 +34,14 @@ module.exports = {
     "block-spacing": "error",
     "react/display-name": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "quotes": ["error", "double"],
+    quotes: ["error", "double"],
     "react/jsx-no-bind": [
       "error",
       {
-        "allowArrowFunctions": true,
-        "allowBind": false,
-        "ignoreRefs": true
-      }
+        allowArrowFunctions: true,
+        allowBind: false,
+        ignoreRefs: true,
+      },
     ],
     "import/resolver": {
       node: {
@@ -52,6 +52,6 @@ module.exports = {
   },
   rules: {
     "react/react-in-jsx-scope": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
   },
 };
