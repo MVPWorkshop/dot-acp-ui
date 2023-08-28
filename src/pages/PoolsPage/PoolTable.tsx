@@ -1,8 +1,8 @@
 import Table from "../../components/organism/Table";
 import Button from "../../components/atom/Button";
-import { ReactComponent as AddToken } from "../../assets/img/addIcon.svg";
-import { ReactComponent as DotToken } from "../../assets/img/dotToken.svg";
-import { ReactComponent as TestToken } from "../../assets/img/testToken.svg";
+import { ReactComponent as AddToken } from "../../assets/img/add-icon.svg";
+import { ReactComponent as DotToken } from "../../assets/img/dot-token.svg";
+import { ReactComponent as TestToken } from "../../assets/img/test-token.svg";
 import { ButtonText, ButtonVariants } from "../../global/enum";
 import { useEffect, useState } from "react";
 
@@ -124,7 +124,7 @@ const PoolTable = () => {
   }, []);
 
   return (
-    <Table className="w-full max-w-[1280px] font-inter">
+    <Table className="w-full">
       <Table.Head>
         <Table.TR className="text-text-color-label-light">
           <Table.TH></Table.TH>
