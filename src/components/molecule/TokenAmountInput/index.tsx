@@ -7,11 +7,12 @@ import classNames from "classnames";
 
 type TokenAmountInputProps = {
   tokenText: string;
-  onClick: () => void;
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
   tokenValue?: number;
+  labelText?: string;
+  onClick: () => void;
   onSetTokenValue: (value: number) => void;
 };
 
@@ -20,6 +21,7 @@ const TokenAmountInput = ({
   tokenText,
   disabled,
   tokenValue,
+  labelText,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -43,7 +45,7 @@ const TokenAmountInput = ({
       )}
     >
       <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-text-color-label-light">
-        You pay
+        {labelText}
       </label>
       <NumericFormat
         id="token-amount"
@@ -55,8 +57,7 @@ const TokenAmountInput = ({
         className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-text-color-body-light outline-none"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
-        onValueChange={(values) => {
-          const { floatValue } = values;
+        onValueChange={({ floatValue }) => {
           onSetTokenValue(floatValue || 0);
         }}
       />
