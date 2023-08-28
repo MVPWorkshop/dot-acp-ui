@@ -81,6 +81,7 @@ const SwapTokens = () => {
         onClick={() => console.log("open modal")}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
       />
+
       {slippageExists || poolExists ? (
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
           {slippageExists ? (
@@ -114,6 +115,7 @@ const SwapTokens = () => {
               </div>
             </>
           ) : null}
+
           {poolExists ? (
             <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
               No need to create a new pool. Liquidity can be added to the existing one.
@@ -121,6 +123,7 @@ const SwapTokens = () => {
           ) : null}
         </div>
       ) : null}
+
       <Button
         onClick={() => console.log("click")}
         variant={ButtonVariants.btnInteractive}
