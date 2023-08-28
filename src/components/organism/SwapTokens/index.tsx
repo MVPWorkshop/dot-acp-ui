@@ -59,12 +59,12 @@ const SwapTokens = () => {
   };
 
   return (
-    <div className="relative flex w-full max-w-[460px] flex-col items-center gap-[6px] rounded-2xl bg-white p-[18px]">
+    <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <div className="absolute left-[18px] top-[18px]">
         <BackArrow width={24} height={24} />
       </div>
       <h3 className="heading-6 font-unbounded-variable font-normal">Add Liquidity</h3>
-      <hr className="mb-[2px] mt-[3px] w-full border-[0.7px] border-b-modal-header-border-color" />
+      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText="DOT"
         labelText="You pay"
