@@ -4,6 +4,26 @@ import { ReactComponent as AddToken } from "../../assets/img/addIcon.svg";
 import { ReactComponent as DotToken } from "../../assets/img/dotToken.svg";
 import { ReactComponent as TestToken } from "../../assets/img/testToken.svg";
 import { ButtonText, ButtonVariants } from "../../global/enum";
+import { useEffect, useState } from "react";
+
+type PoolProps = {
+  name: string;
+  tlv: string;
+  tokenAIcon: React.ReactNode;
+  tokenBIcon: React.ReactNode;
+  totalTokensLocked: {
+    tokenA: string;
+    tokenB: string;
+    tokenAIcon: React.ReactNode;
+    tokenBIcon: React.ReactNode;
+  };
+  deposited?: {
+    tokenA: string;
+    tokenB: string;
+    tokenAIcon: React.ReactNode;
+    tokenBIcon: React.ReactNode;
+  };
+};
 
 const PoolMock = [
   {
@@ -86,7 +106,23 @@ const PoolMock = [
   },
 ];
 
+const getPoolTableData = () => {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(PoolMock);
+    }, 1000);
+  });
+};
+
 const PoolTable = () => {
+  const [poolData, setPoolData] = useState<PoolProps[]>();
+
+  useEffect(() => {
+    getPoolTableData().then((data: any) => {
+      setPoolData(data);
+    });
+  }, []);
+
   return (
     <Table className="w-full max-w-[1280px] font-inter">
       <Table.Head>
@@ -99,7 +135,7 @@ const PoolTable = () => {
         </Table.TR>
       </Table.Head>
       <Table.Body>
-        {PoolMock.map((item, index) => {
+        {poolData?.map((item, index) => {
           return (
             <Table.TR key={index} className={`${index % 2 === 0 ? "bg-white" : "bg-modal-border-color"}`}>
               <Table.TD>
