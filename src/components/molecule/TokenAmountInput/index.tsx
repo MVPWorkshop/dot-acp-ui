@@ -7,11 +7,12 @@ import classNames from "classnames";
 
 type TokenAmountInputProps = {
   tokenText: string;
-  onClick: () => void;
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
   tokenValue?: number;
+  labelText?: string;
+  onClick: () => void;
   onSetTokenValue: (value: number) => void;
 };
 
@@ -20,6 +21,7 @@ const TokenAmountInput = ({
   tokenText,
   disabled,
   tokenValue,
+  labelText,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -43,7 +45,7 @@ const TokenAmountInput = ({
       )}
     >
       <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-text-color-label-light">
-        You pay
+        {labelText}
       </label>
       <NumericFormat
         id="token-amount"
