@@ -23,11 +23,9 @@ const App: FC = () => {
   }, []);
 
   return (
-    <div className="">
-      <AppStateProvider state={state} dispatch={dispatch}>
-        <RouterProvider router={router} />
-      </AppStateProvider>
-    </div>
+    <AppStateProvider state={state} dispatch={dispatch}>
+      <RouterProvider router={router} />
+    </AppStateProvider>
   );
 };
 

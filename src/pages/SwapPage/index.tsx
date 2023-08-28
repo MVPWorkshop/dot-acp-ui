@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { useAppContext } from "../../stateProvider";
+import SwapTokens from "../../components/organism/SwapTokens";
 
 const SwapPage: FC = () => {
   const { state } = useAppContext();
@@ -29,6 +30,8 @@ const SwapPage: FC = () => {
           </div>
         ))}
       </div>
+
+      <SwapTokens />
     </div>
   );
 };
