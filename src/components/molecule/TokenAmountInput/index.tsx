@@ -33,7 +33,7 @@ const TokenAmountInput = ({
     <div
       ref={wrapperRef}
       className={classNames(
-        "relative flex items-center justify-start gap-2 rounded-[8px] border bg-purple-100 px-4 py-7",
+        "relative flex items-center justify-start gap-2 rounded-lg border bg-purple-100 px-4 py-7",
         {
           "border-pink": isFocused,
           "border-transparent": !isFocused,
@@ -50,7 +50,7 @@ const TokenAmountInput = ({
         fixedDecimalScale
         displayType={"input"}
         placeholder={"0"}
-        className="w-full basis-auto bg-transparent text-heading-4 font-bold text-black outline-none"
+        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-text-color-body-light outline-none"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
         onValueChange={(values) => {

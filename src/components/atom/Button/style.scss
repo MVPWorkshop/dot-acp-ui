@@ -16,18 +16,18 @@ button {
   }
 
   &.btn-primary-select {
-    @apply justify-center gap-2 rounded-full bg-pink px-[12px] py-[3.5px] font-inter text-large font-normal text-white hover:bg-black;
+    @apply justify-center gap-2 rounded-full bg-pink px-3 py-1 font-inter text-large font-normal text-white hover:bg-black;
   }
 
   &.btn-secondary-select {
-    @apply justify-center gap-2 rounded-full bg-purple-200 px-[12px] py-[6px] font-inter font-normal text-black hover:bg-black hover:text-white;
+    @apply justify-center gap-2 rounded-full bg-purple-200 px-3 py-1.5 font-inter font-normal text-black hover:bg-black hover:text-white;
   }
 
   &.btn-disabled {
-    @apply bg-text-color-disabled-light text-black hover:bg-[#a6a6a6] hover:text-black;
+    @apply bg-text-color-disabled-light text-text-color-body-light hover:bg-text-color-disabled-light hover:text-text-color-body-light;
   }
 
   &.btn-interactive-disabled {
-    @apply bg-text-color-disabled-light text-[#686868] hover:bg-[#a6a6a6] hover:text-[#686868];
+    @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
   }
 }
