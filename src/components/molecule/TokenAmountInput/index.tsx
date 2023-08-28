@@ -26,9 +26,11 @@ const TokenAmountInput = ({
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLInputElement>(null);
   const [isFocused, setIsFocused] = useState<boolean>(false);
+
   useClickOutside(wrapperRef, () => {
     setIsFocused(false);
   });
+
   return (
     <div
       ref={wrapperRef}

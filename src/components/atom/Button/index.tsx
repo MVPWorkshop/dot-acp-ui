@@ -1,13 +1,11 @@
 import { ReactNode, useState } from "react";
-import { ReactComponent as DownArrowBlack } from "../../../assets/img/downArrowBlack.svg";
-import { ReactComponent as DownArrowWhite } from "../../../assets/img/downArrowWhite.svg";
+import { ReactComponent as ArrowDownIcon } from "../../../assets/img/down-arrow.svg";
+import { ButtonText, ButtonVariants } from "../../../global/enum";
 import classNames from "classnames";
 import "./style.scss";
-import { ButtonText, ButtonVariants } from "../../../global/enum";
 
 type ButtonProps = {
   children?: ReactNode;
-  onClick: () => void;
   type?: HTMLButtonElement["type"];
   disabled?: boolean;
   className?: string;
@@ -19,13 +17,26 @@ type ButtonProps = {
     | ButtonVariants.btnPrimarySelect
     | ButtonVariants.btnSecondarySelect;
   size?: ButtonText.btnTextSmall | ButtonText.btnTextMedium;
+  onClick: () => void;
 };
 
-const Button = ({ children, onClick, disabled, className, icon, variant, size }: ButtonProps) => {
+const Button = ({ children, disabled, className, icon, variant, size, onClick }: ButtonProps) => {
   const [isButtonHover, setIsButtonHover] = useState(false);
 
   const showIcon = () => {
     return variant === ButtonVariants.btnPrimary || variant === ButtonVariants.btnSecondarySelect;
+  };
+
+  const getIcon = () => {
+    if (variant === ButtonVariants.btnPrimarySelect) {
+      return <ArrowDownIcon width={16} height={16} color="white" />;
+    }
+
+    if (variant === ButtonVariants.btnSecondarySelect) {
+      return <ArrowDownIcon width={16} height={16} color={`${isButtonHover && !disabled ? "white" : "black"}`} />;
+    }
+
+    return null;
   };
 
   return (
@@ -49,19 +60,7 @@ const Button = ({ children, onClick, disabled, className, icon, variant, size }:
     >
       {icon && showIcon() ? icon : null}
       {children}
-      {isButtonHover && !disabled && variant === ButtonVariants.btnPrimarySelect ? (
-        <DownArrowWhite width={16} height={16} />
-      ) : null}
-      {!isButtonHover && !disabled && variant === ButtonVariants.btnPrimarySelect ? (
-        <DownArrowWhite width={16} height={16} />
-      ) : null}
-
-      {isButtonHover && !disabled && variant === ButtonVariants.btnSecondarySelect ? (
-        <DownArrowWhite width={16} height={16} />
-      ) : null}
-      {!isButtonHover && !disabled && variant === ButtonVariants.btnSecondarySelect ? (
-        <DownArrowBlack width={16} height={16} />
-      ) : null}
+      {getIcon()}
     </button>
   );
 };
