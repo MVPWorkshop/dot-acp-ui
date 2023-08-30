@@ -116,11 +116,6 @@ export const addLiquidity = async (
 
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
-      //   console.log("liquid",response.toHuman());
-      //   if (response.dispatchError !== undefined) {
-      //     console.log(response.dispatchError.toHuman());
-      //     return;
-      //   }
       if (response.status.isInBlock) {
         console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {

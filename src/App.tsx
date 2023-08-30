@@ -7,6 +7,8 @@ import { walletReducer, initialWalletState, poolsReducer, initialPoolsState } fr
 import dotAcpToast from "./helper/toast";
 import { AppStateProvider } from "./stateProvider";
 import { ActionType } from "./global/enum";
+import { WalletAction } from "./state/wallet/interface";
+import { PoolAction } from "./state/pools/interface";
 
 const App: FC = () => {
   const [walletState, dispatchWallet] = useReducer(walletReducer, initialWalletState);
@@ -14,9 +16,9 @@ const App: FC = () => {
 
   const combinedState = { ...walletState, ...poolsState };
 
-  const combinedDispatch = (action: { type: ActionType; payload: any }) => {
-    dispatchWallet(action);
-    dispatchPools(action);
+  const combinedDispatch = (action: WalletAction | PoolAction) => {
+    dispatchWallet(action as WalletAction);
+    dispatchPools(action as PoolAction);
   };
 
   const callApiSetup = async () => {
