@@ -1,6 +1,7 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { ApiPromise } from "@polkadot/api";
+import { ActionType } from "../../global/enum";
 
 interface TokenData {
   balance: AnyJson;
@@ -18,7 +19,7 @@ export interface WalletState {
 }
 
 export type WalletAction =
-  | { type: "SET_API"; payload: ApiPromise }
-  | { type: "SET_ACCOUNTS"; payload: InjectedAccountWithMeta[] }
-  | { type: "SET_SELECTED_ACCOUNT"; payload: InjectedAccountWithMeta }
-  | { type: "SET_TOKEN_BALANCES"; payload: TokenData };
+  | { type: ActionType.SET_API; payload: ApiPromise }
+  | { type: ActionType.SET_ACCOUNTS; payload: InjectedAccountWithMeta[] }
+  | { type: ActionType.SET_SELECTED_ACCOUNT; payload: InjectedAccountWithMeta }
+  | { type: ActionType.SET_TOKEN_BALANCES; payload: TokenData };
