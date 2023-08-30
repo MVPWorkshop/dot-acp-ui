@@ -1,4 +1,5 @@
 import { WalletState, WalletAction } from "./interface";
+import { ActionType } from "../../global/enum";
 
 export const initialWalletState: WalletState = {
   api: null,
@@ -9,13 +10,13 @@ export const initialWalletState: WalletState = {
 
 export const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
-    case "SET_API":
+    case ActionType.SET_API:
       return { ...state, api: action.payload };
-    case "SET_ACCOUNTS":
+    case ActionType.SET_ACCOUNTS:
       return { ...state, accounts: action.payload };
-    case "SET_SELECTED_ACCOUNT":
+    case ActionType.SET_SELECTED_ACCOUNT:
       return { ...state, selectedAccount: action.payload };
-    case "SET_TOKEN_BALANCES":
+    case ActionType.SET_TOKEN_BALANCES:
       return { ...state, tokenBalances: action.payload };
     default:
       return state;

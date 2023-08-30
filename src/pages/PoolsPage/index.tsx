@@ -7,9 +7,8 @@ import { createPool } from "../../services/poolsServices";
 import dotAcpToast from "../../helper/toast";
 
 const PoolsPage = () => {
-  const { walletState, poolsState } = useAppContext();
-  const { api, selectedAccount } = walletState;
-  const { pools } = poolsState;
+  const { state } = useAppContext();
+  const { api, selectedAccount, pools } = state;
 
   const handleCreatePool = async () => {
     try {

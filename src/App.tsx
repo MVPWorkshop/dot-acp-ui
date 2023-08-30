@@ -6,17 +6,24 @@ import { getAllPools } from "./services/poolsServices";
 import { walletReducer, initialWalletState, poolsReducer, initialPoolsState } from "./state";
 import dotAcpToast from "./helper/toast";
 import { AppStateProvider } from "./stateProvider";
+import { ActionType } from "./global/enum";
 
 const App: FC = () => {
   const [walletState, dispatchWallet] = useReducer(walletReducer, initialWalletState);
   const [poolsState, dispatchPools] = useReducer(poolsReducer, initialPoolsState);
 
+  const combinedState = { ...walletState, ...poolsState };
+
+  const combinedDispatch = (action: { type: any; payload: any }) => {
+    dispatchWallet(action);
+    dispatchPools(action);
+  };
   const callApiSetup = async () => {
     try {
       const polkaApi = await setupPolkadotApi();
-      dispatchWallet({ type: "SET_API", payload: polkaApi });
+      dispatchWallet({ type: ActionType.SET_API, payload: polkaApi });
       const pools = await getAllPools(polkaApi);
-      dispatchPools({ type: "SET_POOLS", payload: pools });
+      dispatchPools({ type: ActionType.SET_POOLS, payload: pools });
     } catch (error) {
       dotAcpToast.error(`Error setting up Polkadot API: ${error}`);
     }
@@ -27,12 +34,7 @@ const App: FC = () => {
   }, []);
 
   return (
-    <AppStateProvider
-      walletState={walletState}
-      dispatchWallet={dispatchWallet}
-      poolsState={poolsState}
-      dispatchPools={dispatchPools}
-    >
+    <AppStateProvider state={combinedState} dispatch={combinedDispatch}>
       <RouterProvider router={router} />
     </AppStateProvider>
   );

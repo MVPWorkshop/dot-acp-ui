@@ -5,6 +5,7 @@ import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import dotAcpToast from "../../helper/toast";
 import { Dispatch } from "react";
 import { WalletAction } from "../../state/wallet/interface";
+import { ActionType } from "../../global/enum";
 import "@polkadot/api-augment";
 
 export const setupPolkadotApi = async () => {
@@ -84,13 +85,13 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
 
   const allAccounts = await web3Accounts();
 
-  dispatch({ type: "SET_ACCOUNTS", payload: allAccounts });
-  dispatch({ type: "SET_SELECTED_ACCOUNT", payload: allAccounts[0] });
+  dispatch({ type: ActionType.SET_ACCOUNTS, payload: allAccounts });
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: allAccounts[0] });
 
   if (api) {
     try {
       const walletTokens = await getWalletTokensBalance(api, allAccounts[0].address);
-      dispatch({ type: "SET_TOKEN_BALANCES", payload: walletTokens });
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
       dotAcpToast.success("Success");
     } catch (error) {
       dotAcpToast.error(`Error setting token balances: ${error}`);
