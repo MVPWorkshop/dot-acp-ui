@@ -19,7 +19,7 @@ export const setupPolkadotApi = async () => {
   console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
   return api;
 };
-
+//to do
 export const toUnit = (balance: string, decimals: number) => {
   const base = new BN(10).pow(new BN(decimals));
   const dm = new BN(balance).divmod(base);
