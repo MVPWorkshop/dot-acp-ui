@@ -1,9 +1,12 @@
 import { FC, createContext, Dispatch, useContext, ReactNode } from "react";
-import { AppState, Action } from "../state/wallet/interface";
+import { WalletState, WalletAction } from "../state/wallet/interface";
+import { PoolsState, PoolAction } from "../state/pools/interface";
 
 interface AppContextType {
-  state: AppState;
-  dispatch: Dispatch<Action>;
+  walletState: WalletState;
+  dispatchWallet: Dispatch<WalletAction>;
+  poolsState: PoolsState;
+  dispatchPools: Dispatch<PoolAction>;
 }
 
 interface AppStateProviderProps {
@@ -13,13 +16,17 @@ interface AppStateProviderProps {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppStateProvider: FC<AppStateProviderProps & AppContextType> = (props) => {
-  const { children, state, dispatch } = props;
+  const { children, walletState, dispatchWallet, poolsState, dispatchPools } = props;
 
   if (!children) {
     throw new Error("AppStateProvider must have children");
   }
 
-  return <AppContext.Provider value={{ state, dispatch }}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={{ walletState, poolsState, dispatchWallet, dispatchPools }}>
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 export const useAppContext = () => {

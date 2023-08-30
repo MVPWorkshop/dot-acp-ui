@@ -12,13 +12,13 @@ import classNames from "classnames";
 import { ButtonText, ButtonVariants } from "../../../global/enum.ts";
 
 const HeaderTopNav = () => {
-  const { state, dispatch } = useAppContext();
-  const { api, selectedAccount } = state;
+  const { walletState, dispatchWallet } = useAppContext();
+  const { api, selectedAccount } = walletState;
   const [activeLink, setActiveLink] = useState<string | null>("swap");
 
   const connectWallet = async () => {
     try {
-      await handleConnection(dispatch, api);
+      await handleConnection(dispatchWallet, api);
     } catch (error) {
       dotAcpToast.error(`Error connecting: ${error}`);
     }

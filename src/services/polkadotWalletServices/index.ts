@@ -4,7 +4,7 @@ import type { AnyJson } from "@polkadot/types/types/codec";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import dotAcpToast from "../../helper/toast";
 import { Dispatch } from "react";
-import { Action } from "../../state/wallet/interface";
+import { WalletAction } from "../../state/wallet/interface";
 import "@polkadot/api-augment";
 
 export const setupPolkadotApi = async () => {
@@ -76,7 +76,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   return tokensInfo;
 };
 
-export const handleConnection = async (dispatch: Dispatch<Action>, api: any) => {
+export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: any) => {
   const extensions = await web3Enable("DOT-ACP-UI");
   if (!extensions) {
     throw Error("No Extension");

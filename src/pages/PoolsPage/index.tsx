@@ -1,9 +1,26 @@
 import Button from "../../components/atom/Button";
 import PoolsEmptyState from "../../components/molecule/poolsEmptyState";
 import PoolTable from "./PoolTable";
+import { useAppContext } from "../../stateProvider";
 import { ButtonText, ButtonVariants } from "../../global/enum";
+import { createPool } from "../../services/poolsServices";
+import dotAcpToast from "../../helper/toast";
 
 const PoolsPage = () => {
+  const { walletState, poolsState } = useAppContext();
+  const { api, selectedAccount } = walletState;
+  const { pools } = poolsState;
+
+  const handleCreatePool = async () => {
+    try {
+      if (api) {
+        await createPool(api, "47", selectedAccount, "1000000000000", "2000000000000", "1000000000000", "2");
+      }
+    } catch (error) {
+      dotAcpToast.error(`Error: ${error}`);
+    }
+  };
+
   return (
     <div className="flex items-center justify-center px-28">
       <div className="flex w-full max-w-[1280px] flex-col">
@@ -15,17 +32,12 @@ const PoolsPage = () => {
             <div className="tracking-[.2px] text-text-color-body-light">Earn fees by providing liquidity.</div>
           </div>
           <div>
-            <Button
-              onClick={() => console.log("create poll")}
-              variant={ButtonVariants.btnPrimary}
-              size={ButtonText.btnTextMedium}
-            >
+            <Button onClick={handleCreatePool} variant={ButtonVariants.btnPrimary} size={ButtonText.btnTextMedium}>
               New Position
             </Button>
           </div>
         </div>
-        <PoolsEmptyState />
-        <PoolTable />
+        {!pools ? <PoolsEmptyState /> : <PoolTable />}
       </div>
     </div>
   );

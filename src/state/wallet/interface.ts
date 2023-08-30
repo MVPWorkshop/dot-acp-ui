@@ -10,14 +10,14 @@ interface TokenData {
   assets: any;
 }
 
-export interface AppState {
+export interface WalletState {
   api: ApiPromise | null;
   accounts: InjectedAccountWithMeta[];
   selectedAccount: InjectedAccountWithMeta | null;
   tokenBalances: TokenData | null;
 }
 
-export type Action =
+export type WalletAction =
   | { type: "SET_API"; payload: ApiPromise }
   | { type: "SET_ACCOUNTS"; payload: InjectedAccountWithMeta[] }
   | { type: "SET_SELECTED_ACCOUNT"; payload: InjectedAccountWithMeta }

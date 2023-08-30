@@ -4,8 +4,8 @@ import { useAppContext } from "../../stateProvider";
 import SwapTokens from "../../components/organism/SwapTokens";
 
 const SwapPage: FC = () => {
-  const { state } = useAppContext();
-  const { selectedAccount, tokenBalances } = state;
+  const { walletState } = useAppContext();
+  const { selectedAccount, tokenBalances } = walletState;
 
   return (
     <div className="flex flex-col items-center gap-5 py-10">

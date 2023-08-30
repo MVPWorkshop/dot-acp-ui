@@ -1,13 +1,13 @@
-import { AppState, Action } from "./interface";
+import { WalletState, WalletAction } from "./interface";
 
-export const initialState: AppState = {
+export const initialWalletState: WalletState = {
   api: null,
   accounts: [],
   selectedAccount: null,
   tokenBalances: null,
 };
 
-export const reducer = (state: AppState, action: Action): AppState => {
+export const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
   switch (action.type) {
     case "SET_API":
       return { ...state, api: action.payload };
