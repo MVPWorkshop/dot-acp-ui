@@ -14,16 +14,17 @@ const App: FC = () => {
 
   const combinedState = { ...walletState, ...poolsState };
 
-  const combinedDispatch = (action: { type: any; payload: any }) => {
+  const combinedDispatch = (action: { type: ActionType; payload: any }) => {
     dispatchWallet(action);
     dispatchPools(action);
   };
+
   const callApiSetup = async () => {
     try {
       const polkaApi = await setupPolkadotApi();
-      dispatchWallet({ type: ActionType.SET_API, payload: polkaApi });
+      combinedDispatch({ type: ActionType.SET_API, payload: polkaApi });
       const pools = await getAllPools(polkaApi);
-      dispatchPools({ type: ActionType.SET_POOLS, payload: pools });
+      combinedDispatch({ type: ActionType.SET_POOLS, payload: pools });
     } catch (error) {
       dotAcpToast.error(`Error setting up Polkadot API: ${error}`);
     }

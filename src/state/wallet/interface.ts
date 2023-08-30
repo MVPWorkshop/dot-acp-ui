@@ -18,8 +18,13 @@ export interface WalletState {
   tokenBalances: TokenData | null;
 }
 
-export type WalletAction =
-  | { type: ActionType.SET_API; payload: ApiPromise }
-  | { type: ActionType.SET_ACCOUNTS; payload: InjectedAccountWithMeta[] }
-  | { type: ActionType.SET_SELECTED_ACCOUNT; payload: InjectedAccountWithMeta }
-  | { type: ActionType.SET_TOKEN_BALANCES; payload: TokenData };
+// export type WalletAction =
+//   | { type: ActionType.SET_API; payload: ApiPromise }
+//   | { type: ActionType.SET_ACCOUNTS; payload: InjectedAccountWithMeta[] }
+//   | { type: ActionType.SET_SELECTED_ACCOUNT; payload: InjectedAccountWithMeta }
+//   | { type: ActionType.SET_TOKEN_BALANCES; payload: TokenData };
+
+export type WalletAction = {
+  type: ActionType;
+  payload: ApiPromise | InjectedAccountWithMeta[] | InjectedAccountWithMeta | TokenData | null;
+};

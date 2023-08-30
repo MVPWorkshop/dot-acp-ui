@@ -5,7 +5,12 @@ export interface PoolsState {
   poolLiquidityAdded: any;
 }
 
-export type PoolAction =
-  | { type: ActionType.SET_POOLS; payload: any }
-  | { type: ActionType.SET_POOL_CREATED; payload: any }
-  | { type: ActionType.SET_POOL_LIQUIDITY; payload: any };
+// export type PoolAction =
+//   | { type: ActionType.SET_POOLS; payload: any }
+//   | { type: ActionType.SET_POOL_CREATED; payload: any }
+//   | { type: ActionType.SET_POOL_LIQUIDITY; payload: any };
+
+export type PoolAction = {
+  type: ActionType;
+  payload: any;
+};
