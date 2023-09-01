@@ -67,7 +67,7 @@ const TokenAmountInput = ({
           icon={tokenIcon}
           type="button"
           onClick={() => onClick()}
-          variant={ButtonVariants.btnSecondarySelect}
+          variant={ButtonVariants.btnSelectGray}
           disabled={disabled}
           className="basis-2/5 disabled:basis-[23%]"
         >
@@ -77,7 +77,7 @@ const TokenAmountInput = ({
         <Button
           type="button"
           onClick={() => console.log("click")}
-          variant={ButtonVariants.btnPrimarySelect}
+          variant={ButtonVariants.btnSelectPink}
           className="basis-[57%]"
         >
           Select token
