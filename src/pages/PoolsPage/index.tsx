@@ -1,9 +1,9 @@
 import Button from "../../components/atom/Button";
 import { ButtonVariants } from "../../global/enum";
-import PoolsEmptyState from "../../components/molecule/poolsEmptyState";
+import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../stateProvider";
-import { getAllPools, getPoolReserves, createPool } from "../../services/poolServices";
+import { getPoolReserves, createPool } from "../../services/poolServices";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { formatBalance } from "@polkadot/util";
 import PoolDataCard from "./PoolDataCard";
@@ -13,7 +13,7 @@ import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { LpTokenAsset } from "../../global/types";
 import dotAcpToast from "../../helper/toast";
 
-type PoolProps = {
+type PoolCardProps = {
   name: string;
   lpTokenAsset: LpTokenAsset | null;
   totalTokensLocked: {
@@ -25,7 +25,7 @@ type PoolProps = {
 };
 
 const PoolsPage = () => {
-  const [poolsData, setPoolsData] = useState<PoolProps[]>([]);
+  const [poolCardsData, setPoolCardsData] = useState<PoolCardProps[]>([]);
   const { state } = useAppContext();
   const { api, selectedAccount, pools } = state;
 
@@ -39,16 +39,14 @@ const PoolsPage = () => {
     }
   };
 
-  const fetchPools = async () => {
+  const createPoolCardsArray = async () => {
     const apiPool = api as ApiPromise;
 
     try {
-      const allPools = await getAllPools(apiPool);
-
-      const poolTest: PoolProps[] = [];
+      const poolCardsArray: PoolCardProps[] = [];
 
       await Promise.all(
-        allPools.map(async (pool: any) => {
+        pools.map(async (pool: any) => {
           const lpTokenId = pool[1].lpToken;
 
           const lpTokenAsset = await apiPool.query.poolAssets.account(lpTokenId, selectedAccount?.address);
@@ -56,9 +54,6 @@ const PoolsPage = () => {
           const lpToken = lpTokenAsset.toHuman() as LpTokenAsset;
 
           if (pool[0][1].interior?.X2) {
-            if (pool[0][1].interior?.X2[1].GeneralIndex === "13,122") {
-              console.log("pool:", pool);
-            }
             const poolReserve: any = await getPoolReserves(
               apiPool,
               pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "")
@@ -79,7 +74,7 @@ const PoolsPage = () => {
                 withSi: false,
               });
 
-              poolTest.push({
+              poolCardsArray.push({
                 name: `WND–${assetTokenMetadata.toHuman().symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
                 totalTokensLocked: {
@@ -94,7 +89,7 @@ const PoolsPage = () => {
         })
       );
 
-      setPoolsData(poolTest);
+      setPoolCardsData(poolCardsArray);
     } catch (error) {
       dotAcpToast.error(`Error fetching pools: ${error}`);
     }
@@ -103,17 +98,17 @@ const PoolsPage = () => {
   useEffect(() => {
     let mount = true;
 
-    if (api && mount) {
-      fetchPools();
+    if (api && mount && pools && selectedAccount) {
+      createPoolCardsArray();
     }
 
     return () => {
       mount = false;
     };
-  }, [api]);
+  }, [api, selectedAccount]);
 
   return (
-    <div className="flex items-center justify-center px-28">
+    <div className="flex items-center justify-center px-28 pb-16">
       <div className="flex w-full max-w-[1280px] flex-col">
         <div className="flex items-center justify-between px-6 py-8">
           <div className="flex flex-col  gap-[4px] leading-[120%]">
@@ -123,16 +118,16 @@ const PoolsPage = () => {
             <div className="tracking-[.2px] text-text-color-body-light">Earn fees by providing liquidity.</div>
           </div>
           <div>
-            <Button onClick={handleCreatePool} variant={ButtonVariants.btnPrimaryPinkLg}>
-              New Position
-            </Button>
+            {selectedAccount ? (
+              <Button onClick={handleCreatePool} variant={ButtonVariants.btnPrimaryPinkLg}>
+                New Position
+              </Button>
+            ) : null}
           </div>
         </div>
-        {!pools ? (
-          <PoolsEmptyState />
-        ) : (
+        {pools && selectedAccount ? (
           <div className="grid grid-cols-3 gap-4">
-            {poolsData.map((item: any, index: number) => {
+            {poolCardsData.map((item: any, index: number) => {
               return (
                 <div key={index}>
                   <PoolDataCard
@@ -146,6 +141,13 @@ const PoolsPage = () => {
                 </div>
               );
             })}
+          </div>
+        ) : (
+          <div className="flex h-[664px] flex-col items-center justify-center gap-4 rounded-2xl bg-white p-6">
+            <TokenIcon />
+            <div className="text-center text-text-color-body-light">
+              {selectedAccount ? "No active liquidity positions." : "Connect your wallet to view your positions."}
+            </div>
           </div>
         )}
       </div>
