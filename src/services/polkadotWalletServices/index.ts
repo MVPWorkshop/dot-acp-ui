@@ -94,7 +94,8 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
       dotAcpToast.success("Success");
     } catch (error) {
-      dotAcpToast.error(`Error setting token balances: ${error}`);
+      // dotAcpToast.error(`Error setting token balances: ${error}`);
+      dotAcpToast.error("No wallet founded");
     }
   }
 };

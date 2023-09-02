@@ -1,14 +1,14 @@
 import { FC, useEffect, useReducer } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./app/router";
-import { setupPolkadotApi } from "./services/polkadotWalletServices";
-import { getAllPools } from "./services/poolsServices";
-import { walletReducer, initialWalletState, poolsReducer, initialPoolsState } from "./state";
-import dotAcpToast from "./helper/toast";
-import { AppStateProvider } from "./stateProvider";
 import { ActionType } from "./global/enum";
-import { WalletAction } from "./state/wallet/interface";
+import dotAcpToast from "./helper/toast";
+import { setupPolkadotApi } from "./services/polkadotWalletServices";
+import { getAllPools } from "./services/poolServices";
+import { initialPoolsState, initialWalletState, poolsReducer, walletReducer } from "./state";
 import { PoolAction } from "./state/pools/interface";
+import { WalletAction } from "./state/wallet/interface";
+import { AppStateProvider } from "./stateProvider";
 
 const App: FC = () => {
   const [walletState, dispatchWallet] = useReducer(walletReducer, initialWalletState);

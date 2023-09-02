@@ -1,23 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import Button from "../../components/atom/Button";
 import PoolsEmptyState from "../../components/molecule/poolsEmptyState";
-import PoolTable from "./PoolTable";
-import { useAppContext } from "../../stateProvider";
 import { ButtonText, ButtonVariants } from "../../global/enum";
-import { createPool } from "../../services/poolsServices";
-import dotAcpToast from "../../helper/toast";
+import { useAppContext } from "../../stateProvider";
+import PoolTable from "./PoolTable";
 
 const PoolsPage = () => {
   const { state } = useAppContext();
-  const { api, selectedAccount, pools } = state;
+  const { pools, selectedAccount, tokenBalances } = state;
+  const navigate = useNavigate();
 
-  const handleCreatePool = async () => {
-    try {
-      if (api) {
-        await createPool(api, "47", selectedAccount, "1000000000000", "2000000000000", "1000000000000", "2");
-      }
-    } catch (error) {
-      dotAcpToast.error(`Error: ${error}`);
-    }
+  const navigateToAddLiquidity = () => {
+    navigate("/pools/add-liquidity");
   };
 
   return (
@@ -31,7 +25,12 @@ const PoolsPage = () => {
             <div className="tracking-[.2px] text-text-color-body-light">Earn fees by providing liquidity.</div>
           </div>
           <div>
-            <Button onClick={handleCreatePool} variant={ButtonVariants.btnPrimary} size={ButtonText.btnTextMedium}>
+            <Button
+              onClick={navigateToAddLiquidity}
+              variant={ButtonVariants.btnPrimary}
+              size={ButtonText.btnTextMedium}
+              disabled={selectedAccount && tokenBalances ? false : true}
+            >
               New Position
             </Button>
           </div>

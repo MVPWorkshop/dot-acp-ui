@@ -1,9 +1,9 @@
+import classNames from "classnames";
 import React, { useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../global/enum";
 import useClickOutside from "../../../customHooks/useClickOutside";
-import classNames from "classnames";
+import { ButtonVariants } from "../../../global/enum";
+import Button from "../../atom/Button";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -62,7 +62,7 @@ const TokenAmountInput = ({
         }}
       />
 
-      {tokenIcon && tokenText ? (
+      {tokenText ? (
         <Button
           icon={tokenIcon}
           type="button"
@@ -76,7 +76,7 @@ const TokenAmountInput = ({
       ) : (
         <Button
           type="button"
-          onClick={() => console.log("click")}
+          onClick={() => onClick()}
           variant={ButtonVariants.btnPrimarySelect}
           className="basis-[57%]"
         >
