@@ -1,0 +1,73 @@
+{
+  "button:": {
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "newPosition": "New Position",
+    "insufficientTokenAmount": "Insufficient token amount",
+    "enterAmount": "Enter amount",
+    "selectToken": "Select token",
+    "swap": "Swap",
+    "confirmSwap": "Confirm Swap",
+    "connectWallet": "Connect Wallet"
+  },
+  "modal": {
+    "connectWallet": "Connect a Wallet",
+    "selectToken": "Select token",
+    "successfulWithdrawal": "Successful Withdrawal",
+    "priceImpact": "Price Impact",
+    "expectedOutput": "Expected output",
+    "minimumOutput": "Minimum output",
+    "added": "added",
+    "swap": {
+      "swapped": "Swapped",
+      "successfullySwapped": "Successfully swapped",
+      "reviewSwap": "Review swap"
+    },
+    "createPool": {
+      "reviewAddingLiquidity": "Review adding liquidity",
+      "poolSuccessfullyCreated": "Pool Successfully Created",
+      "creationOfPoolFailed": "Creation of liquidity pool failed"
+    },
+    "removeFromPool": {
+      "reviewRemoveLiquidity": "Review remove liquidity",
+      "successfulWithdrawal": "Successful Withdrawal",
+      "withdrawal": "Withdrawal"
+    },
+    "addTooExistingPool": {
+      "reviewAddingLiquidity": "Review adding liquidity",
+      "successfullyAddedToPool": "Successfully Added to the Pool"
+    }
+  },
+  "poolDataCard": {
+    "totalTokensLocked": "Total tokens locked",
+    "deposited": "Deposited"
+  },
+  "tokenAmountInput": {
+    "youPay": "You pay",
+    "youReceive": "You receive",
+    "slippageTolerance": "Slippage tolerance",
+    "auto": "Auto",
+    "custom": "Custom"
+  },
+  "headerTopNav": {
+    "swap": "Swap",
+    "pool": "Pool"
+  },
+  "pageError": {
+    "error": "Error:",
+    "tryAgain": "Try again"
+  },
+  "notFoundPage": {
+    "pageNotFound": "Page not found"
+  },
+  "poolsPage": {
+    "pool": "Pool",
+    "earnFeesByProvidingLiquidity": "Earn fees by providing liquidity.",
+    "activeLiquidityPositions": "Active liquidity positions will appear here."
+  },
+  "swapPage": {
+    "addLiquidity": "Add Liquidity",
+    "removeLiquidity": "Remove Liquidity",
+    "swap": "Swap"
+  }
+}
