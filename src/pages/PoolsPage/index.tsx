@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
 import Button from "../../components/atom/Button";
 import PoolsEmptyState from "../../components/molecule/poolsEmptyState";
 import { ButtonText, ButtonVariants } from "../../global/enum";
@@ -11,7 +12,7 @@ const PoolsPage = () => {
   const navigate = useNavigate();
 
   const navigateToAddLiquidity = () => {
-    navigate("/pools/add-liquidity");
+    navigate(POOLS_ADD_LIQUIDITY);
   };
 
   return (

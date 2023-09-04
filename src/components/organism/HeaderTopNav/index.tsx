@@ -7,7 +7,7 @@ import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { handleConnection } from "../../../services/polkadotWalletServices";
-import { reduceAddress } from "../../../helper/reduceAddress.ts";
+import { reduceAddress } from "../../../helper";
 import classNames from "classnames";
 import { ButtonText, ButtonVariants } from "../../../global/enum.ts";
 

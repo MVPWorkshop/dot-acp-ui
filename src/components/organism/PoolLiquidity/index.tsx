@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
+import { useNavigate } from "react-router-dom";
+import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ButtonVariants } from "../../../global/enum";
-import { calculateSlippage } from "../../../helper/calculateSlippage";
-import { formatInputTokenValue } from "../../../helper/formatInputTokenValue";
+import { calculateSlippage, formatInputTokenValue } from "../../../helper";
 import dotAcpToast from "../../../helper/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
@@ -35,6 +36,8 @@ type TokenValueProps = {
 
 const PoolLiquidity = () => {
   const { state, dispatch } = useAppContext();
+  const navigate = useNavigate();
+
   const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, poolCreated } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -63,6 +66,10 @@ const PoolLiquidity = () => {
 
   const nativeTokenSlippageValue = calculateSlippage(nativeTokenValue, slippageValue).toString();
   const assetTokenSlippageValue = calculateSlippage(assetTokenValue, slippageValue).toString();
+
+  const navigateToPools = () => {
+    navigate(POOLS_PAGE);
+  };
 
   const isPoolExists = (id: string) => {
     let exists = false;
@@ -200,9 +207,9 @@ const PoolLiquidity = () => {
 
   return (
     <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
-      <div className="absolute left-[18px] top-[18px]">
+      <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
         <BackArrow width={24} height={24} />
-      </div>
+      </button>
       <h3 className="heading-6 font-unbounded-variable font-normal">Add Liquidity</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
@@ -223,59 +230,55 @@ const PoolLiquidity = () => {
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
-      {slippageValue || poolExists ? (
-        <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-          {slippageValue ? (
-            <>
-              <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
-                <div className="flex">Slippage tolerance</div>
-                <span>15%</span>
-              </div>
-              <div className="flex w-full gap-2">
-                <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
-                  <button
-                    className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                      slippageAuto ? "bg-purple-100" : "bg-white"
-                    }`}
-                    onClick={() => setSlippageAuto(true)}
-                  >
-                    Auto
-                  </button>
-                  <button
-                    className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
-                      slippageAuto ? "bg-white" : "bg-purple-100"
-                    }`}
-                    onClick={() => setSlippageAuto(false)}
-                  >
-                    Custom
-                  </button>
-                </div>
-                <div className="flex basis-1/3">
-                  <div className="relative flex">
-                    <NumericFormat
-                      value={slippageValue}
-                      onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
-                      fixedDecimalScale={true}
-                      thousandSeparator={false}
-                      allowNegative={false}
-                      className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
-                      placeholder="15"
-                      disabled={slippageAuto ? true : false}
-                    />
-                    <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
-                  </div>
-                </div>
-              </div>
-            </>
-          ) : null}
-
-          {poolExists ? (
-            <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-              No need to create a new pool. Liquidity can be added to the existing one.
+      <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+        <>
+          <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
+            <div className="flex">Slippage tolerance</div>
+            <span>15%</span>
+          </div>
+          <div className="flex w-full gap-2">
+            <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
+              <button
+                className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
+                  slippageAuto ? "bg-purple-100" : "bg-white"
+                }`}
+                onClick={() => setSlippageAuto(true)}
+              >
+                Auto
+              </button>
+              <button
+                className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
+                  slippageAuto ? "bg-white" : "bg-purple-100"
+                }`}
+                onClick={() => setSlippageAuto(false)}
+              >
+                Custom
+              </button>
             </div>
-          ) : null}
-        </div>
-      ) : null}
+            <div className="flex basis-1/3">
+              <div className="relative flex">
+                <NumericFormat
+                  value={slippageValue}
+                  onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                  fixedDecimalScale={true}
+                  thousandSeparator={false}
+                  allowNegative={false}
+                  className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
+                  placeholder="15"
+                  disabled={slippageAuto ? true : false}
+                />
+                <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
+              </div>
+            </div>
+          </div>
+        </>
+
+        {poolExists ? (
+          <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
+            No need to create a new pool. Liquidity can be added to the existing one.
+          </div>
+        ) : null}
+      </div>
 
       <Button
         onClick={handlePool}

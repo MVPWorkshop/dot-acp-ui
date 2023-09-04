@@ -47,7 +47,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({
       <Modal isOpen={isModalOpen} onClose={closeModal} title={title}>
         <div className="max-h-[504px] overflow-y-auto">
           {tokenBalances?.assets?.map((item: any, index: number) => (
-            <div key={index} className="flex min-w-[498px] flex-col">
+            <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
               <button
                 className="flex items-center gap-3 px-4 py-3"
                 onClick={() =>
@@ -63,8 +63,12 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({
                   <DotToken width={36} height={36} />
                 </div>
                 <div className="flex flex-col items-start">
-                  <div className="text-text-color-header-light">{item.assetTokenMetadata.name}</div>
-                  <div className="text-small text-text-color-body-light">{item.assetTokenMetadata.symbol}</div>
+                  <div className="text-text-color-header-light group-hover:text-white">
+                    {item.assetTokenMetadata.name}
+                  </div>
+                  <div className="text-small text-text-color-body-light group-hover:text-white">
+                    {item.assetTokenMetadata.symbol}
+                  </div>
                 </div>
               </button>
             </div>
