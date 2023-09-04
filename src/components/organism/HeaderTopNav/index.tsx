@@ -1,20 +1,22 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
-import Button from "../../atom/Button/index.tsx";
-import dotAcpToast from "../../../helper/toast";
-import { useAppContext } from "../../../stateProvider";
-import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
-import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
-import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
-import { handleConnection } from "../../../services/polkadotWalletServices";
-import { reduceAddress } from "../../../helper";
 import classNames from "classnames";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
+import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
+import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
 import { ButtonVariants } from "../../../global/enum.ts";
+import { reduceAddress } from "../../../helper";
+import dotAcpToast from "../../../helper/toast";
+import { handleConnection } from "../../../services/polkadotWalletServices";
+import { useAppContext } from "../../../stateProvider";
+import Button from "../../atom/Button/index.tsx";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
   const { api, selectedAccount } = state;
-  const [activeLink, setActiveLink] = useState<string | null>("swap");
+  const location = useLocation();
+
+  const [activeLink, setActiveLink] = useState<string | null>("");
 
   const connectWallet = async () => {
     try {
@@ -23,6 +25,15 @@ const HeaderTopNav = () => {
       dotAcpToast.error(`Error connecting: ${error}`);
     }
   };
+
+  useEffect(() => {
+    const pathname = location.pathname;
+    if (pathname.includes(SWAP_ROUTE)) {
+      setActiveLink("swap");
+    } else if (pathname.includes(POOLS_ROUTE)) {
+      setActiveLink("pools");
+    }
+  }, [location]);
 
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
