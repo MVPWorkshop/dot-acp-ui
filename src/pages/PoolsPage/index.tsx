@@ -1,9 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
 import Button from "../../components/atom/Button";
-import { ButtonVariants } from "../../global/enum";
+import { ActionType, ButtonVariants } from "../../global/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAppContext } from "../../stateProvider";
 import { getPoolReserves } from "../../services/poolServices";
 import { toUnit } from "../../services/polkadotWalletServices";
@@ -12,24 +12,13 @@ import PoolDataCard from "./PoolDataCard";
 import { ApiPromise } from "@polkadot/api";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
-import { LpTokenAsset } from "../../global/types";
+import { LpTokenAsset, PoolsCardsProps } from "../../global/types";
 import dotAcpToast from "../../helper/toast";
 
-type PoolCardProps = {
-  name: string;
-  lpTokenAsset: LpTokenAsset | null;
-  totalTokensLocked: {
-    nativeToken: string;
-    nativeTokenIcon: string;
-    assetToken: string;
-    assetTokenIcon: string;
-  };
-};
-
 const PoolsPage = () => {
-  const [poolCardsData, setPoolCardsData] = useState<PoolCardProps[]>([]);
-  const { state } = useAppContext();
-  const { api, pools, selectedAccount, tokenBalances } = state;
+  const { state, dispatch } = useAppContext();
+  const { api, selectedAccount, pools, poolsCards, tokenBalances } = state;
+
   const navigate = useNavigate();
 
   const navigateToAddLiquidity = () => {
@@ -40,7 +29,7 @@ const PoolsPage = () => {
     const apiPool = api as ApiPromise;
 
     try {
-      const poolCardsArray: PoolCardProps[] = [];
+      const poolCardsArray: PoolsCardsProps[] = [];
 
       await Promise.all(
         pools.map(async (pool: any) => {
@@ -86,7 +75,7 @@ const PoolsPage = () => {
         })
       );
 
-      setPoolCardsData(poolCardsArray);
+      dispatch({ type: ActionType.SET_POOLS_CARDS, payload: poolCardsArray });
     } catch (error) {
       dotAcpToast.error(`Error fetching pools: ${error}`);
     }
@@ -118,16 +107,15 @@ const PoolsPage = () => {
             <Button
               onClick={navigateToAddLiquidity}
               variant={ButtonVariants.btnPrimaryPinkLg}
-              // size={ButtonText.btnTextMedium}
               disabled={selectedAccount && tokenBalances ? false : true}
             >
               New Position
             </Button>
           </div>
         </div>
-        {pools && selectedAccount ? (
+        {pools && selectedAccount && poolsCards ? (
           <div className="grid grid-cols-3 gap-4">
-            {poolCardsData.map((item: any, index: number) => {
+            {poolsCards.map((item: any, index: number) => {
               return (
                 <div key={index}>
                   <PoolDataCard

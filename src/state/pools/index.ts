@@ -3,7 +3,8 @@ import { ActionType } from "../../global/enum";
 
 export const initialPoolsState: PoolsState = {
   pools: [],
-  poolCreated: false,
+  poolsCards: [],
+  poolCreated: null,
   poolLiquidityAdded: null,
   poolAssetTokenData: { tokenSymbol: "", assetTokenId: "", decimals: "" },
   transferGasFeesMessage: "",
@@ -27,6 +28,8 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
       return { ...state, poolGasFee: action.payload };
     case ActionType.SET_ADD_LIQUIDITY_GAS_FEE:
       return { ...state, addLiquidityGasFee: action.payload };
+    case ActionType.SET_POOLS_CARDS:
+      return { ...state, poolsCards: action.payload };
     default:
       return state;
   }
