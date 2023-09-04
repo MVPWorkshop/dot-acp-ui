@@ -12,6 +12,10 @@ export default {
         pink: {
           DEFAULT: "#E6007A",
         },
+        ghost: {
+          100: "#E6007A1A",
+          200: "#E6007A33",
+        },
         purple: {
           50: "#FBFCFE",
           100: "#F3F5FB",
@@ -50,6 +54,19 @@ export default {
           "body-dark": "#FFFFFFB2",
           "label-dark": "#FFFFFF80",
           "disabled-dark": "#FFFFFF59",
+        },
+        //TODO: change colors
+        "theme-light": {
+          "text-header": "#000000E5",
+          "text-body": "#000000B2",
+          "text-label": "#00000080",
+          "text-disabled": "#00000059",
+        },
+        "theme-dark": {
+          "text-header": "#FFFFFFE5",
+          "text-body": "#FFFFFFB2",
+          "text-label": "#FFFFFF80",
+          "text-disabled": "#FFFFFF59",
         },
         "modal-header-border-color": "#0000000F",
         "modal-border-color": "#FFFFFF4D",

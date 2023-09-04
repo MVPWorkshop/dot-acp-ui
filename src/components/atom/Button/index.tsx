@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { ReactComponent as ArrowDownIcon } from "../../../assets/img/down-arrow.svg";
-import { ButtonText, ButtonVariants } from "../../../global/enum";
+import { ButtonVariants } from "../../../global/enum";
 import classNames from "classnames";
 import "./style.scss";
 
@@ -11,28 +11,30 @@ type ButtonProps = {
   className?: string;
   icon?: ReactNode;
   variant?:
-    | ButtonVariants.btnPrimary
-    | ButtonVariants.btnSecondary
-    | ButtonVariants.btnInteractive
-    | ButtonVariants.btnPrimarySelect
-    | ButtonVariants.btnSecondarySelect;
-  size?: ButtonText.btnTextSmall | ButtonText.btnTextMedium;
+    | ButtonVariants.btnPrimaryPinkLg
+    | ButtonVariants.btnPrimaryPinkSm
+    | ButtonVariants.btnPrimaryGhostLg
+    | ButtonVariants.btnPrimaryGhostSm
+    | ButtonVariants.btnSecondaryWhite
+    | ButtonVariants.btnSecondaryGray
+    | ButtonVariants.btnInteractivePink
+    | ButtonVariants.btnInteractiveGhost
+    | ButtonVariants.btnInteractiveDisabled
+    | ButtonVariants.btnSelectPink
+    | ButtonVariants.btnSelectGray
+    | ButtonVariants.btnSelectDisabled;
   onClick: () => void;
 };
 
-const Button = ({ children, disabled, className, icon, variant, size, onClick }: ButtonProps) => {
+const Button = ({ children, disabled, className, icon, variant, onClick }: ButtonProps) => {
   const [isButtonHover, setIsButtonHover] = useState(false);
 
-  const showIcon = () => {
-    return variant === ButtonVariants.btnPrimary || variant === ButtonVariants.btnSecondarySelect;
-  };
-
-  const getIcon = () => {
-    if (variant === ButtonVariants.btnPrimarySelect) {
+  const showArrowDownIcon = () => {
+    if (variant === ButtonVariants.btnSelectPink) {
       return <ArrowDownIcon width={16} height={16} color="white" />;
     }
 
-    if (variant === ButtonVariants.btnSecondarySelect) {
+    if (variant === ButtonVariants.btnSelectGray) {
       return <ArrowDownIcon width={16} height={16} color={`${isButtonHover && !disabled ? "white" : "black"}`} />;
     }
 
@@ -42,15 +44,20 @@ const Button = ({ children, disabled, className, icon, variant, size, onClick }:
   return (
     <button
       className={classNames(`btn ${className || ""}`, {
-        "btn-primary": variant === undefined || variant === ButtonVariants.btnPrimary,
-        "btn-secondary": variant === ButtonVariants.btnSecondary,
-        "btn-interactive": variant === ButtonVariants.btnInteractive,
-        "btn-primary-select": variant === ButtonVariants.btnPrimarySelect,
-        "btn-secondary-select": variant === ButtonVariants.btnSecondarySelect,
-        "btn-disabled": variant === ButtonVariants.btnSecondarySelect && disabled,
-        "btn-interactive-disabled": variant === ButtonVariants.btnInteractive && disabled,
-        "text-small": size === ButtonText.btnTextSmall,
-        "text-medium": size === ButtonText.btnTextMedium,
+        "btn-primary-pink-lg": variant === undefined || variant === ButtonVariants.btnPrimaryPinkLg,
+        "btn-primary-pink-sm": variant === ButtonVariants.btnPrimaryPinkSm,
+        "btn-primary-ghost-lg": variant === ButtonVariants.btnPrimaryGhostLg,
+        "btn-primary-ghost-sm": variant === ButtonVariants.btnPrimaryGhostSm,
+        "btn-secondary-white": variant === ButtonVariants.btnSecondaryWhite,
+        "btn-secondary-gray": variant === ButtonVariants.btnSecondaryGray,
+        "btn-interactive-pink": variant === ButtonVariants.btnInteractivePink && !disabled,
+        "btn-interactive-ghost": variant === ButtonVariants.btnInteractiveGhost && !disabled,
+        "btn-interactive-disabled":
+          (variant === ButtonVariants.btnInteractivePink && disabled) ||
+          (variant === ButtonVariants.btnInteractiveGhost && disabled),
+        "btn-select-pink": variant === ButtonVariants.btnSelectPink,
+        "btn-select-gray": variant === ButtonVariants.btnSelectGray,
+        "btn-select-disabled": variant === ButtonVariants.btnSelectDisabled,
       })}
       onClick={() => (!disabled ? onClick() : null)}
       disabled={disabled}
@@ -58,9 +65,9 @@ const Button = ({ children, disabled, className, icon, variant, size, onClick }:
       onMouseLeave={() => setIsButtonHover(false)}
       type="button"
     >
-      {icon && showIcon() ? icon : null}
+      {icon ? icon : null}
       {children}
-      {getIcon()}
+      {showArrowDownIcon()}
     </button>
   );
 };

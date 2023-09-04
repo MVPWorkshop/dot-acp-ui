@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ButtonVariants } from "../../../global/enum";
+import { ActionType, ButtonVariants } from "../../../global/enum";
 import { calculateSlippage, formatInputTokenValue } from "../../../helper";
 import dotAcpToast from "../../../helper/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
@@ -155,11 +155,11 @@ const PoolLiquidity = () => {
   };
 
   const checkIfSwapIsPossible = () => {
+    if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
+      return "Select Token";
+    }
     if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
       return "Enter Amount";
-    }
-    if (!selectedTokenA || !selectedTokenB) {
-      return "Select Token";
     }
     if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
       return `Insufficient ${selectedTokenA.nativeTokenSymbol} amount`;
@@ -190,10 +190,10 @@ const PoolLiquidity = () => {
   }, [selectedTokenB.assetTokenId]);
 
   useEffect(() => {
-    if (!poolExists) {
+    if (!poolExists && selectedTokenB.assetTokenId) {
       handlePoolGasFee();
     }
-  }, [poolExists]);
+  }, [poolExists, selectedTokenB.assetTokenId]);
 
   useEffect(() => {
     if (poolExists) {
@@ -204,6 +204,10 @@ const PoolLiquidity = () => {
   useEffect(() => {
     if (poolCreated) successModalOpen();
   }, [poolCreated]);
+
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+  }, []);
 
   return (
     <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -282,7 +286,7 @@ const PoolLiquidity = () => {
 
       <Button
         onClick={handlePool}
-        variant={ButtonVariants.btnInteractive}
+        variant={ButtonVariants.btnInteractivePink}
         disabled={checkIfSwapIsPossible() !== "Deposit"}
       >
         {checkIfSwapIsPossible()}

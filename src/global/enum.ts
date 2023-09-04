@@ -1,16 +1,16 @@
 export const enum ButtonVariants {
-  btnPrimary = "btn-primary",
-  btnSecondary = "btn-secondary",
-  btnInteractive = "btn-interactive",
-  btnPrimarySelect = "btn-primary-select",
-  btnSecondarySelect = "btn-secondary-select",
-  btnDisabled = "btn-disabled",
+  btnPrimaryPinkLg = "btn-primary-pink-lg",
+  btnPrimaryPinkSm = "btn-primary-pink-sm",
+  btnPrimaryGhostLg = "btn-primary-ghost-lg",
+  btnPrimaryGhostSm = "btn-primary-ghost-sm",
+  btnSecondaryWhite = "btn-secondary-white",
+  btnSecondaryGray = "btn-secondary-gray",
+  btnInteractivePink = "btn-interactive-pink",
+  btnInteractiveGhost = "btn-interactive-ghost",
   btnInteractiveDisabled = "btn-interactive-disabled",
-}
-
-export const enum ButtonText {
-  btnTextSmall = "small",
-  btnTextMedium = "medium",
+  btnSelectPink = "btn-select-pink",
+  btnSelectGray = "btn-select-gray",
+  btnSelectDisabled = "btn-select-disabled",
 }
 
 export enum ActionType {

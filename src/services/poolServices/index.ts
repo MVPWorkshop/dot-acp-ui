@@ -1,13 +1,51 @@
 import { ApiPromise } from "@polkadot/api";
 import { web3FromSource } from "@polkadot/extension-dapp";
+import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
 import { ActionType } from "../../global/enum";
 import dotAcpToast from "../../helper/toast";
 import { PoolAction } from "../../state/pools/interface";
 
 export const getAllPools = async (api: ApiPromise) => {
-  const pools = await api.query.assetConversion.pools.entries();
-  return pools.map(([key, value]) => [key.args[0].toHuman(), value.toHuman()]);
+  try {
+    const pools = await api.query.assetConversion.pools.entries();
+
+    return pools.map(([key, value]) => [key.args[0].toHuman(), value.toHuman()]);
+  } catch (error) {
+    dotAcpToast.error(`Error getting pools: ${error}`);
+  }
+};
+
+export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => {
+  const multiLocation2 = api
+    .createType("MultiLocation", {
+      parent: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const multiLocation = api
+    .createType("MultiLocation", {
+      parent: 0,
+      interior: {
+        X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
+      },
+    })
+    .toU8a();
+
+  const encodedInput = new Uint8Array(multiLocation.length + multiLocation2.length);
+  encodedInput.set(multiLocation2, 0);
+  encodedInput.set(multiLocation, multiLocation2.length);
+
+  const encodedInputHex = u8aToHex(encodedInput);
+
+  const reservers = await api.rpc.state.call("AssetConversionApi_get_reserves", encodedInputHex);
+
+  const decoded = api.createType("Option<(u128, u128)>", reservers);
+
+  return decoded.toHuman();
 };
 
 export const createPool = async (
