@@ -50,9 +50,11 @@ const Button = ({ children, disabled, className, icon, variant, onClick }: Butto
         "btn-primary-ghost-sm": variant === ButtonVariants.btnPrimaryGhostSm,
         "btn-secondary-white": variant === ButtonVariants.btnSecondaryWhite,
         "btn-secondary-gray": variant === ButtonVariants.btnSecondaryGray,
-        "btn-interactive-pink": variant === ButtonVariants.btnInteractivePink,
-        "btn-interactive-ghost": variant === ButtonVariants.btnInteractiveGhost,
-        "btn-interactive-disabled": variant === ButtonVariants.btnInteractiveDisabled && disabled,
+        "btn-interactive-pink": variant === ButtonVariants.btnInteractivePink && !disabled,
+        "btn-interactive-ghost": variant === ButtonVariants.btnInteractiveGhost && !disabled,
+        "btn-interactive-disabled":
+          (variant === ButtonVariants.btnInteractivePink && disabled) ||
+          (variant === ButtonVariants.btnInteractiveGhost && disabled),
         "btn-select-pink": variant === ButtonVariants.btnSelectPink,
         "btn-select-gray": variant === ButtonVariants.btnSelectGray,
         "btn-select-disabled": variant === ButtonVariants.btnSelectDisabled,

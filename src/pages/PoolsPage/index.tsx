@@ -1,9 +1,11 @@
+import { useNavigate } from "react-router-dom";
+import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
 import Button from "../../components/atom/Button";
 import { ButtonVariants } from "../../global/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useEffect, useState } from "react";
 import { useAppContext } from "../../stateProvider";
-import { getPoolReserves, createPool } from "../../services/poolServices";
+import { getPoolReserves } from "../../services/poolServices";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { formatBalance } from "@polkadot/util";
 import PoolDataCard from "./PoolDataCard";
@@ -27,16 +29,11 @@ type PoolCardProps = {
 const PoolsPage = () => {
   const [poolCardsData, setPoolCardsData] = useState<PoolCardProps[]>([]);
   const { state } = useAppContext();
-  const { api, selectedAccount, pools } = state;
+  const { api, pools, selectedAccount, tokenBalances } = state;
+  const navigate = useNavigate();
 
-  const handleCreatePool = async () => {
-    try {
-      if (api) {
-        await createPool(api, "47", selectedAccount, "1000000000000", "2000000000000", "1000000000000", "2");
-      }
-    } catch (error) {
-      dotAcpToast.error(`Error: ${error}`);
-    }
+  const navigateToAddLiquidity = () => {
+    navigate(POOLS_ADD_LIQUIDITY);
   };
 
   const createPoolCardsArray = async () => {
@@ -118,11 +115,14 @@ const PoolsPage = () => {
             <div className="tracking-[.2px] text-text-color-body-light">Earn fees by providing liquidity.</div>
           </div>
           <div>
-            {selectedAccount ? (
-              <Button onClick={handleCreatePool} variant={ButtonVariants.btnPrimaryPinkLg}>
-                New Position
-              </Button>
-            ) : null}
+            <Button
+              onClick={navigateToAddLiquidity}
+              variant={ButtonVariants.btnPrimaryPinkLg}
+              // size={ButtonText.btnTextMedium}
+              disabled={selectedAccount && tokenBalances ? false : true}
+            >
+              New Position
+            </Button>
           </div>
         </div>
         {pools && selectedAccount ? (
