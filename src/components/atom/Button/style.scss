@@ -1,33 +1,87 @@
 button {
-  &.btn {
-    @apply flex items-center;
-  }
-
   &.btn-primary {
-    @apply justify-center gap-2 rounded-full bg-pink px-6 py-4 font-unbounded-variable font-normal text-white hover:bg-black;
+    @apply flex w-full items-center justify-center gap-2 rounded-full font-unbounded-variable font-normal;
+
+    &-pink {
+      @extend .btn-primary;
+      @apply border border-pink bg-pink text-white hover:border-black hover:bg-black;
+
+      &-lg {
+        @extend .btn-primary-pink;
+        @apply px-6 py-4 text-medium;
+      }
+
+      &-sm {
+        @extend .btn-primary-pink;
+        @apply px-4 py-3 text-small;
+      }
+    }
+
+    &-ghost {
+      @extend .btn-primary;
+      @apply border-ghost-200 bg-ghost-200 bg-clip-padding text-pink hover:border-ghost-100 hover:bg-ghost-100;
+
+      &-lg {
+        @extend .btn-primary-ghost;
+        @apply px-6 py-4 text-medium;
+      }
+
+      &-sm {
+        @extend .btn-primary-ghost;
+        @apply px-4 py-3 text-small;
+      }
+    }
   }
 
   &.btn-secondary {
-    @apply justify-center rounded-full border border-solid border-black bg-white px-6 py-4 font-unbounded-variable text-small font-normal text-black hover:border-transparent hover:bg-pink hover:text-white;
+    @apply box-border flex w-full items-center justify-center rounded-full  px-4 py-3 font-unbounded-variable text-small font-normal;
+
+    &-white {
+      @extend .btn-secondary;
+      @apply border border-black bg-white text-black hover:border-transparent hover:bg-pink hover:text-white;
+    }
+
+    &-gray {
+      @extend .btn-secondary;
+      @apply border border-purple-100 bg-purple-100 text-black hover:border-purple-200 hover:bg-purple-200;
+    }
   }
 
   &.btn-interactive {
-    @apply w-full justify-center gap-2 rounded-lg bg-pink px-6 py-4 font-inter font-normal text-white hover:bg-black;
+    @apply flex w-full items-center justify-center gap-2 rounded-lg bg-pink p-4 font-inter font-normal text-white hover:bg-black;
+
+    &-pink {
+      @extend .btn-interactive;
+      @apply border border-pink bg-pink text-white hover:border-black hover:bg-black;
+    }
+
+    &-ghost {
+      @extend .btn-interactive;
+      @apply border-ghost-200 bg-ghost-200 bg-clip-padding text-pink hover:border-ghost-100 hover:bg-ghost-100;
+    }
+
+    &-disabled {
+      @extend .btn-interactive;
+      @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
+    }
   }
 
-  &.btn-primary-select {
-    @apply justify-center gap-2 rounded-full bg-pink px-3 py-1 font-inter text-large font-normal text-white hover:bg-black;
-  }
+  &.btn-select {
+    @apply flex w-full items-center justify-center gap-2 rounded-full px-3 py-1.5 font-inter text-large font-normal;
 
-  &.btn-secondary-select {
-    @apply justify-center gap-2 rounded-full bg-purple-200 px-3 py-1.5 font-inter font-normal text-black hover:bg-black hover:text-white;
-  }
+    &-pink {
+      @extend .btn-select;
+      @apply bg-pink text-white  hover:bg-black;
+    }
 
-  &.btn-disabled {
-    @apply bg-text-color-disabled-light text-text-color-body-light hover:bg-text-color-disabled-light hover:text-text-color-body-light;
-  }
+    &-gray {
+      @extend .btn-select;
+      @apply bg-purple-200 py-1.5 text-black hover:bg-black hover:text-white;
+    }
 
-  &.btn-interactive-disabled {
-    @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
+    &-disabled {
+      @extend .btn-select;
+      @apply bg-text-color-disabled-light text-text-color-body-light hover:bg-text-color-disabled-light hover:text-text-color-body-light;
+    }
   }
 }

@@ -2,7 +2,7 @@ import { FC, useEffect, useReducer } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./app/router";
 import { setupPolkadotApi } from "./services/polkadotWalletServices";
-import { getAllPools } from "./services/poolsServices";
+import { getAllPools } from "./services/poolServices";
 import { walletReducer, initialWalletState, poolsReducer, initialPoolsState } from "./state";
 import dotAcpToast from "./helper/toast";
 import { AppStateProvider } from "./stateProvider";
@@ -26,7 +26,10 @@ const App: FC = () => {
       const polkaApi = await setupPolkadotApi();
       combinedDispatch({ type: ActionType.SET_API, payload: polkaApi });
       const pools = await getAllPools(polkaApi);
-      combinedDispatch({ type: ActionType.SET_POOLS, payload: pools });
+
+      if (pools) {
+        combinedDispatch({ type: ActionType.SET_POOLS, payload: pools });
+      }
     } catch (error) {
       dotAcpToast.error(`Error setting up Polkadot API: ${error}`);
     }

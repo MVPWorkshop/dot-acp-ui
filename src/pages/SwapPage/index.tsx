@@ -31,7 +31,9 @@ const SwapPage: FC = () => {
         ))}
       </div>
 
-      <SwapTokens />
+      <div className="max-w-[460px]">
+        <SwapTokens />
+      </div>
     </div>
   );
 };

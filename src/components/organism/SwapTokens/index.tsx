@@ -59,7 +59,7 @@ const SwapTokens = () => {
   };
 
   return (
-    <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+    <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <div className="absolute left-[18px] top-[18px]">
         <BackArrow width={24} height={24} />
       </div>
@@ -126,7 +126,7 @@ const SwapTokens = () => {
 
       <Button
         onClick={() => console.log("click")}
-        variant={ButtonVariants.btnInteractive}
+        variant={ButtonVariants.btnInteractivePink}
         disabled={checkIfSwapIsPossible() !== "Swap"}
       >
         {checkIfSwapIsPossible()}
