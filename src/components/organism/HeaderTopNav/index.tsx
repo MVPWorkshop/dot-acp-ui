@@ -9,6 +9,7 @@ import dotAcpToast from "../../../helper/toast";
 import { handleConnection } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../stateProvider";
 import Button from "../../atom/Button/index.tsx";
+import { t } from "i18next";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -26,7 +27,7 @@ const HeaderTopNav = () => {
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
       <div className="pr-[140px]">
-        <Logo className="" />
+        <Logo />
       </div>
       <div className="flex gap-16 text-text-color-label-light">
         <NavLink
@@ -35,7 +36,7 @@ const HeaderTopNav = () => {
             "text-text-color-header-light": location.pathname.includes(SWAP_ROUTE),
           })}
         >
-          Swap
+          {t("button.swap")}
         </NavLink>
         <NavLink
           to={POOLS_ROUTE}
@@ -43,13 +44,13 @@ const HeaderTopNav = () => {
             "text-text-color-header-light": location.pathname.includes(POOLS_ROUTE),
           })}
         >
-          Pool
+          {t("button.pool")}
         </NavLink>
       </div>
       <div>
         {!selectedAccount?.address ? (
           <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg}>
-            Connect Wallet
+            {t("button.connectWallet")}
           </Button>
         ) : (
           <>

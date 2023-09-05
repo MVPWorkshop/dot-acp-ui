@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import Button from "../../atom/Button";
 
 export type FallbackProps = {
@@ -12,9 +13,9 @@ const PageError = ({ error, resetErrorBoundary }: FallbackProps) => {
 
   return (
     <div>
-      Error: <pre>{error?.message}</pre>
+      {t("pageError.error")} <pre>{error?.message}</pre>
       <div>
-        <Button onClick={onReset}>Try again</Button>
+        <Button onClick={onReset}>{t("pageError.tryAgain")}</Button>
       </div>
     </div>
   );

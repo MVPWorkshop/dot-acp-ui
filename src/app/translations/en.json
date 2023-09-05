@@ -1,0 +1,79 @@
+{
+  "button": {
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "newPosition": "New Position",
+    "insufficientTokenAmount": "Insufficient {{token}} amount",
+    "enterAmount": "Enter amount",
+    "selectToken": "Select token",
+    "swap": "Swap",
+    "pool": "Pool",
+    "confirmSwap": "Confirm Swap",
+    "connectWallet": "Connect Wallet"
+  },
+  "modal": {
+    "connectWallet": "Connect a Wallet",
+    "selectToken": "Select token",
+    "successfulWithdrawal": "Successful Withdrawal",
+    "priceImpact": "Price Impact",
+    "expectedOutput": "Expected output",
+    "minimumOutput": "Minimum output",
+    "added": "added",
+    "swap": {
+      "swapped": "Swapped",
+      "successfullySwapped": "Successfully swapped",
+      "reviewSwap": "Review swap"
+    },
+    "createPool": {
+      "reviewAddingLiquidity": "Review adding liquidity",
+      "poolSuccessfullyCreated": "Pool Successfully Created",
+      "creationOfPoolFailed": "Creation of liquidity pool failed"
+    },
+    "removeFromPool": {
+      "reviewRemoveLiquidity": "Review remove liquidity",
+      "successfulWithdrawal": "Successful Withdrawal",
+      "withdrawal": "Withdrawal"
+    },
+    "addTooExistingPool": {
+      "reviewAddingLiquidity": "Review adding liquidity",
+      "successfullyAddedToPool": "Successfully Added to the Pool"
+    }
+  },
+  "poolDataCard": {
+    "totalTokensLocked": "Total tokens locked",
+    "deposited": "Deposited",
+    "lpTokens": "LP tokens"
+  },
+  "wallet": {
+    "notConnected": "Not connected"
+  },
+  "tokenAmountInput": {
+    "youPay": "You pay",
+    "youReceive": "You receive",
+    "slippageTolerance": "Slippage tolerance",
+    "auto": "Auto",
+    "custom": "Custom"
+  },
+  "headerTopNav": {
+    "swap": "Swap",
+    "pool": "Pool"
+  },
+  "pageError": {
+    "error": "Error:",
+    "tryAgain": "Try again"
+  },
+  "pageNotFound": "Page not found",
+  "poolsPage": {
+    "pools": "Pools",
+    "earnFeesByProvidingLiquidity": "Earn fees by providing liquidity.",
+    "activeLiquidityPositions": "Active liquidity positions will appear here.",
+    "connectWalletToView": "Connect wallet to view your liquidity positions.",
+    "noActiveLiquidityPositions": "No active liquidity positions."
+  },
+  "swapPage": {
+    "addLiquidity": "Add Liquidity",
+    "removeLiquidity": "Remove Liquidity",
+    "swap": "Swap",
+    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
+  }
+}
