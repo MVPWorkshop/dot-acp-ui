@@ -1,5 +1,4 @@
 import classNames from "classnames";
-import { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
@@ -16,8 +15,6 @@ const HeaderTopNav = () => {
   const { api, selectedAccount } = state;
   const location = useLocation();
 
-  const [activeLink, setActiveLink] = useState<string>("");
-
   const connectWallet = async () => {
     try {
       await handleConnection(dispatch, api);
@@ -25,15 +22,6 @@ const HeaderTopNav = () => {
       dotAcpToast.error(`Error connecting: ${error}`);
     }
   };
-
-  useEffect(() => {
-    const pathname = location.pathname;
-    if (pathname.includes(SWAP_ROUTE)) {
-      setActiveLink("swap");
-    } else if (pathname.includes(POOLS_ROUTE)) {
-      setActiveLink("pools");
-    }
-  }, [location]);
 
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
@@ -44,18 +32,16 @@ const HeaderTopNav = () => {
         <NavLink
           to={SWAP_ROUTE}
           className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-text-color-header-light": activeLink === "swap",
+            "text-text-color-header-light": location.pathname.includes(SWAP_ROUTE),
           })}
-          onClick={() => setActiveLink("swap")}
         >
           Swap
         </NavLink>
         <NavLink
           to={POOLS_ROUTE}
           className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-text-color-header-light": activeLink === "pools",
+            "text-text-color-header-light": location.pathname.includes(POOLS_ROUTE),
           })}
-          onClick={() => setActiveLink("pools")}
         >
           Pool
         </NavLink>
