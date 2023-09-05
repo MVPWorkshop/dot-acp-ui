@@ -16,7 +16,7 @@ const HeaderTopNav = () => {
   const { api, selectedAccount } = state;
   const location = useLocation();
 
-  const [activeLink, setActiveLink] = useState<string | null>("");
+  const [activeLink, setActiveLink] = useState<string>("");
 
   const connectWallet = async () => {
     try {
