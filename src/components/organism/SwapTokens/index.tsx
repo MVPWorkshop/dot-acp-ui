@@ -5,6 +5,7 @@ import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg"
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../global/enum";
+import classNames from "classnames";
 
 type TokenProps = {
   tokenName: string;
@@ -94,9 +95,10 @@ const SwapTokens = () => {
               <div className="flex flex-row gap-2">
                 <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
                   <button
-                    className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                      slippageAuto ? "bg-purple-100" : "bg-white"
-                    }`}
+                    className={classNames("flex basis-1/2 justify-center rounded-lg  px-4 py-3", {
+                      "bg-purple-100": slippageAuto,
+                      "bg-white": !slippageAuto,
+                    })}
                     onClick={() => setSlippageAuto(true)}
                   >
                     {t("tokenAmountInput.auto")}
