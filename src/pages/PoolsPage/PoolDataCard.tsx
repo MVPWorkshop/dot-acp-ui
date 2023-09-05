@@ -2,6 +2,7 @@ import Button from "../../components/atom/Button";
 import { ButtonVariants } from "../../global/enum";
 import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.svg";
 import { LpTokenAsset } from "../../global/types";
+import { t } from "i18next";
 
 type PoolDataCardProps = {
   tokenPair: string;
@@ -40,10 +41,10 @@ const PoolDataCard = ({
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
           >
-            Deposit
+            {t("button.deposit")}
           </Button>
           <Button onClick={() => console.log("click")} variant={ButtonVariants.btnSecondaryGray}>
-            Withdraw
+            {t("button.withdraw")}
           </Button>
         </div>
       </div>
@@ -59,11 +60,13 @@ const PoolDataCard = ({
               {assetTokens}
             </span>
           </div>
-          <p className="text-small font-medium uppercase text-text-color-label-light">Total token locked</p>
+          <p className="text-small font-medium uppercase text-text-color-label-light">
+            {t("poolDataCard.totalTokensLocked")}
+          </p>
         </div>
         <div className="flex basis-1/2 flex-col items-center justify-end text-large font-medium">
           <span>{lpTokenAsset?.balance ? lpTokenAsset.balance.replace(/[, ]/g, "") : 0}</span>
-          <p className="text-small font-medium uppercase text-text-color-label-light">LP Tokens</p>
+          <p className="text-small font-medium uppercase text-text-color-label-light">{t("poolDataCard.lpTokens")}</p>
         </div>
       </div>
     </div>

@@ -14,6 +14,7 @@ import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { LpTokenAsset, PoolsCardsProps } from "../../global/types";
 import dotAcpToast from "../../helper/toast";
+import { t } from "i18next";
 
 const PoolsPage = () => {
   const { state, dispatch } = useAppContext();
@@ -99,18 +100,22 @@ const PoolsPage = () => {
         <div className="flex items-center justify-between px-6 py-8">
           <div className="flex flex-col  gap-[4px] leading-[120%]">
             <div className="font-unbounded-variable text-heading-5 font-[700] tracking-[.046px] text-text-color-header-light">
-              Pools
+              {t("poolsPage.pools")}
             </div>
-            <div className="tracking-[.2px] text-text-color-body-light">Earn fees by providing liquidity.</div>
+            <div className="tracking-[.2px] text-text-color-body-light">
+              {t("poolsPage.earnFeesByProvidingLiquidity")}
+            </div>
           </div>
           <div>
-            <Button
-              onClick={navigateToAddLiquidity}
-              variant={ButtonVariants.btnPrimaryPinkLg}
-              disabled={selectedAccount && tokenBalances ? false : true}
-            >
-              New Position
-            </Button>
+            {selectedAccount ? (
+              <Button
+                onClick={navigateToAddLiquidity}
+                variant={ButtonVariants.btnPrimaryPinkLg}
+                disabled={selectedAccount && tokenBalances ? false : true}
+              >
+                {t("button.newPosition")}
+              </Button>
+            ) : null}
           </div>
         </div>
         {pools && selectedAccount && poolsCards ? (
@@ -134,7 +139,7 @@ const PoolsPage = () => {
           <div className="flex h-[664px] flex-col items-center justify-center gap-4 rounded-2xl bg-white p-6">
             <TokenIcon />
             <div className="text-center text-text-color-body-light">
-              {selectedAccount ? "No active liquidity positions." : "Connect your wallet to view your positions."}
+              {selectedAccount ? t("poolsPage.noActiveLiquidityPositions") : t("poolsPage.connectWalletToView")}
             </div>
           </div>
         )}

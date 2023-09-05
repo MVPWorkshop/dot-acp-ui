@@ -44,18 +44,18 @@ const SwapTokens = () => {
     }
   };
 
-  const checkIfSwapIsPossible = () => {
+  const returnSwapButtonText = () => {
     if ((selectedTokenA && selectedTokenA?.tokenValue <= 0) || (selectedTokenB && selectedTokenB?.tokenValue <= 0)) {
-      return "Enter Amount";
+      return t("button.enterAmount");
     }
     if (!selectedTokenA || !selectedTokenB) {
-      return "Select Token";
+      return t("button.selectToken");
     }
     if (selectedTokenA && selectedTokenB && selectedTokenA?.tokenValue > selectedTokenB?.tokenValue) {
-      return "Insufficient DAI amount";
+      return t("button.insufficientTokenAmount", { token: "DAI" });
     }
     if (selectedTokenA && selectedTokenB && selectedTokenA?.tokenValue <= selectedTokenB?.tokenValue) {
-      return "Swap";
+      return t("button.swap");
     }
   };
 
@@ -64,7 +64,7 @@ const SwapTokens = () => {
       <div className="absolute left-[18px] top-[18px]">
         <BackArrow width={24} height={24} />
       </div>
-      <h3 className="heading-6 font-unbounded-variable font-normal">Add Liquidity</h3>
+      <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.addLiquidity")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText="DOT"
@@ -76,7 +76,7 @@ const SwapTokens = () => {
       />
       <TokenAmountInput
         tokenText="DOT"
-        labelText="You receive"
+        labelText={t("tokenAmountInput.youReceive")}
         tokenIcon={selectedTokenB?.tokenIcon}
         tokenValue={selectedTokenB?.tokenValue}
         onClick={() => console.log("open modal")}
@@ -88,7 +88,7 @@ const SwapTokens = () => {
           {slippageExists ? (
             <>
               <div className="flex w-full flex-row justify-between text-medium font-normal text-text-color-label-light">
-                <div className="flex">Slippage tolerance</div>
+                <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
                 <span>1%</span>
               </div>
               <div className="flex flex-row gap-2">
@@ -99,7 +99,7 @@ const SwapTokens = () => {
                     }`}
                     onClick={() => setSlippageAuto(true)}
                   >
-                    Auto
+                    {t("tokenAmountInput.auto")}
                   </button>
                   <button
                     className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
@@ -107,7 +107,7 @@ const SwapTokens = () => {
                     }`}
                     onClick={() => setSlippageAuto(false)}
                   >
-                    Custom
+                    {t("tokenAmountInput.custom")}
                   </button>
                 </div>
                 <div className="flex basis-1/3 justify-between rounded-lg bg-purple-100 p-4 text-large font-normal text-text-color-label-light">
@@ -119,7 +119,7 @@ const SwapTokens = () => {
 
           {poolExists ? (
             <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-              No need to create a new pool. Liquidity can be added to the existing one.
+              {t("swapPage.poolExists")}
             </div>
           ) : null}
         </div>
@@ -128,9 +128,9 @@ const SwapTokens = () => {
       <Button
         onClick={() => console.log("click")}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== "Swap"}
+        disabled={returnSwapButtonText() !== "Swap"}
       >
-        {checkIfSwapIsPossible()}
+        {returnSwapButtonText()}
       </Button>
     </div>
   );
