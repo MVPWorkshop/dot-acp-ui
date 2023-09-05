@@ -2,9 +2,9 @@ import { ApiPromise } from "@polkadot/api";
 import { web3FromSource } from "@polkadot/extension-dapp";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
-import { ActionType } from "../../global/enum";
-import dotAcpToast from "../../helper/toast";
-import { PoolAction } from "../../state/pools/interface";
+import { ActionType } from "../../app/types/enum";
+import dotAcpToast from "../../app/util/toast";
+import { PoolAction } from "../../store/pools/interface";
 
 export const getAllPools = async (api: ApiPromise) => {
   try {

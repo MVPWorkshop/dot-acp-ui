@@ -1,7 +1,7 @@
 import Button from "../../components/atom/Button";
-import { ButtonVariants } from "../../global/enum";
+import { ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.svg";
-import { LpTokenAsset } from "../../global/types";
+import { LpTokenAsset } from "../../app/types";
 import { t } from "i18next";
 
 type PoolDataCardProps = {

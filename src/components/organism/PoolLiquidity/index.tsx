@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants } from "../../../global/enum";
-import { calculateSlippage, formatInputTokenValue } from "../../../helper";
-import dotAcpToast from "../../../helper/toast";
+import { ActionType, ButtonVariants } from "../../../app/types/enum";
+import { calculateSlippage, formatInputTokenValue } from "../../../app/util/helper";
+import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
   addLiquidity,
@@ -14,7 +14,7 @@ import {
   checkCreatePoolGasFee,
   createPool,
 } from "../../../services/poolServices";
-import { useAppContext } from "../../../stateProvider";
+import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import PoolAndLiquidityCreateSuccessModal from "../PoolAndLiquidityCreateSuccessModal";

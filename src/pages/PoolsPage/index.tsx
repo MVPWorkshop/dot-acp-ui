@@ -1,10 +1,10 @@
 import { useNavigate } from "react-router-dom";
 import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
 import Button from "../../components/atom/Button";
-import { ActionType, ButtonVariants } from "../../global/enum";
+import { ActionType, ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useEffect } from "react";
-import { useAppContext } from "../../stateProvider";
+import { useAppContext } from "../../state";
 import { getPoolReserves } from "../../services/poolServices";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { formatBalance } from "@polkadot/util";
@@ -12,8 +12,8 @@ import PoolDataCard from "./PoolDataCard";
 import { ApiPromise } from "@polkadot/api";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
-import { LpTokenAsset, PoolsCardsProps } from "../../global/types";
-import dotAcpToast from "../../helper/toast";
+import { LpTokenAsset, PoolsCardsProps } from "../../app/types";
+import dotAcpToast from "../../app/util/toast";
 import { t } from "i18next";
 
 const PoolsPage = () => {

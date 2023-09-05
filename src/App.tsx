@@ -1,27 +1,27 @@
 import { FC, useEffect, useReducer } from "react";
 import { RouterProvider } from "react-router-dom";
 import router from "./app/router";
-import { ActionType } from "./global/enum";
-import dotAcpToast from "./helper/toast";
+import { AppStateProvider } from "./state";
+import useCombinedStateAndDispatch from "./app/hooks/useCombinedStateAndDispatch";
+import { initialPoolsState, initialWalletState, poolsReducer, walletReducer } from "./store";
 import { setupPolkadotApi } from "./services/polkadotWalletServices";
+import { ActionType } from "./app/types/enum";
 import { getAllPools } from "./services/poolServices";
-import { initialPoolsState, initialWalletState, poolsReducer, walletReducer } from "./state";
-import { PoolAction } from "./state/pools/interface";
-import { WalletAction } from "./state/wallet/interface";
-import { AppStateProvider } from "./stateProvider";
+import dotAcpToast from "./app/util/toast";
 
 const App: FC = () => {
   const [walletState, dispatchWallet] = useReducer(walletReducer, initialWalletState);
   const [poolsState, dispatchPools] = useReducer(poolsReducer, initialPoolsState);
 
-  const combinedState = { ...walletState, ...poolsState };
-
-  const combinedDispatch = (action: WalletAction | PoolAction) => {
-    dispatchWallet(action as WalletAction);
-    dispatchPools(action as PoolAction);
-  };
+  const { combinedDispatch, combinedState } = useCombinedStateAndDispatch(
+    walletState,
+    poolsState,
+    dispatchWallet,
+    dispatchPools
+  );
 
   const callApiSetup = async () => {
+    const { combinedDispatch } = useCombinedStateAndDispatch(walletState, poolsState, dispatchWallet, dispatchPools);
     try {
       const polkaApi = await setupPolkadotApi();
       combinedDispatch({ type: ActionType.SET_API, payload: polkaApi });
