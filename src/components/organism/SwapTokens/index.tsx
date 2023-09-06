@@ -1,8 +1,10 @@
+import { t } from "i18next";
 import { useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ButtonVariants } from "../../../global/enum";
+import { useAppContext } from "../../../stateProvider";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
@@ -18,6 +20,8 @@ type TokenValueProps = {
 };
 
 const SwapTokens = () => {
+  const { state } = useAppContext();
+  const { tokenBalances, pools } = state;
   const [isModalAOpen, setIsModalAOpen] = useState<boolean>(false);
   const [isModalBOpen, setIsModalBOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<TokenProps>({
@@ -36,6 +40,18 @@ const SwapTokens = () => {
   const [selectedTokenBValue, setSelectedTokenBValue] = useState<TokenValueProps>({ tokenValue: 0 });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
+
+  const nativeToken = {
+    tokenId: "",
+    assetTokenMetadata: {
+      symbol: tokenBalances?.tokenSymbol as string,
+      name: tokenBalances?.tokenSymbol as string,
+      decimals: tokenBalances?.tokenDecimals as string,
+    },
+    tokenAsset: {
+      balance: tokenBalances?.balance as string,
+    },
+  };
 
   const tokenAValue = (value: number) => {
     if (selectedTokenAValue) {
@@ -64,41 +80,51 @@ const SwapTokens = () => {
     }
   };
 
-  const openModalA = () => {
-    setIsModalAOpen(true);
-  };
-  const openModalB = () => {
-    setIsModalBOpen(true);
-  };
+  const poolsAssetTokenIds = pools?.map((pool: any) => {
+    if (pool[0][1].interior?.X2) {
+      const assetTokenIds = pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "").toString();
+      return assetTokenIds;
+    }
+  });
+
+  const test = tokenBalances?.assets?.filter((item: any) => poolsAssetTokenIds.includes(item.tokenId)) || [];
+
+  const assetTokens = [nativeToken]
+    .concat(test)
+    ?.filter(
+      (item: any) =>
+        item.tokenId === "" || (item.tokenId !== selectedTokenA?.tokenId && item.tokenId !== selectedTokenB?.tokenId)
+    );
+  console.log(assetTokens);
 
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <div className="absolute left-[18px] top-[18px]">
         <BackArrow width={24} height={24} />
       </div>
-      <h3 className="heading-6 font-unbounded-variable font-normal">Swap</h3>
+      <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText={selectedTokenA?.tokenSymbol}
-        labelText="youPay"
+        labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAValue?.tokenValue}
-        onClick={openModalA}
+        onClick={() => setIsModalAOpen(true)}
         onSetTokenValue={(value) => tokenAValue(value)}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
-        labelText="You receive"
+        labelText={t("tokenAmountInput.youReceive")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenBValue.tokenValue}
-        onClick={openModalB}
+        onClick={() => setIsModalBOpen(true)}
         onSetTokenValue={(value) => tokenBValue(value)}
       />
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
         <>
           <div className="flex w-full flex-row justify-between text-medium font-normal text-text-color-label-light">
-            <div className="flex">Slippage tolerance</div>
+            <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
             <span>{slippageValue}%</span>
           </div>
           <div className="flex flex-row gap-2">
@@ -112,7 +138,7 @@ const SwapTokens = () => {
                   setSlippageValue(15);
                 }}
               >
-                Auto
+                {t("tokenAmountInput.auto")}
               </button>
               <button
                 className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
@@ -120,7 +146,7 @@ const SwapTokens = () => {
                 }`}
                 onClick={() => setSlippageAuto(false)}
               >
-                Custom
+                {t("tokenAmountInput.custom")}
               </button>
             </div>
             <div className="flex basis-1/3">
@@ -143,20 +169,22 @@ const SwapTokens = () => {
       </div>
 
       <SwapSelectTokenModal
-        setSelectedToken={setSelectedTokenA}
-        setIsModalOpen={setIsModalAOpen}
-        selectedTokenA={selectedTokenA}
-        selectedTokenB={selectedTokenB}
-        isModalOpen={isModalAOpen}
-        title="Select token"
+        // selectedTokenA={selectedTokenA}
+        // selectedTokenB={selectedTokenB}
+        open={isModalAOpen}
+        title={t("modal.selectToken")}
+        tokensData={assetTokens}
+        onClose={() => setIsModalAOpen(false)}
+        onSelect={setSelectedTokenA}
       />
       <SwapSelectTokenModal
-        setSelectedToken={setSelectedTokenB}
-        setIsModalOpen={setIsModalBOpen}
-        selectedTokenA={selectedTokenA}
-        selectedTokenB={selectedTokenB}
-        isModalOpen={isModalBOpen}
-        title="Select token"
+        // selectedTokenA={selectedTokenA}
+        // selectedTokenB={selectedTokenB}
+        open={isModalBOpen}
+        title={t("modal.selectToken")}
+        tokensData={assetTokens}
+        onClose={() => setIsModalBOpen(false)}
+        onSelect={setSelectedTokenB}
       />
 
       <Button
