@@ -27,3 +27,9 @@ export enum ActionType {
   SET_ADD_LIQUIDITY_GAS_FEE = "SET_ADD_LIQUIDITY_GAS_FEE",
   SET_POOLS_CARDS = "SET_POOLS_CARDS",
 }
+
+export enum TokenSelection {
+  TokenA,
+  TokenB,
+  None,
+}

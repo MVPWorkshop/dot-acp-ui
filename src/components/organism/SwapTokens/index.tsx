@@ -3,7 +3,7 @@ import { useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ButtonVariants } from "../../../global/enum";
+import { ButtonVariants, TokenSelection } from "../../../global/enum";
 import { useAppContext } from "../../../stateProvider";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -22,8 +22,7 @@ type TokenValueProps = {
 const SwapTokens = () => {
   const { state } = useAppContext();
   const { tokenBalances, pools } = state;
-  const [isModalAOpen, setIsModalAOpen] = useState<boolean>(false);
-  const [isModalBOpen, setIsModalBOpen] = useState<boolean>(false);
+  const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokenA, setSelectedTokenA] = useState<TokenProps>({
     tokenSymbol: "",
     tokenId: null,
@@ -104,7 +103,7 @@ const SwapTokens = () => {
         labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAValue?.tokenValue}
-        onClick={() => setIsModalAOpen(true)}
+        onClick={() => setTokenSelectionModal(TokenSelection.TokenA)}
         onSetTokenValue={(value) => tokenAValue(value)}
       />
       <TokenAmountInput
@@ -112,7 +111,7 @@ const SwapTokens = () => {
         labelText={t("tokenAmountInput.youReceive")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenBValue.tokenValue}
-        onClick={() => setIsModalBOpen(true)}
+        onClick={() => setTokenSelectionModal(TokenSelection.TokenB)}
         onSetTokenValue={(value) => tokenBValue(value)}
       />
 
@@ -164,22 +163,18 @@ const SwapTokens = () => {
       </div>
 
       <SwapSelectTokenModal
-        // selectedTokenA={selectedTokenA}
-        // selectedTokenB={selectedTokenB}
-        open={isModalAOpen}
+        open={tokenSelectionModal !== TokenSelection.None}
         title={t("modal.selectToken")}
         tokensData={assetTokens}
-        onClose={() => setIsModalAOpen(false)}
-        onSelect={setSelectedTokenA}
-      />
-      <SwapSelectTokenModal
-        // selectedTokenA={selectedTokenA}
-        // selectedTokenB={selectedTokenB}
-        open={isModalBOpen}
-        title={t("modal.selectToken")}
-        tokensData={assetTokens}
-        onClose={() => setIsModalBOpen(false)}
-        onSelect={setSelectedTokenB}
+        onClose={() => setTokenSelectionModal(TokenSelection.None)}
+        onSelect={(tokenData) => {
+          if (tokenSelectionModal === TokenSelection.TokenA) {
+            setSelectedTokenA(tokenData);
+          } else if (tokenSelectionModal === TokenSelection.TokenB) {
+            setSelectedTokenB(tokenData);
+          }
+          setTokenSelectionModal(TokenSelection.None);
+        }}
       />
 
       <Button
