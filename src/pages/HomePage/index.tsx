@@ -50,7 +50,16 @@ const HomePage = () => {
         <Button
           type="button"
           onClick={() => console.log("click")}
-          variant={ButtonVariants.btnInteractiveDisabled}
+          variant={ButtonVariants.btnInteractiveGhost}
+          disabled={true}
+        >
+          Enter button text
+        </Button>
+        <br />
+        <Button
+          type="button"
+          onClick={() => console.log("click")}
+          variant={ButtonVariants.btnInteractivePink}
           disabled={true}
         >
           Enter button text

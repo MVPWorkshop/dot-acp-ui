@@ -1,8 +1,10 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
 import { ActionType } from "../../global/enum";
+import { PoolsCardsProps } from "../../global/types";
 
 export interface PoolsState {
   pools: AnyJson[];
+  poolsCards: PoolsCardsProps[];
   poolCreated: boolean;
   poolLiquidityAdded: any;
   poolAssetTokenData: { tokenSymbol: string; assetTokenId: string; decimals: string };
@@ -21,4 +23,5 @@ export type PoolAction =
     }
   | { type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE; payload: string }
   | { type: ActionType.SET_POOL_GAS_FEE; payload: string }
-  | { type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE; payload: string };
+  | { type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE; payload: string }
+  | { type: ActionType.SET_POOLS_CARDS; payload: PoolsCardsProps[] };
