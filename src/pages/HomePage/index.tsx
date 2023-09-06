@@ -3,7 +3,7 @@ import { ReactComponent as DotToken } from "../../assets/img/dot-token.svg";
 import { ReactComponent as AddIcon } from "../../assets/img/add-icon.svg";
 import Button from "../../components/atom/Button";
 import TokenAmountInput from "../../components/molecule/TokenAmountInput";
-import { ButtonVariants } from "../../global/enum";
+import { ButtonVariants } from "../../app/types/enum";
 
 const HomePage = () => {
   const [tokenValue, setTokenValue] = useState<number>();

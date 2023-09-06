@@ -1,7 +1,7 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { ApiPromise } from "@polkadot/api";
-import { ActionType } from "../../global/enum";
+import { ActionType } from "../../app/types/enum";
 
 interface TokenData {
   balance: AnyJson;

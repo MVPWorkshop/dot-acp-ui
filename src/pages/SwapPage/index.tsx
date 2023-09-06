@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { toUnit } from "../../services/polkadotWalletServices";
-import { useAppContext } from "../../stateProvider";
+import { useAppContext } from "../../state";
 
 const SwapPage: FC = () => {
   const { state } = useAppContext();

@@ -4,7 +4,7 @@ import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../global/enum";
+import { ButtonVariants } from "../../../app/types/enum";
 import classNames from "classnames";
 
 type TokenProps = {
