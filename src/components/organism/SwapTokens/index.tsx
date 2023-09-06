@@ -11,7 +11,7 @@ import SwapSelectTokenModal from "../SwapSelectTokenModal";
 
 type TokenProps = {
   tokenSymbol: string;
-  tokenId: string;
+  tokenId: string | null;
   decimals: string;
   tokenBalance: string;
 };
@@ -26,13 +26,13 @@ const SwapTokens = () => {
   const [isModalBOpen, setIsModalBOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<TokenProps>({
     tokenSymbol: "",
-    tokenId: "",
+    tokenId: null,
     decimals: "",
     tokenBalance: "",
   });
   const [selectedTokenB, setSelectedTokenB] = useState<TokenProps>({
     tokenSymbol: "",
-    tokenId: "",
+    tokenId: null,
     decimals: "",
     tokenBalance: "",
   });
@@ -87,15 +87,10 @@ const SwapTokens = () => {
     }
   });
 
-  const test = tokenBalances?.assets?.filter((item: any) => poolsAssetTokenIds.includes(item.tokenId)) || [];
-
+  const tokens = tokenBalances?.assets?.filter((item: any) => poolsAssetTokenIds.includes(item.tokenId)) || [];
   const assetTokens = [nativeToken]
-    .concat(test)
-    ?.filter(
-      (item: any) =>
-        item.tokenId === "" || (item.tokenId !== selectedTokenA?.tokenId && item.tokenId !== selectedTokenB?.tokenId)
-    );
-  console.log(assetTokens);
+    .concat(tokens)
+    ?.filter((item: any) => item.tokenId !== selectedTokenA?.tokenId && item.tokenId !== selectedTokenB?.tokenId);
 
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
