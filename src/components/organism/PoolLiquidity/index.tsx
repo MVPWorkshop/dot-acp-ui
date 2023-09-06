@@ -134,10 +134,6 @@ const PoolLiquidity = () => {
       );
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-  };
-
   const successModalOpen = () => {
     setIsSuccessModalOpen(true);
   };
@@ -229,7 +225,7 @@ const PoolLiquidity = () => {
         labelText="You receive"
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAssetValue?.tokenValue}
-        onClick={openModal}
+        onClick={() => setIsModalOpen(true)}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
@@ -293,9 +289,9 @@ const PoolLiquidity = () => {
       </Button>
 
       <PoolSelectTokenModal
-        setSelectedTokenB={setSelectedTokenB}
-        setIsModalOpen={setIsModalOpen}
-        isModalOpen={isModalOpen}
+        onSelect={setSelectedTokenB}
+        onClose={() => setIsModalOpen(false)}
+        open={isModalOpen}
         title="Select token"
       />
 
