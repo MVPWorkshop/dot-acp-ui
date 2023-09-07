@@ -29,7 +29,7 @@ export enum ActionType {
 }
 
 export enum TokenSelection {
-  TokenA,
-  TokenB,
-  None,
+  TokenA = "tokenA",
+  TokenB = "tokenB",
+  None = "none",
 }

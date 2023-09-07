@@ -1,10 +1,10 @@
 import { t } from "i18next";
 import { useState } from "react";
 import { NumericFormat } from "react-number-format";
+import { ButtonVariants, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ButtonVariants, TokenSelection } from "../../../global/enum";
-import { useAppContext } from "../../../stateProvider";
+import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
@@ -15,6 +15,12 @@ type TokenProps = {
   decimals: string;
   tokenBalance: string;
 };
+
+type SwapTokenProps = {
+  tokenA: TokenProps;
+  tokenB: TokenProps;
+};
+
 type TokenValueProps = {
   tokenValue: number;
 };
@@ -23,18 +29,21 @@ const SwapTokens = () => {
   const { state } = useAppContext();
   const { tokenBalances, pools } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
-  const [selectedTokenA, setSelectedTokenA] = useState<TokenProps>({
-    tokenSymbol: "",
-    tokenId: null,
-    decimals: "",
-    tokenBalance: "",
+  const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
+    tokenA: {
+      tokenSymbol: "",
+      tokenId: null,
+      decimals: "",
+      tokenBalance: "",
+    },
+    tokenB: {
+      tokenSymbol: "",
+      tokenId: null,
+      decimals: "",
+      tokenBalance: "",
+    },
   });
-  const [selectedTokenB, setSelectedTokenB] = useState<TokenProps>({
-    tokenSymbol: "",
-    tokenId: null,
-    decimals: "",
-    tokenBalance: "",
-  });
+
   const [selectedTokenAValue, setSelectedTokenAValue] = useState<TokenValueProps>({ tokenValue: 0 });
   const [selectedTokenBValue, setSelectedTokenBValue] = useState<TokenValueProps>({ tokenValue: 0 });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
@@ -65,16 +74,24 @@ const SwapTokens = () => {
   };
 
   const checkIfSwapIsPossible = () => {
-    if (!selectedTokenA || !selectedTokenB) {
+    if (!selectedTokens.tokenA || !selectedTokens.tokenB) {
       return "Select Token";
     }
-    if ((selectedTokenA && selectedTokenAValue?.tokenValue <= 0) || selectedTokenBValue?.tokenValue <= 0) {
+    if ((selectedTokens.tokenA && selectedTokenAValue?.tokenValue <= 0) || selectedTokenBValue?.tokenValue <= 0) {
       return "Enter Amount";
     }
-    if (selectedTokenA && selectedTokenB && selectedTokenAValue?.tokenValue > selectedTokenBValue?.tokenValue) {
+    if (
+      selectedTokens.tokenA &&
+      selectedTokens.tokenB &&
+      selectedTokenAValue?.tokenValue > selectedTokenBValue?.tokenValue
+    ) {
       return "Insufficient DAI amount";
     }
-    if (selectedTokenA && selectedTokenB && selectedTokenAValue?.tokenValue <= selectedTokenBValue?.tokenValue) {
+    if (
+      selectedTokens.tokenA &&
+      selectedTokens.tokenB &&
+      selectedTokenAValue?.tokenValue <= selectedTokenBValue?.tokenValue
+    ) {
       return "Swap";
     }
   };
@@ -89,7 +106,9 @@ const SwapTokens = () => {
   const tokens = tokenBalances?.assets?.filter((item: any) => poolsAssetTokenIds.includes(item.tokenId)) || [];
   const assetTokens = [nativeToken]
     .concat(tokens)
-    ?.filter((item: any) => item.tokenId !== selectedTokenA?.tokenId && item.tokenId !== selectedTokenB?.tokenId);
+    ?.filter(
+      (item: any) => item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
+    );
 
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -99,7 +118,7 @@ const SwapTokens = () => {
       <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
-        tokenText={selectedTokenA?.tokenSymbol}
+        tokenText={selectedTokens.tokenA?.tokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAValue?.tokenValue}
@@ -107,7 +126,7 @@ const SwapTokens = () => {
         onSetTokenValue={(value) => tokenAValue(value)}
       />
       <TokenAmountInput
-        tokenText={selectedTokenB?.tokenSymbol}
+        tokenText={selectedTokens.tokenB?.tokenSymbol}
         labelText={t("tokenAmountInput.youReceive")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenBValue.tokenValue}
@@ -168,11 +187,12 @@ const SwapTokens = () => {
         tokensData={assetTokens}
         onClose={() => setTokenSelectionModal(TokenSelection.None)}
         onSelect={(tokenData) => {
-          if (tokenSelectionModal === TokenSelection.TokenA) {
-            setSelectedTokenA(tokenData);
-          } else if (tokenSelectionModal === TokenSelection.TokenB) {
-            setSelectedTokenB(tokenData);
-          }
+          setSelectedTokens((prev) => {
+            return {
+              ...prev,
+              [tokenSelectionModal]: tokenData,
+            };
+          });
           setTokenSelectionModal(TokenSelection.None);
         }}
       />

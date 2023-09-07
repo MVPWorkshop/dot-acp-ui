@@ -2,10 +2,10 @@ import { ApiPromise, WsProvider } from "@polkadot/api";
 import { BN, formatBalance } from "@polkadot/util";
 import type { AnyJson } from "@polkadot/types/types/codec";
 import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
-import dotAcpToast from "../../helper/toast";
+import dotAcpToast from "../../app/util/toast";
 import { Dispatch } from "react";
-import { WalletAction } from "../../state/wallet/interface";
-import { ActionType } from "../../global/enum";
+import { WalletAction } from "../../store/wallet/interface";
+import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
 
 export const setupPolkadotApi = async () => {

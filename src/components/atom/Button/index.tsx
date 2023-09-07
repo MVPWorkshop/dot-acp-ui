@@ -1,6 +1,6 @@
 import { ReactNode, useState } from "react";
 import { ReactComponent as ArrowDownIcon } from "../../../assets/img/down-arrow.svg";
-import { ButtonVariants } from "../../../global/enum";
+import { ButtonVariants } from "../../../app/types/enum";
 import classNames from "classnames";
 import "./style.scss";
 

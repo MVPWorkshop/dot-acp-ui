@@ -2,9 +2,9 @@ import classNames from "classnames";
 import React, { useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../global/enum";
+import { ButtonVariants } from "../../../app/types/enum";
 import { t } from "i18next";
-import useClickOutside from "../../../customHooks/useClickOutside";
+import useClickOutside from "../../../app/hooks/useClickOutside";
 
 type TokenAmountInputProps = {
   tokenText: string;

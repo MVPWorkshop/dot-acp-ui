@@ -2,9 +2,9 @@ import { FC } from "react";
 import { ReactComponent as ArrowLeft } from "../../../assets/img/arrow-left.svg";
 import { ReactComponent as ArrowRight } from "../../../assets/img/arrow-right.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType } from "../../../global/enum";
+import { ActionType } from "../../../app/types/enum";
 import { getAllPools } from "../../../services/poolServices";
-import { useAppContext } from "../../../stateProvider";
+import { useAppContext } from "../../../state";
 import Modal from "../../atom/Modal";
 
 interface PoolAndLiquidityCreateSuccessModalProps {

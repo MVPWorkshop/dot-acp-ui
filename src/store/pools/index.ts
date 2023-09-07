@@ -1,5 +1,5 @@
 import { PoolsState, PoolAction } from "./interface";
-import { ActionType } from "../../global/enum";
+import { ActionType } from "../../app/types/enum";
 
 export const initialPoolsState: PoolsState = {
   pools: [],

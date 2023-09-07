@@ -1,5 +1,5 @@
 import { WalletState, WalletAction } from "./interface";
-import { ActionType } from "../../global/enum";
+import { ActionType } from "../../app/types/enum";
 
 export const initialWalletState: WalletState = {
   api: null,

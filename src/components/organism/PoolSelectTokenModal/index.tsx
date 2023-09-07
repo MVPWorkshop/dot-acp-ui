@@ -1,7 +1,7 @@
 import { FC } from "react";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType } from "../../../global/enum";
-import { useAppContext } from "../../../stateProvider";
+import { ActionType } from "../../../app/types/enum";
+import { useAppContext } from "../../../state";
 import Modal from "../../atom/Modal";
 
 type TokenProps = {

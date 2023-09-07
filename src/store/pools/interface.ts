@@ -1,6 +1,6 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
-import { ActionType } from "../../global/enum";
-import { PoolsCardsProps } from "../../global/types";
+import { ActionType } from "../../app/types/enum";
+import { PoolsCardsProps } from "../../app/types";
 
 export interface PoolsState {
   pools: AnyJson[];
