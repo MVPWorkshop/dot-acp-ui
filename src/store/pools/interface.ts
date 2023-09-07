@@ -5,7 +5,7 @@ import { PoolsCardsProps } from "../../app/types";
 export interface PoolsState {
   pools: AnyJson[];
   poolsCards: PoolsCardsProps[];
-  poolCreated: any;
+  poolCreated: boolean;
   poolLiquidityAdded: any;
   poolAssetTokenData: { tokenSymbol: string; assetTokenId: string; decimals: string };
   transferGasFeesMessage: string;

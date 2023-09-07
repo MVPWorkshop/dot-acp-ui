@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
@@ -296,7 +297,7 @@ const PoolLiquidity = () => {
         setSelectedTokenB={setSelectedTokenB}
         setIsModalOpen={setIsModalOpen}
         isModalOpen={isModalOpen}
-        title="Select token"
+        title={t("button.selectToken")}
       />
 
       <PoolAndLiquidityCreateSuccessModal
