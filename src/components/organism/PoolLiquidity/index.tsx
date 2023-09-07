@@ -10,8 +10,8 @@ import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
   addLiquidity,
-  checkAddPoolLiquidityGasFee,
-  checkCreatePoolGasFee,
+  // checkAddPoolLiquidityGasFee,
+  // checkCreatePoolGasFee,
   createPool,
 } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -63,6 +63,7 @@ const PoolLiquidity = () => {
     selectedTokenA?.nativeTokenDecimals
   ).toString();
   const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals).toString();
+  // console.log(assetTokenValue)
 
   const nativeTokenSlippageValue = calculateSlippage(nativeTokenValue, slippageValue).toString();
   const assetTokenSlippageValue = calculateSlippage(assetTokenValue, slippageValue).toString();
@@ -117,22 +118,22 @@ const PoolLiquidity = () => {
     }
   };
 
-  const handlePoolGasFee = async () => {
-    if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
-  };
-  const handleAddPoolLiquidityGasFee = async () => {
-    if (api)
-      await checkAddPoolLiquidityGasFee(
-        api,
-        selectedTokenB.assetTokenId,
-        selectedAccount,
-        nativeTokenValue,
-        assetTokenValue,
-        nativeTokenSlippageValue,
-        assetTokenSlippageValue,
-        dispatch
-      );
-  };
+  // const handlePoolGasFee = async () => {
+  //   if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
+  // };
+  // const handleAddPoolLiquidityGasFee = async () => {
+  //   if (api)
+  //     await checkAddPoolLiquidityGasFee(
+  //       api,
+  //       selectedTokenB.assetTokenId,
+  //       selectedAccount,
+  //       nativeTokenValue,
+  //       assetTokenValue,
+  //       nativeTokenSlippageValue,
+  //       assetTokenSlippageValue,
+  //       dispatch
+  //     );
+  // };
 
   const successModalOpen = () => {
     setIsSuccessModalOpen(true);
@@ -185,17 +186,17 @@ const PoolLiquidity = () => {
     isPoolExists(selectedTokenB.assetTokenId);
   }, [selectedTokenB.assetTokenId]);
 
-  useEffect(() => {
-    if (!poolExists && selectedTokenB.assetTokenId) {
-      handlePoolGasFee();
-    }
-  }, [poolExists, selectedTokenB.assetTokenId]);
+  // useEffect(() => {
+  //   if (!poolExists && selectedTokenB.assetTokenId) {
+  //     handlePoolGasFee();
+  //   }
+  // }, [poolExists, selectedTokenB.assetTokenId]);
 
-  useEffect(() => {
-    if (poolExists) {
-      handleAddPoolLiquidityGasFee();
-    }
-  }, [nativeTokenValue && assetTokenValue]);
+  // useEffect(() => {
+  //   if (poolExists) {
+  //     handleAddPoolLiquidityGasFee();
+  //   }
+  // }, [nativeTokenValue && assetTokenValue]);
 
   useEffect(() => {
     if (poolCreated) successModalOpen();
