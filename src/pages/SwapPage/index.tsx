@@ -1,6 +1,7 @@
 import { FC } from "react";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { useAppContext } from "../../state";
+import SwapTokens from "../../components/organism/SwapTokens";
 
 const SwapPage: FC = () => {
   const { state } = useAppContext();
@@ -28,6 +29,9 @@ const SwapPage: FC = () => {
             </ul>
           </div>
         ))}
+      </div>
+      <div className="flex max-w-[460px]">
+        <SwapTokens />
       </div>
     </div>
   );
