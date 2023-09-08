@@ -123,7 +123,6 @@ const PoolLiquidity = () => {
       }
     } catch (error) {
       dotAcpToast.error(`Error: ${error}`);
-      console.log(error);
     }
   };
 
