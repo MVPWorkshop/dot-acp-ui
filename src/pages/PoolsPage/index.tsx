@@ -19,7 +19,6 @@ import { t } from "i18next";
 const PoolsPage = () => {
   const { state, dispatch } = useAppContext();
   const { api, selectedAccount, pools, poolsCards, tokenBalances } = state;
-  console.log("klik");
 
   const navigate = useNavigate();
 
