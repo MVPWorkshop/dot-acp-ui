@@ -4,7 +4,7 @@ import { ActionType } from "../../app/types/enum";
 export const initialPoolsState: PoolsState = {
   pools: [],
   poolsCards: [],
-  poolCreated: null,
+  poolCreated: false,
   poolLiquidityAdded: null,
   poolAssetTokenData: { tokenSymbol: "", assetTokenId: "", decimals: "" },
   transferGasFeesMessage: "",

@@ -21,7 +21,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
   const { state, dispatch } = useAppContext();
   const { tokenBalances } = state;
 
-  const handlePoolAssetTokeId = (id: string, assetSymbol: string, decimals: string, assetTokenBalance: string) => {
+  const handlePoolAssetTokeData = (id: string, assetSymbol: string, decimals: string, assetTokenBalance: string) => {
     const assetTokenData = {
       tokenSymbol: assetSymbol,
       assetTokenId: id,
@@ -42,7 +42,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
               <button
                 className="flex items-center gap-3 px-4 py-3"
                 onClick={() =>
-                  handlePoolAssetTokeId(
+                  handlePoolAssetTokeData(
                     item.tokenId,
                     item.assetTokenMetadata.symbol,
                     item.assetTokenMetadata.decimals,

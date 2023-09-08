@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
@@ -10,8 +11,8 @@ import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
   addLiquidity,
-  // checkAddPoolLiquidityGasFee,
-  // checkCreatePoolGasFee,
+  checkAddPoolLiquidityGasFee,
+  checkCreatePoolGasFee,
   createPool,
 } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -61,12 +62,19 @@ const PoolLiquidity = () => {
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
     selectedTokenA?.nativeTokenDecimals
-  ).toString();
-  const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals).toString();
-  // console.log(assetTokenValue)
+  )
+    .toLocaleString()
+    .replace(/[, ]/g, "");
+  const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
+    .toLocaleString()
+    .replace(/[, ]/g, "");
 
-  const nativeTokenSlippageValue = calculateSlippage(nativeTokenValue, slippageValue).toString();
-  const assetTokenSlippageValue = calculateSlippage(assetTokenValue, slippageValue).toString();
+  const nativeTokenSlippageValue = calculateSlippage(nativeTokenValue, slippageValue)
+    .toLocaleString()
+    .replace(/[, ]/g, "");
+  const assetTokenSlippageValue = calculateSlippage(assetTokenValue, slippageValue)
+    .toLocaleString()
+    .replace(/[, ]/g, "");
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -115,25 +123,26 @@ const PoolLiquidity = () => {
       }
     } catch (error) {
       dotAcpToast.error(`Error: ${error}`);
+      console.log(error);
     }
   };
 
-  // const handlePoolGasFee = async () => {
-  //   if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
-  // };
-  // const handleAddPoolLiquidityGasFee = async () => {
-  //   if (api)
-  //     await checkAddPoolLiquidityGasFee(
-  //       api,
-  //       selectedTokenB.assetTokenId,
-  //       selectedAccount,
-  //       nativeTokenValue,
-  //       assetTokenValue,
-  //       nativeTokenSlippageValue,
-  //       assetTokenSlippageValue,
-  //       dispatch
-  //     );
-  // };
+  const handlePoolGasFee = async () => {
+    if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
+  };
+  const handleAddPoolLiquidityGasFee = async () => {
+    if (api)
+      await checkAddPoolLiquidityGasFee(
+        api,
+        selectedTokenB.assetTokenId,
+        selectedAccount,
+        nativeTokenValue,
+        assetTokenValue,
+        nativeTokenSlippageValue,
+        assetTokenSlippageValue,
+        dispatch
+      );
+  };
 
   const successModalOpen = () => {
     setIsSuccessModalOpen(true);
@@ -186,17 +195,17 @@ const PoolLiquidity = () => {
     isPoolExists(selectedTokenB.assetTokenId);
   }, [selectedTokenB.assetTokenId]);
 
-  // useEffect(() => {
-  //   if (!poolExists && selectedTokenB.assetTokenId) {
-  //     handlePoolGasFee();
-  //   }
-  // }, [poolExists, selectedTokenB.assetTokenId]);
+  useEffect(() => {
+    if (!poolExists && selectedTokenB.assetTokenId) {
+      handlePoolGasFee();
+    }
+  }, [poolExists, selectedTokenB.assetTokenId]);
 
-  // useEffect(() => {
-  //   if (poolExists) {
-  //     handleAddPoolLiquidityGasFee();
-  //   }
-  // }, [nativeTokenValue && assetTokenValue]);
+  useEffect(() => {
+    if (poolExists) {
+      handleAddPoolLiquidityGasFee();
+    }
+  }, [nativeTokenValue && assetTokenValue]);
 
   useEffect(() => {
     if (poolCreated) successModalOpen();
@@ -243,7 +252,10 @@ const PoolLiquidity = () => {
                 className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
                   slippageAuto ? "bg-purple-100" : "bg-white"
                 }`}
-                onClick={() => setSlippageAuto(true)}
+                onClick={() => {
+                  setSlippageAuto(true);
+                  setSlippageValue(15);
+                }}
               >
                 Auto
               </button>
@@ -293,7 +305,7 @@ const PoolLiquidity = () => {
         onSelect={setSelectedTokenB}
         onClose={() => setIsModalOpen(false)}
         open={isModalOpen}
-        title="Select token"
+        title={t("button.selectToken")}
       />
 
       <PoolAndLiquidityCreateSuccessModal

@@ -1,4 +1,5 @@
 import { FC } from "react";
+import SwapTokens from "../../components/organism/SwapTokens";
 import { toUnit } from "../../services/polkadotWalletServices";
 import { useAppContext } from "../../state";
 
@@ -28,6 +29,9 @@ const SwapPage: FC = () => {
             </ul>
           </div>
         ))}
+      </div>
+      <div className="max-w-[460px]">
+        <SwapTokens />
       </div>
     </div>
   );
