@@ -36,9 +36,11 @@ const PoolsPage = () => {
         pools.map(async (pool: any) => {
           const lpTokenId = pool[1].lpToken;
 
-          const lpTokenAsset = await apiPool.query.poolAssets.account(lpTokenId, selectedAccount?.address);
-
-          const lpToken = lpTokenAsset.toHuman() as LpTokenAsset;
+          let lpToken = null;
+          if (selectedAccount?.address) {
+            const lpTokenAsset = await apiPool.query.poolAssets.account(lpTokenId, selectedAccount?.address);
+            lpToken = lpTokenAsset.toHuman() as LpTokenAsset;
+          }
 
           if (pool[0][1].interior?.X2) {
             const poolReserve: any = await getPoolReserves(
@@ -85,14 +87,14 @@ const PoolsPage = () => {
   useEffect(() => {
     let mount = true;
 
-    if (api && mount && pools && selectedAccount) {
+    if (api && mount && pools) {
       createPoolCardsArray();
     }
 
     return () => {
       mount = false;
     };
-  }, [api, selectedAccount]);
+  }, [api, pools, selectedAccount]);
 
   return (
     <div className="flex items-center justify-center px-28 pb-16">
@@ -118,7 +120,7 @@ const PoolsPage = () => {
             ) : null}
           </div>
         </div>
-        {pools && selectedAccount && poolsCards ? (
+        {pools && poolsCards ? (
           <div className="grid grid-cols-3 gap-4">
             {poolsCards.map((item: any, index: number) => {
               return (
