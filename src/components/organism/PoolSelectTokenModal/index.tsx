@@ -11,24 +11,15 @@ type TokenProps = {
   assetTokenBalance: string;
 };
 interface PoolSelectTokenModalProps {
-  setSelectedTokenB: (tokenData: TokenProps) => void;
-  setIsModalOpen: (isOpen: boolean) => void;
-  isModalOpen: boolean;
+  open: boolean;
   title: string;
+  onClose: () => void;
+  onSelect: (tokenData: TokenProps) => void;
 }
 
-const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({
-  setSelectedTokenB,
-  setIsModalOpen,
-  isModalOpen,
-  title,
-}) => {
+const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onClose, onSelect }) => {
   const { state, dispatch } = useAppContext();
   const { tokenBalances } = state;
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
 
   const handlePoolAssetTokeData = (id: string, assetSymbol: string, decimals: string, assetTokenBalance: string) => {
     const assetTokenData = {
@@ -38,13 +29,13 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({
       assetTokenBalance: assetTokenBalance,
     };
     dispatch({ type: ActionType.SET_POOL_ASSET_TOKEN_DATA, payload: assetTokenData });
-    setSelectedTokenB(assetTokenData);
-    closeModal();
+    onSelect(assetTokenData);
+    onClose();
   };
 
   return (
     <div>
-      <Modal isOpen={isModalOpen} onClose={closeModal} title={title}>
+      <Modal isOpen={open} onClose={onClose} title={title}>
         <div className="max-h-[504px] overflow-y-auto">
           {tokenBalances?.assets?.map((item: any, index: number) => (
             <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
