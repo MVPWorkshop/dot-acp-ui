@@ -14,6 +14,7 @@ import {
   checkAddPoolLiquidityGasFee,
   checkCreatePoolGasFee,
   createPool,
+  getAllPools,
 } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -143,8 +144,11 @@ const PoolLiquidity = () => {
       );
   };
 
-  const successModalOpen = () => {
-    setIsSuccessModalOpen(true);
+  const closeSuccessModal = async () => {
+    setIsSuccessModalOpen(false);
+    dispatch({ type: ActionType.SET_POOL_CREATED, payload: false });
+    if (api) await getAllPools(api);
+    navigateToPools();
   };
 
   const setSelectedTokenAValue = (value: number) => {
@@ -207,7 +211,7 @@ const PoolLiquidity = () => {
   }, [nativeTokenValue && assetTokenValue]);
 
   useEffect(() => {
-    if (poolCreated) successModalOpen();
+    if (poolCreated) setIsSuccessModalOpen(true);
   }, [poolCreated]);
 
   useEffect(() => {
@@ -308,8 +312,9 @@ const PoolLiquidity = () => {
       />
 
       <PoolAndLiquidityCreateSuccessModal
-        setIsModalOpen={setIsSuccessModalOpen}
-        isModalOpen={isSuccessModalOpen}
+        // setIsModalOpen={setIsSuccessModalOpen}
+        open={isSuccessModalOpen}
+        onClose={closeSuccessModal}
         contentTitle={poolExists ? "Successful Added Liquidity" : "Pool Successfully Created"}
         nativeTokenAmount={selectedTokenNativeValue.tokenValue}
         assetTokenAmount={selectedTokenAssetValue.tokenValue}
