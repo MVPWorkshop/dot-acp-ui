@@ -37,33 +37,39 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
     <div>
       <Modal isOpen={open} onClose={onClose} title={title}>
         <div className="max-h-[504px] overflow-y-auto">
-          {tokenBalances?.assets?.map((item: any, index: number) => (
-            <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
-              <button
-                className="flex items-center gap-3 px-4 py-3"
-                onClick={() =>
-                  handlePoolAssetTokeData(
-                    item.tokenId,
-                    item.assetTokenMetadata.symbol,
-                    item.assetTokenMetadata.decimals,
-                    item.tokenAsset.balance
-                  )
-                }
-              >
-                <div>
-                  <DotToken width={36} height={36} />
-                </div>
-                <div className="flex flex-col items-start">
-                  <div className="text-text-color-header-light group-hover:text-white">
-                    {item.assetTokenMetadata.name}
+          {tokenBalances?.assets ? (
+            tokenBalances?.assets?.map((item: any, index: number) => (
+              <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
+                <button
+                  className="flex items-center gap-3 px-4 py-3"
+                  onClick={() =>
+                    handlePoolAssetTokeData(
+                      item.tokenId,
+                      item.assetTokenMetadata.symbol,
+                      item.assetTokenMetadata.decimals,
+                      item.tokenAsset.balance
+                    )
+                  }
+                >
+                  <div>
+                    <DotToken width={36} height={36} />
                   </div>
-                  <div className="text-small text-text-color-body-light group-hover:text-white">
-                    {item.assetTokenMetadata.symbol}
+                  <div className="flex flex-col items-start">
+                    <div className="text-text-color-header-light group-hover:text-white">
+                      {item.assetTokenMetadata.name}
+                    </div>
+                    <div className="text-small text-text-color-body-light group-hover:text-white">
+                      {item.assetTokenMetadata.symbol}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="min-w-[498px] pr-6">
+              <div className="flex items-center justify-center gap-3 px-4 py-3">No Asset found in wallet</div>
             </div>
-          ))}
+          )}
         </div>
       </Modal>
     </div>
