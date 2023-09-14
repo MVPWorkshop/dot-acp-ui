@@ -7,24 +7,30 @@ import { getAllPools } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
 import Modal from "../../atom/Modal";
 
-interface PoolAndLiquidityCreateSuccessModalProps {
+interface SwapAndPoolSuccessModalProps {
   setIsModalOpen: (isOpen: boolean) => void;
   isModalOpen: boolean;
   contentTitle: string;
-  nativeTokenAmount: number;
-  assetTokenAmount: number;
-  nativeTokenSymbol: string;
-  assetTokenSymbol: string;
+  tokenAValue: number;
+  tokenBValue: number;
+  tokenASymbol: string;
+  tokenBSymbol: string;
+  actionLabel: string;
+  tokenAIcon: React.ReactNode;
+  tokenBIcon: React.ReactNode;
 }
 
-const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalProps> = ({
+const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
   setIsModalOpen,
   isModalOpen,
   contentTitle,
-  nativeTokenAmount,
-  assetTokenAmount,
-  nativeTokenSymbol,
-  assetTokenSymbol,
+  tokenAValue,
+  tokenBValue,
+  tokenASymbol,
+  tokenBSymbol,
+  tokenAIcon,
+  tokenBIcon,
+  actionLabel,
 }) => {
   const { state, dispatch } = useAppContext();
   const { api } = state;
@@ -32,6 +38,7 @@ const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalP
   const closeModal = async () => {
     setIsModalOpen(false);
     dispatch({ type: ActionType.SET_POOL_CREATED, payload: false });
+    dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     if (api) await getAllPools(api);
   };
 
@@ -42,17 +49,16 @@ const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalP
           <div className="font-unbounded-variable text-heading-6">{contentTitle}</div>
           <div className="my-8 flex flex-col items-center justify-center gap-3">
             <div className="flex items-center justify-center gap-2 font-unbounded-variable">
-              <DotToken /> {assetTokenSymbol}
+              {tokenAIcon} {tokenASymbol}
               <ArrowLeft />
               <ArrowRight />
-              {nativeTokenSymbol} <DotToken />
+              {tokenBSymbol} {tokenBIcon}
             </div>
             <div className="flex w-full justify-center text-text-color-label-light">
-              <div>added</div>
+              <div>{actionLabel}</div>
             </div>
             <div className="flex items-center justify-center gap-2 font-unbounded-variable text-medium">
-              <DotToken /> {assetTokenAmount} {assetTokenSymbol} <ArrowRight /> <DotToken /> {nativeTokenAmount}{" "}
-              {nativeTokenSymbol}
+              <DotToken /> {tokenAValue} {tokenASymbol} <ArrowRight /> <DotToken /> {tokenBValue} {tokenBSymbol}
             </div>
           </div>
         </div>
@@ -61,4 +67,4 @@ const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalP
   );
 };
 
-export default PoolAndLiquidityCreateSuccessModal;
+export default SwapAndPoolSuccessModal;

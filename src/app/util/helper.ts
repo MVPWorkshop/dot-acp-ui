@@ -22,5 +22,9 @@ export const calculateSlippage = (base: string, percent: number | undefined = 0)
 };
 
 export const formatInputTokenValue = (base: number, exponent: string) => {
-  return base * Math.pow(10, parseFloat(exponent));
+  return Math.floor(base * Math.pow(10, parseFloat(exponent))).toString();
+};
+
+export const formatDecimalsFromToken = (base: number, decimals: string) => {
+  return base / Math.pow(10, parseFloat(decimals));
 };

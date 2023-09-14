@@ -1,21 +1,31 @@
 import { WalletAction } from "../../store/wallet/interface";
 import { PoolAction } from "../../store/pools/interface";
 import { useEffect, useReducer } from "react";
-import { initialPoolsState, initialWalletState, poolsReducer, walletReducer } from "../../store";
+import {
+  initialPoolsState,
+  initialSwapState,
+  initialWalletState,
+  poolsReducer,
+  swapReducer,
+  walletReducer,
+} from "../../store";
 import { setupPolkadotApi } from "../../services/polkadotWalletServices";
 import { ActionType } from "../types/enum";
 import { getAllPools } from "../../services/poolServices";
 import dotAcpToast from "../util/toast";
+import { SwapAction } from "../../store/swap/interface";
 
 const useStateAndDispatch = () => {
   const [walletState, dispatchWallet] = useReducer(walletReducer, initialWalletState);
   const [poolsState, dispatchPools] = useReducer(poolsReducer, initialPoolsState);
+  const [swapState, dispatchSwap] = useReducer(swapReducer, initialSwapState);
 
-  const state = { ...walletState, ...poolsState };
+  const state = { ...walletState, ...poolsState, ...swapState };
 
-  const dispatch = (action: WalletAction | PoolAction) => {
+  const dispatch = (action: WalletAction | PoolAction | SwapAction) => {
     dispatchWallet(action as WalletAction);
     dispatchPools(action as PoolAction);
+    dispatchSwap(action as SwapAction);
   };
 
   useEffect(() => {

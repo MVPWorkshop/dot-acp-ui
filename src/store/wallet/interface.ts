@@ -4,7 +4,7 @@ import type { AnyJson } from "@polkadot/types/types/codec";
 import { ActionType } from "../../app/types/enum";
 
 interface TokenData {
-  balance: AnyJson;
+  balance: number;
   ss58Format: AnyJson;
   tokenDecimals: AnyJson;
   tokenSymbol: AnyJson;
