@@ -480,10 +480,6 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
-  // const openModal = () => {
-  //   dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
-  // };
-
   useEffect(() => {
     if (swapFinalized) setIsSuccessModalOpen(true);
   }, [swapFinalized]);
