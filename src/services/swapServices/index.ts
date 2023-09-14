@@ -64,9 +64,11 @@ export const swapNativeForAssetExactIn = async (
           } else {
             dotAcpToast.error(response.dispatchError.toString());
           }
-          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+        }
+        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
@@ -128,6 +130,7 @@ export const swapNativeForAssetExactOut = async (
       } else {
         console.log(`Current status: ${response.status.type}`);
         if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+          console.log("success");
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -135,9 +138,11 @@ export const swapNativeForAssetExactOut = async (
           } else {
             dotAcpToast.error(response.dispatchError.toString());
           }
-          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+        }
+        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
@@ -214,9 +219,11 @@ export const swapAssetForAssetExactIn = async (
           } else {
             dotAcpToast.error(response.dispatchError.toString());
           }
-          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+        }
+        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
@@ -293,9 +300,11 @@ export const swapAssetForAssetExactOut = async (
           } else {
             dotAcpToast.error(response.dispatchError.toString());
           }
-          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+        }
+        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+          dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })

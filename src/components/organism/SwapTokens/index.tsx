@@ -1,7 +1,7 @@
 import { t } from "i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -47,7 +47,7 @@ type InputEditedProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { tokenBalances, pools, api, selectedAccount } = state;
+  const { tokenBalances, pools, api, selectedAccount, swapFinalized } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -475,6 +475,19 @@ const SwapTokens = () => {
     setTokenSelectionModal(tokenInputSelected);
   };
 
+  const closeSuccessModal = () => {
+    setIsSuccessModalOpen(false);
+    dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
+  };
+
+  // const openModal = () => {
+  //   dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
+  // };
+
+  useEffect(() => {
+    if (swapFinalized) setIsSuccessModalOpen(true);
+  }, [swapFinalized]);
+
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
@@ -567,8 +580,8 @@ const SwapTokens = () => {
       </Button>
 
       <SwapAndPoolSuccessModal
-        setIsModalOpen={setIsSuccessModalOpen}
-        isModalOpen={isSuccessModalOpen}
+        open={isSuccessModalOpen}
+        onClose={closeSuccessModal}
         contentTitle={"Successfully swapped"}
         tokenAValue={selectedTokenAValue.tokenValue}
         tokenBValue={selectedTokenBValue.tokenValue}
