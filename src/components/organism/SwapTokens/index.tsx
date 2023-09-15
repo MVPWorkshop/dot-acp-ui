@@ -20,6 +20,7 @@ import {
 import { formatInputTokenValue, formatDecimalsFromToken } from "../../../app/util/helper";
 import { getPoolReserves } from "../../../services/poolServices";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import classNames from "classnames";
 
 type TokenProps = {
   tokenSymbol: string;
@@ -171,7 +172,7 @@ const SwapTokens = () => {
             : assetTokenNoDecimals + (assetTokenNoDecimals * slippageValue) / 100;
 
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(assetTokenNoDecimals <= tokenBalances?.balance ? true : false);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
 
           if (inputEdited.inputType === InputEditedType.exactIn) {
             setTokenAValueForSwap({ tokenValue: value });
@@ -243,7 +244,6 @@ const SwapTokens = () => {
 
   const tokenAValue = async (value: number) => {
     const baseString = value.toString();
-    console.log("decimals:", selectedTokens.tokenA.decimals);
     if (baseString.includes(".")) {
       if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
         console.log("too many decimals");
@@ -257,12 +257,12 @@ const SwapTokens = () => {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance ? true : false);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfNativeTokenFromAssetToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance ? true : false);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else {
         getPriceOfAssetTokenBFromAssetTokenA(value);
@@ -272,7 +272,6 @@ const SwapTokens = () => {
 
   const tokenBValue = async (value: number) => {
     const baseString = value.toString();
-    console.log("decimals:", selectedTokens.tokenB.decimals);
     if (baseString.includes(".")) {
       if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
         console.log("too many decimals");
@@ -288,7 +287,7 @@ const SwapTokens = () => {
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance ? true : false);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else {
         getPriceOfAssetTokenAFromAssetTokenB(value);
@@ -453,17 +452,15 @@ const SwapTokens = () => {
               dispatch
             );
           } else if (inputEdited.inputType === InputEditedType.exactOut) {
-            if (selectedTokens.tokenB.tokenId) {
-              await swapAssetForAssetExactOut(
-                api,
-                selectedTokens.tokenA.tokenId,
-                selectedTokens.tokenB.tokenId,
-                selectedAccount,
-                tokenA,
-                tokenB,
-                dispatch
-              );
-            }
+            await swapAssetForAssetExactOut(
+              api,
+              selectedTokens.tokenA.tokenId,
+              selectedTokens.tokenB.tokenId,
+              selectedAccount,
+              tokenA,
+              tokenB,
+              dispatch
+            );
           }
         }
       }
@@ -495,7 +492,7 @@ const SwapTokens = () => {
         tokenValue={selectedTokenAValue.tokenValue}
         onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
         onSetTokenValue={(value) => tokenAValue(value)}
-        disabled={selectedAccount ? false : true}
+        disabled={!selectedAccount}
       />
       <TokenAmountInput
         tokenText={selectedTokens.tokenB?.tokenSymbol}
@@ -504,7 +501,7 @@ const SwapTokens = () => {
         tokenValue={selectedTokenBValue.tokenValue}
         onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
         onSetTokenValue={(value) => tokenBValue(value)}
-        disabled={selectedAccount ? false : true}
+        disabled={!selectedAccount}
       />
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
@@ -515,9 +512,10 @@ const SwapTokens = () => {
         <div className="flex flex-row gap-2">
           <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
             <button
-              className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                slippageAuto ? "bg-purple-100" : "bg-white"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": slippageAuto,
+                "bg-purple-100": !slippageAuto,
+              })}
               onClick={() => {
                 setSlippageAuto(true);
                 setSlippageValue(10);
@@ -525,10 +523,12 @@ const SwapTokens = () => {
             >
               {t("tokenAmountInput.auto")}
             </button>
+
             <button
-              className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
-                slippageAuto ? "bg-white" : "bg-purple-100"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": slippageAuto,
+                "bg-purple-100": !slippageAuto,
+              })}
               onClick={() => setSlippageAuto(false)}
             >
               {t("tokenAmountInput.custom")}
@@ -543,7 +543,7 @@ const SwapTokens = () => {
                 thousandSeparator={false}
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
-                disabled={slippageAuto ? true : false}
+                disabled={slippageAuto}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
             </div>
@@ -579,12 +579,16 @@ const SwapTokens = () => {
         open={isSuccessModalOpen}
         onClose={closeSuccessModal}
         contentTitle={"Successfully swapped"}
-        tokenAValue={selectedTokenAValue.tokenValue}
-        tokenBValue={selectedTokenBValue.tokenValue}
-        tokenASymbol={selectedTokens.tokenA.tokenSymbol}
-        tokenBSymbol={selectedTokens.tokenB.tokenSymbol}
-        tokenAIcon={<DotToken />}
-        tokenBIcon={<DotToken />}
+        tokenA={{
+          symbol: selectedTokens.tokenA.tokenSymbol,
+          value: selectedTokenAValue.tokenValue,
+          icon: <DotToken />,
+        }}
+        tokenB={{
+          symbol: selectedTokens.tokenB.tokenSymbol,
+          value: selectedTokenBValue.tokenValue,
+          icon: <DotToken />,
+        }}
         actionLabel="Swapped"
       />
     </div>

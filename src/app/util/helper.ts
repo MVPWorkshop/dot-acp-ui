@@ -1,4 +1,5 @@
 import { t } from "i18next";
+import { Decimal } from "decimal.js";
 
 const init = () => {
   // start sentry
@@ -21,10 +22,10 @@ export const calculateSlippage = (base: string, percent: number | undefined = 0)
   return Math.ceil(result);
 };
 
-export const formatInputTokenValue = (base: number, exponent: string) => {
-  return Math.floor(base * Math.pow(10, parseFloat(exponent))).toString();
+export const formatInputTokenValue = (base: number, decimals: string) => {
+  return new Decimal(base).times(Math.pow(10, parseFloat(decimals))).toString();
 };
 
 export const formatDecimalsFromToken = (base: number, decimals: string) => {
-  return base / Math.pow(10, parseFloat(decimals));
+  return new Decimal(base).dividedBy(Math.pow(10, parseFloat(decimals))).toNumber();
 };

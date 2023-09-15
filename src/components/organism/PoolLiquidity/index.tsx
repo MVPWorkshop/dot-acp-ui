@@ -315,12 +315,16 @@ const PoolLiquidity = () => {
         open={isSuccessModalOpen}
         onClose={closeSuccessModal}
         contentTitle={poolExists ? "Successful Added Liquidity" : "Pool Successfully Created"}
-        tokenBValue={selectedTokenNativeValue.tokenValue}
-        tokenAValue={selectedTokenAssetValue.tokenValue}
-        tokenBSymbol={selectedTokenA.nativeTokenSymbol}
-        tokenASymbol={selectedTokenB.tokenSymbol}
-        tokenAIcon={<DotToken />}
-        tokenBIcon={<DotToken />}
+        tokenA={{
+          value: selectedTokenNativeValue.tokenValue,
+          symbol: selectedTokenA.nativeTokenSymbol,
+          icon: <DotToken />,
+        }}
+        tokenB={{
+          value: selectedTokenAssetValue.tokenValue,
+          symbol: selectedTokenB.tokenSymbol,
+          icon: <DotToken />,
+        }}
         actionLabel="added"
       />
     </div>
