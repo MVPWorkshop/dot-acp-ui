@@ -8,19 +8,22 @@ import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
 import {
-  getAssetTokenFromNativeToken,
-  getNativeTokenFromAssetToken,
-  getAssetTokenAFromAssetTokenB,
-  getAssetTokenBFromAssetTokenA,
   swapNativeForAssetExactIn,
   swapNativeForAssetExactOut,
   swapAssetForAssetExactIn,
   swapAssetForAssetExactOut,
 } from "../../../services/swapServices";
+import {
+  getAssetTokenFromNativeToken,
+  getNativeTokenFromAssetToken,
+  getAssetTokenAFromAssetTokenB,
+  getAssetTokenBFromAssetTokenA,
+} from "../../../services/tokenServices";
 import { formatInputTokenValue, formatDecimalsFromToken } from "../../../app/util/helper";
 import { getPoolReserves } from "../../../services/poolServices";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import classNames from "classnames";
+import { InputEditedProps } from "../../../app/types";
 
 type TokenProps = {
   tokenSymbol: string;
@@ -40,10 +43,6 @@ type TokenValueProps = {
 
 type TokenValueSlippageProps = {
   tokenValue: number;
-};
-
-type InputEditedProps = {
-  inputType: "exactIn" | "exactOut";
 };
 
 const SwapTokens = () => {
@@ -149,7 +148,7 @@ const SwapTokens = () => {
           : selectedTokens.tokenA.decimals
       );
 
-      const assetTokenPrice = await getNativeTokenFromAssetToken(
+      const nativeTokenPrice = await getNativeTokenFromAssetToken(
         api,
         selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
           ? selectedTokens?.tokenB?.tokenId
@@ -157,31 +156,31 @@ const SwapTokens = () => {
         valueWithDecimals
       );
 
-      if (assetTokenPrice) {
-        const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
-        const assetTokenNoDecimals = formatDecimalsFromToken(
-          parseFloat(assetTokenNoSemicolons),
+      if (nativeTokenPrice) {
+        const nativeTokenNoSemicolons = nativeTokenPrice.toString().replace(/[, ]/g, "");
+        const nativeTokenNoDecimals = formatDecimalsFromToken(
+          parseFloat(nativeTokenNoSemicolons),
           selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
             ? selectedTokens.tokenA.decimals
             : selectedTokens.tokenB.decimals
         );
 
-        const assetTokenWithSlippage =
+        const nativeTokenWithSlippage =
           inputEdited.inputType === InputEditedType.exactIn
-            ? assetTokenNoDecimals - (assetTokenNoDecimals * slippageValue) / 100
-            : assetTokenNoDecimals + (assetTokenNoDecimals * slippageValue) / 100;
+            ? nativeTokenNoDecimals - (nativeTokenNoDecimals * slippageValue) / 100
+            : nativeTokenNoDecimals + (nativeTokenNoDecimals * slippageValue) / 100;
 
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
 
           if (inputEdited.inputType === InputEditedType.exactIn) {
             setTokenAValueForSwap({ tokenValue: value });
-            setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
-            setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals });
+            setTokenBValueForSwap({ tokenValue: nativeTokenWithSlippage });
+            setSelectedTokenBValue({ tokenValue: nativeTokenNoDecimals });
           } else if (inputEdited.inputType === InputEditedType.exactOut) {
-            setTokenAValueForSwap({ tokenValue: assetTokenWithSlippage });
+            setTokenAValueForSwap({ tokenValue: nativeTokenWithSlippage });
             setTokenBValueForSwap({ tokenValue: value });
-            setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals });
+            setSelectedTokenAValue({ tokenValue: nativeTokenNoDecimals });
           }
         }
       }

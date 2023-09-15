@@ -13,6 +13,7 @@ type TokenAmountInputProps = {
   tokenIcon?: React.ReactNode;
   tokenValue?: number | null;
   labelText?: string;
+  selectDisabled?: boolean;
   onClick: () => void;
   onSetTokenValue: (value: number) => void;
 };
@@ -23,6 +24,7 @@ const TokenAmountInput = ({
   disabled,
   tokenValue,
   labelText,
+  selectDisabled,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -70,7 +72,7 @@ const TokenAmountInput = ({
           type="button"
           onClick={() => onClick()}
           variant={ButtonVariants.btnSelectGray}
-          disabled={disabled}
+          disabled={disabled || selectDisabled}
           className="basis-2/5 disabled:basis-[23%]"
         >
           {tokenText}

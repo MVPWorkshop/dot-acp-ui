@@ -17,9 +17,8 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
   return t("wallet.notConnected");
 };
 
-export const calculateSlippage = (base: string, percent: number | undefined = 0) => {
-  const result = (parseFloat(base) * percent) / 100;
-  return Math.ceil(result);
+export const calculateSlippage = (tokenValue: number, slippageValue: number) => {
+  return tokenValue - (tokenValue * slippageValue) / 100;
 };
 
 export const formatInputTokenValue = (base: number, decimals: string) => {

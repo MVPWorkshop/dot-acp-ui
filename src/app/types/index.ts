@@ -15,3 +15,7 @@ export type PoolsCardsProps = {
     assetTokenIcon: string;
   };
 };
+
+export type InputEditedProps = {
+  inputType: "exactIn" | "exactOut";
+};
