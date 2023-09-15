@@ -19,7 +19,7 @@ import {
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
-import PoolAndLiquidityCreateSuccessModal from "../PoolAndLiquidityCreateSuccessModal";
+import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 
 type AssetTokenProps = {
@@ -311,15 +311,21 @@ const PoolLiquidity = () => {
         title={t("button.selectToken")}
       />
 
-      <PoolAndLiquidityCreateSuccessModal
-        // setIsModalOpen={setIsSuccessModalOpen}
+      <SwapAndPoolSuccessModal
         open={isSuccessModalOpen}
         onClose={closeSuccessModal}
         contentTitle={poolExists ? "Successful Added Liquidity" : "Pool Successfully Created"}
-        nativeTokenAmount={selectedTokenNativeValue.tokenValue}
-        assetTokenAmount={selectedTokenAssetValue.tokenValue}
-        nativeTokenSymbol={selectedTokenA.nativeTokenSymbol}
-        assetTokenSymbol={selectedTokenB.tokenSymbol}
+        tokenA={{
+          value: selectedTokenNativeValue.tokenValue,
+          symbol: selectedTokenA.nativeTokenSymbol,
+          icon: <DotToken />,
+        }}
+        tokenB={{
+          value: selectedTokenAssetValue.tokenValue,
+          symbol: selectedTokenB.tokenSymbol,
+          icon: <DotToken />,
+        }}
+        actionLabel="added"
       />
     </div>
   );

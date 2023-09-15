@@ -26,10 +26,17 @@ export enum ActionType {
   SET_POOL_GAS_FEE = "SET_POOL_GAS_FEE",
   SET_ADD_LIQUIDITY_GAS_FEE = "SET_ADD_LIQUIDITY_GAS_FEE",
   SET_POOLS_CARDS = "SET_POOLS_CARDS",
+  SET_SWAP_FINALIZED = "SET_SWAP_FINALIZED",
 }
 
 export enum TokenSelection {
   TokenA = "tokenA",
   TokenB = "tokenB",
   None = "none",
+  NativeToken = "WND",
+}
+
+export enum InputEditedType {
+  exactIn = "exactIn",
+  exactOut = "exactOut",
 }

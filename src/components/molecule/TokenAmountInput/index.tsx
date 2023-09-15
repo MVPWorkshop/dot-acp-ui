@@ -11,7 +11,7 @@ type TokenAmountInputProps = {
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
-  tokenValue?: number;
+  tokenValue?: number | null;
   labelText?: string;
   onClick: () => void;
   onSetTokenValue: (value: number) => void;
@@ -54,6 +54,7 @@ const TokenAmountInput = ({
         allowNegative={false}
         fixedDecimalScale
         displayType={"input"}
+        disabled={disabled}
         placeholder={"0"}
         className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-text-color-body-light outline-none"
         onFocus={() => setIsFocused(true)}
@@ -75,7 +76,13 @@ const TokenAmountInput = ({
           {tokenText}
         </Button>
       ) : (
-        <Button type="button" onClick={() => onClick()} variant={ButtonVariants.btnSelectPink} className="basis-[57%]">
+        <Button
+          type="button"
+          onClick={() => onClick()}
+          variant={ButtonVariants.btnSelectPink}
+          className="basis-[57%]"
+          disabled={disabled}
+        >
           {t("button.selectToken")}
         </Button>
       )}

@@ -81,7 +81,7 @@ button {
 
     &-disabled {
       @extend .btn-select;
-      @apply bg-text-color-disabled-light text-text-color-body-light hover:bg-text-color-disabled-light hover:text-text-color-body-light;
+      @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
     }
   }
 }

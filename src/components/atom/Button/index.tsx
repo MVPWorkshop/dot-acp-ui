@@ -30,11 +30,11 @@ const Button = ({ children, disabled, className, icon, variant, onClick }: Butto
   const [isButtonHover, setIsButtonHover] = useState(false);
 
   const showArrowDownIcon = () => {
-    if (variant === ButtonVariants.btnSelectPink) {
+    if (variant === ButtonVariants.btnSelectPink && !disabled) {
       return <ArrowDownIcon width={16} height={16} color="white" />;
     }
 
-    if (variant === ButtonVariants.btnSelectGray) {
+    if (variant === ButtonVariants.btnSelectGray && !disabled) {
       return <ArrowDownIcon width={16} height={16} color={`${isButtonHover && !disabled ? "white" : "black"}`} />;
     }
 
@@ -57,7 +57,7 @@ const Button = ({ children, disabled, className, icon, variant, onClick }: Butto
           (variant === ButtonVariants.btnInteractiveGhost && disabled),
         "btn-select-pink": variant === ButtonVariants.btnSelectPink,
         "btn-select-gray": variant === ButtonVariants.btnSelectGray,
-        "btn-select-disabled": variant === ButtonVariants.btnSelectDisabled,
+        "btn-select-disabled": variant === ButtonVariants.btnSelectPink && disabled,
       })}
       onClick={() => (!disabled ? onClick() : null)}
       disabled={disabled}

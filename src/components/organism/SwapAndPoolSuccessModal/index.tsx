@@ -4,23 +4,29 @@ import { ReactComponent as ArrowRight } from "../../../assets/img/arrow-right.sv
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import Modal from "../../atom/Modal";
 
-interface PoolAndLiquidityCreateSuccessModalProps {
+interface SwapAndPoolSuccessModalProps {
   open: boolean;
   contentTitle: string;
-  nativeTokenAmount: number;
-  assetTokenAmount: number;
-  nativeTokenSymbol: string;
-  assetTokenSymbol: string;
+  tokenA: {
+    value: number;
+    symbol: string;
+    icon: React.ReactNode;
+  };
+  tokenB: {
+    value: number;
+    symbol: string;
+    icon: React.ReactNode;
+  };
+  actionLabel: string;
   onClose: () => void;
 }
 
-const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalProps> = ({
+const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
   open,
   contentTitle,
-  nativeTokenAmount,
-  assetTokenAmount,
-  nativeTokenSymbol,
-  assetTokenSymbol,
+  actionLabel,
+  tokenA,
+  tokenB,
   onClose,
 }) => {
   return (
@@ -30,17 +36,16 @@ const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalP
           <div className="font-unbounded-variable text-heading-6">{contentTitle}</div>
           <div className="my-8 flex flex-col items-center justify-center gap-3">
             <div className="flex items-center justify-center gap-2 font-unbounded-variable">
-              <DotToken /> {assetTokenSymbol}
+              {tokenA.icon} {tokenA.symbol}
               <ArrowLeft />
               <ArrowRight />
-              {nativeTokenSymbol} <DotToken />
+              {tokenB.symbol} {tokenB.icon}
             </div>
             <div className="flex w-full justify-center text-text-color-label-light">
-              <div>added</div>
+              <div>{actionLabel}</div>
             </div>
             <div className="flex items-center justify-center gap-2 font-unbounded-variable text-medium">
-              <DotToken /> {assetTokenAmount} {assetTokenSymbol} <ArrowRight /> <DotToken /> {nativeTokenAmount}{" "}
-              {nativeTokenSymbol}
+              <DotToken /> {tokenA.value} {tokenA.symbol} <ArrowRight /> <DotToken /> {tokenB.value} {tokenB.symbol}
             </div>
           </div>
         </div>
@@ -49,4 +54,4 @@ const PoolAndLiquidityCreateSuccessModal: FC<PoolAndLiquidityCreateSuccessModalP
   );
 };
 
-export default PoolAndLiquidityCreateSuccessModal;
+export default SwapAndPoolSuccessModal;

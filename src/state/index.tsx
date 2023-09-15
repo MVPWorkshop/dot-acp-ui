@@ -1,10 +1,11 @@
 import { FC, createContext, Dispatch, useContext, ReactNode } from "react";
 import { WalletState, WalletAction } from "../store/wallet/interface";
 import { PoolsState, PoolAction } from "../store/pools/interface";
+import { SwapAction, SwapState } from "../store/swap/interface";
 
 interface AppContextType {
-  state: WalletState & PoolsState;
-  dispatch: Dispatch<WalletAction | PoolAction>;
+  state: WalletState & PoolsState & SwapState;
+  dispatch: Dispatch<WalletAction | PoolAction | SwapAction>;
 }
 
 interface AppStateProviderProps {
