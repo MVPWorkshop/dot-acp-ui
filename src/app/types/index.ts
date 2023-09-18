@@ -38,3 +38,7 @@ export type TokenBalanceData = {
   tokenSymbol: AnyJson;
   assets: any;
 };
+
+export type UrlProps = {
+  id: string;
+};

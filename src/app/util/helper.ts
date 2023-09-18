@@ -1,5 +1,6 @@
 import { t } from "i18next";
 import { Decimal } from "decimal.js";
+import { UrlProps } from "../types";
 
 const init = () => {
   // start sentry
@@ -17,8 +18,8 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
   return t("wallet.notConnected");
 };
 
-export const urlTo = (url: string, id: string) => {
-  return `${url}/${id}`;
+export const urlTo = (url: string, param: UrlProps) => {
+  return `${url}/${param.id}`;
 };
 
 export const calculateSlippageReduce = (tokenValue: number, slippageValue: number) => {

@@ -28,7 +28,7 @@ const PoolDataCard = ({
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
   const onDepositClick = () => {
-    navigate(urlTo(POOLS_ADD_LIQUIDITY, assetTokenId));
+    navigate(urlTo(POOLS_ADD_LIQUIDITY, { id: assetTokenId }));
   };
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
