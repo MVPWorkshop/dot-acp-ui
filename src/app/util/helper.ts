@@ -17,6 +17,10 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
   return t("wallet.notConnected");
 };
 
+export const urlTo = (url: string, id: string) => {
+  return `${url}/${id}`;
+};
+
 export const calculateSlippageReduce = (tokenValue: number, slippageValue: number) => {
   return new Decimal(tokenValue).minus(new Decimal(tokenValue).times(slippageValue).dividedBy(100)).toNumber();
 };
