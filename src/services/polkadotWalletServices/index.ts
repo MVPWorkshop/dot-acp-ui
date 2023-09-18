@@ -90,7 +90,7 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
 
   if (api) {
     try {
-      const walletTokens = await getWalletTokensBalance(api, allAccounts[0].address);
+      const walletTokens: any = await getWalletTokensBalance(api, allAccounts[0].address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
       dotAcpToast.success("Success");
     } catch (error) {

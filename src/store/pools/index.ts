@@ -10,6 +10,7 @@ export const initialPoolsState: PoolsState = {
   transferGasFeesMessage: "",
   poolGasFee: "",
   addLiquidityGasFee: "",
+  poolCardSelected: null,
 };
 
 export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState => {
@@ -30,6 +31,8 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
       return { ...state, addLiquidityGasFee: action.payload };
     case ActionType.SET_POOLS_CARDS:
       return { ...state, poolsCards: action.payload };
+    case ActionType.SET_POOL_CARD_SELECTED:
+      return { ...state, poolCardSelected: action.payload };
     default:
       return state;
   }

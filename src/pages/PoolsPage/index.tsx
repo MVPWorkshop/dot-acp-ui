@@ -12,7 +12,7 @@ import PoolDataCard from "./PoolDataCard";
 import { ApiPromise } from "@polkadot/api";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
-import { LpTokenAsset, PoolsCardsProps } from "../../app/types";
+import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import dotAcpToast from "../../app/util/toast";
 import { t } from "i18next";
 
@@ -30,7 +30,7 @@ const PoolsPage = () => {
     const apiPool = api as ApiPromise;
 
     try {
-      const poolCardsArray: PoolsCardsProps[] = [];
+      const poolCardsArray: PoolCardProps[] = [];
 
       await Promise.all(
         pools.map(async (pool: any) => {
@@ -66,6 +66,7 @@ const PoolsPage = () => {
               poolCardsArray.push({
                 name: `WND–${assetTokenMetadata.toHuman().symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
+                assetTokenId: pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, ""),
                 totalTokensLocked: {
                   nativeToken: nativeTokenBalance,
                   nativeTokenIcon: NativeTokenIcon,
@@ -132,6 +133,7 @@ const PoolsPage = () => {
                     lpTokenAsset={item.lpTokenAsset}
                     assetTokenIcon={item.totalTokensLocked.assetTokenIcon}
                     nativeTokenIcon={item.totalTokensLocked.nativeTokenIcon}
+                    assetTokenId={item.assetTokenId}
                   />
                 </div>
               );
