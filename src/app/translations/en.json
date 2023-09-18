@@ -64,7 +64,9 @@
     },
     "addTooExistingPool": {
       "reviewAddingLiquidity": "Review adding liquidity",
-      "successfullyAddedToPool": "Successfully Added to the Pool"
+      "successfullyAddedToPool": "Successfully Added to the Pool",
+      "successfullyAddedLiquidity": "Successfully Added Liquidity",
+      "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
     }
   },
   "poolDataCard": {

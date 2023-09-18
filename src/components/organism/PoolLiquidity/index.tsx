@@ -6,7 +6,7 @@ import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
-import { calculateSlippage, formatInputTokenValue } from "../../../app/util/helper";
+import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
@@ -21,6 +21,7 @@ import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
+import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -56,6 +57,8 @@ const PoolLiquidity = () => {
   });
   const [selectedTokenNativeValue, setSelectedTokenNativeValue] = useState<TokenValueProps>({ tokenValue: 0 });
   const [selectedTokenAssetValue, setSelectedTokenAssetValue] = useState<TokenValueProps>({ tokenValue: 0 });
+  const [nativeTokenWithSlippage, setNativeTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
+  const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [poolExists, setPoolExists] = useState<boolean>(false);
@@ -67,13 +70,6 @@ const PoolLiquidity = () => {
     .toLocaleString()
     .replace(/[, ]/g, "");
   const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
-    .toLocaleString()
-    .replace(/[, ]/g, "");
-
-  const nativeTokenSlippageValue = calculateSlippage(nativeTokenValue, slippageValue)
-    .toLocaleString()
-    .replace(/[, ]/g, "");
-  const assetTokenSlippageValue = calculateSlippage(assetTokenValue, slippageValue)
     .toLocaleString()
     .replace(/[, ]/g, "");
 
@@ -105,8 +101,8 @@ const PoolLiquidity = () => {
             selectedAccount,
             nativeTokenValue,
             assetTokenValue,
-            nativeTokenSlippageValue,
-            assetTokenSlippageValue,
+            nativeTokenWithSlippage.tokenValue.toString(),
+            assetTokenWithSlippage.tokenValue.toString(),
             dispatch
           );
         } else {
@@ -116,8 +112,8 @@ const PoolLiquidity = () => {
             selectedAccount,
             nativeTokenValue,
             assetTokenValue,
-            nativeTokenSlippageValue,
-            assetTokenSlippageValue,
+            nativeTokenWithSlippage.tokenValue.toString(),
+            assetTokenWithSlippage.tokenValue.toString(),
             dispatch
           );
         }
@@ -130,6 +126,7 @@ const PoolLiquidity = () => {
   const handlePoolGasFee = async () => {
     if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
   };
+
   const handleAddPoolLiquidityGasFee = async () => {
     if (api)
       await checkAddPoolLiquidityGasFee(
@@ -138,8 +135,8 @@ const PoolLiquidity = () => {
         selectedAccount,
         nativeTokenValue,
         assetTokenValue,
-        nativeTokenSlippageValue,
-        assetTokenSlippageValue,
+        nativeTokenWithSlippage.tokenValue.toString(),
+        assetTokenWithSlippage.tokenValue.toString(),
         dispatch
       );
   };
@@ -151,15 +148,69 @@ const PoolLiquidity = () => {
     navigateToPools();
   };
 
+  const getPriceOfAssetTokenFromNativeToken = async (value: number) => {
+    if (api) {
+      const valueWithDecimals = formatInputTokenValue(value, selectedTokenA?.nativeTokenDecimals);
+
+      const assetTokenPrice = await getAssetTokenFromNativeToken(api, selectedTokenB?.assetTokenId, valueWithDecimals);
+
+      if (assetTokenPrice && slippageValue) {
+        const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+
+        const assetTokenNoDecimals = formatDecimalsFromToken(
+          parseFloat(assetTokenNoSemicolons),
+          selectedTokenB?.decimals
+        );
+
+        const tokenWithSlippage = calculateSlippageReduce(assetTokenNoDecimals, slippageValue);
+        const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
+
+        setSelectedTokenAssetValue({ tokenValue: assetTokenNoDecimals });
+        setAssetTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      }
+    }
+  };
+
+  const getPriceOfNativeTokenFromAssetToken = async (value: number) => {
+    if (api) {
+      const valueWithDecimals = formatInputTokenValue(value, selectedTokenB?.decimals);
+
+      const nativeTokenPrice = await getNativeTokenFromAssetToken(api, selectedTokenB?.assetTokenId, valueWithDecimals);
+
+      if (nativeTokenPrice && slippageValue) {
+        const nativeTokenNoSemicolons = nativeTokenPrice.toString().replace(/[, ]/g, "");
+
+        const nativeTokenNoDecimals = formatDecimalsFromToken(
+          parseFloat(nativeTokenNoSemicolons),
+          selectedTokenA?.nativeTokenDecimals
+        );
+
+        const tokenWithSlippage = calculateSlippageReduce(nativeTokenNoDecimals, slippageValue);
+        const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
+
+        setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals });
+        setNativeTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      }
+    }
+  };
+
   const setSelectedTokenAValue = (value: number) => {
-    if (selectedTokenNativeValue) {
+    if (selectedTokenNativeValue && slippageValue) {
+      const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
+      const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenNativeValue({ tokenValue: value });
+      setNativeTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      getPriceOfAssetTokenFromNativeToken(value);
     }
   };
 
   const setSelectedTokenBValue = (value: number) => {
-    if (selectedTokenAssetValue) {
+    if (selectedTokenAssetValue && slippageValue) {
+      const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
+      const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenAssetValue({ tokenValue: value });
+      setAssetTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      getPriceOfNativeTokenFromAssetToken(value);
     }
   };
 
@@ -227,15 +278,16 @@ const PoolLiquidity = () => {
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
-        labelText="You pay"
+        labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenNativeValue?.tokenValue}
         onClick={() => console.log("open modal")}
         onSetTokenValue={(value) => setSelectedTokenAValue(value)}
+        selectDisabled={true}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
-        labelText="You receive"
+        labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAssetValue?.tokenValue}
         onClick={() => setIsModalOpen(true)}
@@ -246,7 +298,7 @@ const PoolLiquidity = () => {
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
         <>
           <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
-            <div className="flex">Slippage tolerance</div>
+            <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
             <span>15%</span>
           </div>
           <div className="flex w-full gap-2">
@@ -260,7 +312,7 @@ const PoolLiquidity = () => {
                   setSlippageValue(15);
                 }}
               >
-                Auto
+                {t("tokenAmountInput.auto")}
               </button>
               <button
                 className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
@@ -268,7 +320,7 @@ const PoolLiquidity = () => {
                 }`}
                 onClick={() => setSlippageAuto(false)}
               >
-                Custom
+                {t("tokenAmountInput.custom")}
               </button>
             </div>
             <div className="flex basis-1/3">
@@ -291,7 +343,7 @@ const PoolLiquidity = () => {
 
         {poolExists ? (
           <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-            No need to create a new pool. Liquidity can be added to the existing one.
+            {t("addTooExistingPool.poolExists")}
           </div>
         ) : null}
       </div>
@@ -314,7 +366,11 @@ const PoolLiquidity = () => {
       <SwapAndPoolSuccessModal
         open={isSuccessModalOpen}
         onClose={closeSuccessModal}
-        contentTitle={poolExists ? "Successful Added Liquidity" : "Pool Successfully Created"}
+        contentTitle={
+          poolExists
+            ? t("modal.addTooExistingPool.successfullyAddedLiquidity")
+            : t("modal.createPool.poolSuccessfullyCreated")
+        }
         tokenA={{
           value: selectedTokenNativeValue.tokenValue,
           symbol: selectedTokenA.nativeTokenSymbol,
@@ -325,7 +381,7 @@ const PoolLiquidity = () => {
           symbol: selectedTokenB.tokenSymbol,
           icon: <DotToken />,
         }}
-        actionLabel="added"
+        actionLabel={t("modal.added")}
       />
     </div>
   );
