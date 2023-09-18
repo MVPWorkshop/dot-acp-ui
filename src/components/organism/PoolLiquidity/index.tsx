@@ -6,7 +6,7 @@ import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
-import { calculateSlippage, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
+import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
 import {
@@ -162,7 +162,7 @@ const PoolLiquidity = () => {
           selectedTokenB?.decimals
         );
 
-        const tokenWithSlippage = calculateSlippage(assetTokenNoDecimals, slippageValue);
+        const tokenWithSlippage = calculateSlippageReduce(assetTokenNoDecimals, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
 
         setSelectedTokenAssetValue({ tokenValue: assetTokenNoDecimals });
@@ -185,7 +185,7 @@ const PoolLiquidity = () => {
           selectedTokenA?.nativeTokenDecimals
         );
 
-        const tokenWithSlippage = calculateSlippage(nativeTokenNoDecimals, slippageValue);
+        const tokenWithSlippage = calculateSlippageReduce(nativeTokenNoDecimals, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
 
         setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals });
@@ -196,7 +196,7 @@ const PoolLiquidity = () => {
 
   const setSelectedTokenAValue = (value: number) => {
     if (selectedTokenNativeValue && slippageValue) {
-      const nativeTokenSlippageValue = calculateSlippage(value, slippageValue);
+      const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenNativeValue({ tokenValue: value });
       setNativeTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
@@ -206,7 +206,7 @@ const PoolLiquidity = () => {
 
   const setSelectedTokenBValue = (value: number) => {
     if (selectedTokenAssetValue && slippageValue) {
-      const assetTokenSlippageValue = calculateSlippage(value, slippageValue);
+      const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenAssetValue({ tokenValue: value });
       setAssetTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });

@@ -1,3 +1,5 @@
+import { InputEditedType } from "./enum";
+
 export type LpTokenAsset = {
   balance: string;
   extra: string | null;
@@ -17,5 +19,12 @@ export type PoolsCardsProps = {
 };
 
 export type InputEditedProps = {
-  inputType: "exactIn" | "exactOut";
+  inputType: InputEditedType;
+};
+
+export type TokenProps = {
+  tokenSymbol: string;
+  tokenId: string;
+  decimals: string;
+  tokenBalance: string;
 };
