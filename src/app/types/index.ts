@@ -39,6 +39,6 @@ export type TokenBalanceData = {
   assets: any;
 };
 
-export type UrlProps = {
+export type UrlParamType = {
   id: string;
 };

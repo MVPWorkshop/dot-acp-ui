@@ -4,7 +4,7 @@ import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.sv
 import { LpTokenAsset } from "../../app/types";
 import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
-import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
+import { ADD_LIQUIDITY_TO_EXISTING } from "../../app/router/routes";
 import { urlTo } from "../../app/util/helper";
 
 type PoolDataCardProps = {
@@ -28,7 +28,7 @@ const PoolDataCard = ({
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
   const onDepositClick = () => {
-    navigate(urlTo(POOLS_ADD_LIQUIDITY, { id: assetTokenId }));
+    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }));
   };
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
