@@ -337,8 +337,8 @@ const SwapTokens = () => {
   const getPoolTokenPairs = async () => {
     if (api) {
       const poolsAssetTokenIds = pools?.map((pool: any) => {
-        if (pool[0][1].interior?.X2) {
-          const assetTokenIds = pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "").toString();
+        if (pool?.[0]?.[1].interior?.X2) {
+          const assetTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
           return assetTokenIds;
         }
       });
@@ -356,15 +356,15 @@ const SwapTokens = () => {
 
       await Promise.all(
         pools.map(async (pool: any) => {
-          if (pool[0][1].interior?.X2) {
+          if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               api,
-              pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await api.query.assets.metadata(
-                pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
               );
 
               poolTokenPairsArray.push({

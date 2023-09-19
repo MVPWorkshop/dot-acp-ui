@@ -84,13 +84,13 @@ const PoolLiquidity = () => {
     let exists = false;
 
     pools?.forEach((pool: any) => {
-      if (pool[0][1].interior?.X2) {
-        if (pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "").toString() === id.toString()) {
+      if (pool?.[0]?.[1]?.interior?.X2) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === id.toString()) {
           exists = true;
         }
       }
-      if (pool[0][1]?.interior?.X2 && params?.id) {
-        if (pool[0][1]?.interior?.X2[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === params?.id) {
+      if (pool?.[0]?.[1]?.interior?.X2 && params?.id) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === params?.id) {
           if (params?.id) {
             const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
               if (params?.id) {

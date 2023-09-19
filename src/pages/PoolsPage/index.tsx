@@ -34,7 +34,7 @@ const PoolsPage = () => {
 
       await Promise.all(
         pools.map(async (pool: any) => {
-          const lpTokenId = pool[1].lpToken;
+          const lpTokenId = pool?.[1]?.lpToken;
 
           let lpToken = null;
           if (selectedAccount?.address) {
@@ -42,31 +42,31 @@ const PoolsPage = () => {
             lpToken = lpTokenAsset.toHuman() as LpTokenAsset;
           }
 
-          if (pool[0][1].interior?.X2) {
+          if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               apiPool,
-              pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await apiPool.query.assets.metadata(
-                pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
               );
 
               const assetTokenBalance = toUnit(
-                poolReserve[1].replace(/[, ]/g, ""),
-                assetTokenMetadata.toHuman().decimals
+                poolReserve?.[1].replace(/[, ]/g, ""),
+                assetTokenMetadata.toHuman()?.decimals
               );
 
-              const nativeTokenBalance = formatBalance(poolReserve[0].replace(/[, ]/g, ""), {
+              const nativeTokenBalance = formatBalance(poolReserve?.[0].replace(/[, ]/g, ""), {
                 withUnit: false,
                 withSi: false,
               });
 
               poolCardsArray.push({
-                name: `WND–${assetTokenMetadata.toHuman().symbol}`,
+                name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
-                assetTokenId: pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, ""),
+                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, ""),
                 totalTokensLocked: {
                   nativeToken: nativeTokenBalance,
                   nativeTokenIcon: NativeTokenIcon,

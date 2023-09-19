@@ -10,7 +10,7 @@ export const getAllPools = async (api: ApiPromise) => {
   try {
     const pools = await api.query.assetConversion.pools.entries();
 
-    return pools.map(([key, value]) => [key.args[0].toHuman(), value.toHuman()]);
+    return pools.map(([key, value]) => [key.args?.[0].toHuman(), value.toHuman()]);
   } catch (error) {
     dotAcpToast.error(`Error getting pools: ${error}`);
   }

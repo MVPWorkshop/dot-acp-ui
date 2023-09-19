@@ -11,10 +11,10 @@ const SeoHelmet: FC = () => {
   const params = useParams();
   const location = useLocation();
   const replace = Object.keys(params).map((item) => {
-    return location.pathname.replace(`/${params[item]}`, `/:${item}`);
+    return location.pathname.replace(`/${params?.[item]}`, `/:${item}`);
   });
 
-  const myLocation = replace.length > 0 ? replace[0] : location.pathname;
+  const myLocation = replace.length > 0 ? replace?.[0] : location.pathname;
 
   const { title, description } = SEO_ROUTES[myLocation as keyof typeof SEO_ROUTES] || {
     title: "DOT ACP Page",
