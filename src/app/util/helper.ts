@@ -1,5 +1,6 @@
 import { t } from "i18next";
 import { Decimal } from "decimal.js";
+import { UrlParamType } from "../types";
 
 const init = () => {
   // start sentry
@@ -15,6 +16,13 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
     return `${addressLeftPart}...${addressRightPart}`;
   }
   return t("wallet.notConnected");
+};
+
+export const urlTo = (path: string, params?: UrlParamType) => {
+  for (const param in params) {
+    path = path.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
+  }
+  return path;
 };
 
 export const calculateSlippageReduce = (tokenValue: number, slippageValue: number) => {

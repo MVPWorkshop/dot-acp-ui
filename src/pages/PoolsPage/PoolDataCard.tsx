@@ -3,6 +3,9 @@ import { ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.svg";
 import { LpTokenAsset } from "../../app/types";
 import { t } from "i18next";
+import { useNavigate } from "react-router-dom";
+import { ADD_LIQUIDITY_TO_EXISTING } from "../../app/router/routes";
+import { urlTo } from "../../app/util/helper";
 
 type PoolDataCardProps = {
   tokenPair: string;
@@ -11,6 +14,7 @@ type PoolDataCardProps = {
   assetTokens: string;
   assetTokenIcon: string;
   lpTokenAsset: LpTokenAsset | null;
+  assetTokenId: string;
 };
 
 const PoolDataCard = ({
@@ -20,7 +24,12 @@ const PoolDataCard = ({
   lpTokenAsset,
   nativeTokenIcon,
   assetTokenIcon,
+  assetTokenId,
 }: PoolDataCardProps) => {
+  const navigate = useNavigate();
+  const onDepositClick = () => {
+    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }));
+  };
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
       <div className="flex gap-2">
@@ -37,7 +46,7 @@ const PoolDataCard = ({
         </div>
         <div className="flex basis-3/5 flex-col items-end justify-end gap-2">
           <Button
-            onClick={() => console.log("click")}
+            onClick={() => onDepositClick()}
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
           >

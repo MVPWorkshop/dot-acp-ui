@@ -3,7 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import PoolsPage from "../../pages/PoolsPage";
 import SwapPage from "../../pages/SwapPage";
 import AddLiquidityPage from "../../pages/AddLiquidityPage";
-import { HOME_ROUTE, POOLS_ROUTE, SWAP_ROUTE, ADD_LIQUIDITY } from "./routes";
+import { HOME_ROUTE, POOLS_ROUTE, SWAP_ROUTE, ADD_LIQUIDITY, ADD_LIQUIDITY_TO_EXISTING } from "./routes";
 import MainLayout from "../../layout/MainLayout.tsx";
 import NotFoundPage from "../../pages/NotFoundPage";
 
@@ -25,6 +25,11 @@ const router = createBrowserRouter([
           },
           {
             path: ADD_LIQUIDITY,
+            element: <AddLiquidityPage />,
+            index: true,
+          },
+          {
+            path: ADD_LIQUIDITY_TO_EXISTING,
             element: <AddLiquidityPage />,
             index: true,
           },

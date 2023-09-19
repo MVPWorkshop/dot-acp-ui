@@ -65,8 +65,7 @@
     "addTooExistingPool": {
       "reviewAddingLiquidity": "Review adding liquidity",
       "successfullyAddedToPool": "Successfully Added to the Pool",
-      "successfullyAddedLiquidity": "Successfully Added Liquidity",
-      "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
+      "successfullyAddedLiquidity": "Successfully Added Liquidity"
     }
   },
   "poolDataCard": {
@@ -98,7 +97,9 @@
     "earnFeesByProvidingLiquidity": "Earn fees by providing liquidity.",
     "activeLiquidityPositions": "Active liquidity positions will appear here.",
     "connectWalletToView": "Connect wallet to view your liquidity positions.",
-    "noActiveLiquidityPositions": "No active liquidity positions."
+    "noActiveLiquidityPositions": "No active liquidity positions.",
+    "addLiquidity": "Add Liquidity",
+    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
   },
   "swapPage": {
     "addLiquidity": "Add Liquidity",

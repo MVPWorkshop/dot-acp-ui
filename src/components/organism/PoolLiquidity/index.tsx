@@ -1,7 +1,7 @@
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
@@ -41,6 +41,8 @@ const PoolLiquidity = () => {
   const { state, dispatch } = useAppContext();
   const navigate = useNavigate();
 
+  const params = useParams();
+
   const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, poolCreated } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -62,6 +64,7 @@ const PoolLiquidity = () => {
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [poolExists, setPoolExists] = useState<boolean>(false);
+  const [isPoolCardDeposit, setIsPoolCardDeposit] = useState<boolean>(false);
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -77,13 +80,34 @@ const PoolLiquidity = () => {
     navigate(POOLS_PAGE);
   };
 
-  const isPoolExists = (id: string) => {
+  const checkIfPoolAlreadyExists = (id: string) => {
     let exists = false;
 
     pools?.forEach((pool: any) => {
-      if (pool[0][1].interior?.X2) {
-        if (pool[0][1].interior.X2[1].GeneralIndex.replace(/[, ]/g, "").toString() === id.toString()) {
+      if (pool?.[0]?.[1]?.interior?.X2) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === id.toString()) {
           exists = true;
+        }
+      }
+      if (pool?.[0]?.[1]?.interior?.X2 && params?.id) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === params?.id) {
+          if (params?.id) {
+            const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
+              if (params?.id) {
+                return token.tokenId === params?.id.toString();
+              }
+            });
+            if (tokenAlreadySelected) {
+              setSelectedTokenB({
+                tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
+                assetTokenId: params?.id,
+                decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
+                assetTokenBalance: tokenAlreadySelected?.tokenAsset?.balance,
+              });
+
+              setIsPoolCardDeposit(true);
+            }
+          }
         }
       }
     });
@@ -165,6 +189,8 @@ const PoolLiquidity = () => {
         const tokenWithSlippage = calculateSlippageReduce(assetTokenNoDecimals, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
 
+        console.log("slippage asset:", tokenWithSlippageFormatted);
+
         setSelectedTokenAssetValue({ tokenValue: assetTokenNoDecimals });
         setAssetTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
       }
@@ -188,6 +214,7 @@ const PoolLiquidity = () => {
         const tokenWithSlippage = calculateSlippageReduce(nativeTokenNoDecimals, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
 
+        console.log("slippage native:", tokenWithSlippageFormatted);
         setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals });
         setNativeTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
       }
@@ -246,7 +273,7 @@ const PoolLiquidity = () => {
   }, [tokenBalances]);
 
   useEffect(() => {
-    isPoolExists(selectedTokenB.assetTokenId);
+    checkIfPoolAlreadyExists(selectedTokenB.assetTokenId);
   }, [selectedTokenB.assetTokenId]);
 
   useEffect(() => {
@@ -274,7 +301,7 @@ const PoolLiquidity = () => {
       <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
         <BackArrow width={24} height={24} />
       </button>
-      <h3 className="heading-6 font-unbounded-variable font-normal">Add Liquidity</h3>
+      <h3 className="heading-6 font-unbounded-variable font-normal">{t("poolsPage.addLiquidity")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
@@ -292,58 +319,57 @@ const PoolLiquidity = () => {
         tokenValue={selectedTokenAssetValue?.tokenValue}
         onClick={() => setIsModalOpen(true)}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
+        selectDisabled={isPoolCardDeposit}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <>
-          <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
-            <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-            <span>15%</span>
+        <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
+          <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
+          <span>15%</span>
+        </div>
+        <div className="flex w-full gap-2">
+          <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
+            <button
+              className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
+                slippageAuto ? "bg-purple-100" : "bg-white"
+              }`}
+              onClick={() => {
+                setSlippageAuto(true);
+                setSlippageValue(15);
+              }}
+            >
+              {t("tokenAmountInput.auto")}
+            </button>
+            <button
+              className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
+                slippageAuto ? "bg-white" : "bg-purple-100"
+              }`}
+              onClick={() => setSlippageAuto(false)}
+            >
+              {t("tokenAmountInput.custom")}
+            </button>
           </div>
-          <div className="flex w-full gap-2">
-            <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
-              <button
-                className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                  slippageAuto ? "bg-purple-100" : "bg-white"
-                }`}
-                onClick={() => {
-                  setSlippageAuto(true);
-                  setSlippageValue(15);
-                }}
-              >
-                {t("tokenAmountInput.auto")}
-              </button>
-              <button
-                className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
-                  slippageAuto ? "bg-white" : "bg-purple-100"
-                }`}
-                onClick={() => setSlippageAuto(false)}
-              >
-                {t("tokenAmountInput.custom")}
-              </button>
-            </div>
-            <div className="flex basis-1/3">
-              <div className="relative flex">
-                <NumericFormat
-                  value={slippageValue}
-                  onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
-                  fixedDecimalScale={true}
-                  thousandSeparator={false}
-                  allowNegative={false}
-                  className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
-                  placeholder="15"
-                  disabled={slippageAuto ? true : false}
-                />
-                <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
-              </div>
+          <div className="flex basis-1/3">
+            <div className="relative flex">
+              <NumericFormat
+                value={slippageValue}
+                onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                fixedDecimalScale={true}
+                thousandSeparator={false}
+                allowNegative={false}
+                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
+                placeholder="15"
+                disabled={slippageAuto ? true : false}
+              />
+              <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
             </div>
           </div>
-        </>
+        </div>
 
-        {poolExists ? (
+        {poolExists && !isPoolCardDeposit ? (
           <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-            {t("addTooExistingPool.poolExists")}
+            {t("poolsPage.poolExists")}
           </div>
         ) : null}
       </div>
