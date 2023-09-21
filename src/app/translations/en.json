@@ -32,6 +32,7 @@
     "withdraw": "Withdraw",
     "newPosition": "New Position",
     "insufficientTokenAmount": "Insufficient {{token}} amount",
+    "minimumTokenAmountExceeded": "Minimum asset token amount exceeded",
     "enterAmount": "Enter amount",
     "selectToken": "Select token",
     "swap": "Swap",
@@ -99,7 +100,9 @@
     "connectWalletToView": "Connect wallet to view your liquidity positions.",
     "noActiveLiquidityPositions": "No active liquidity positions.",
     "addLiquidity": "Add Liquidity",
-    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
+    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one.",
+    "removeLiquidity": "Remove Liquidity",
+    "withdrawalAmount": "Withdrawal amount"
   },
   "swapPage": {
     "addLiquidity": "Add Liquidity",

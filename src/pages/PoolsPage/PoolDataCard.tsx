@@ -1,10 +1,10 @@
 import Button from "../../components/atom/Button";
-import { ButtonVariants } from "../../app/types/enum";
+import { ButtonVariants, LiquidityPageType } from "../../app/types/enum";
 import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.svg";
 import { LpTokenAsset } from "../../app/types";
 import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
-import { ADD_LIQUIDITY_TO_EXISTING } from "../../app/router/routes";
+import { ADD_LIQUIDITY_TO_EXISTING, REMOVE_LIQUIDITY_FROM_EXISTING } from "../../app/router/routes";
 import { urlTo } from "../../app/util/helper";
 
 type PoolDataCardProps = {
@@ -15,6 +15,7 @@ type PoolDataCardProps = {
   assetTokenIcon: string;
   lpTokenAsset: LpTokenAsset | null;
   assetTokenId: string;
+  lpTokenId: string | null;
 };
 
 const PoolDataCard = ({
@@ -25,10 +26,28 @@ const PoolDataCard = ({
   nativeTokenIcon,
   assetTokenIcon,
   assetTokenId,
+  lpTokenId,
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
+
   const onDepositClick = () => {
-    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }));
+    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }), {
+      state: { pageType: LiquidityPageType.addLiquidity },
+    });
+  };
+
+  const onWithdrawClick = () => {
+    navigate(urlTo(REMOVE_LIQUIDITY_FROM_EXISTING, { id: assetTokenId }), {
+      state: { pageType: LiquidityPageType.removeLiquidity, lpTokenId: lpTokenId },
+    });
+  };
+
+  const checkIfWithdrawDisabled = () => {
+    if (lpTokenAsset && parseInt(lpTokenAsset?.balance) > 0) {
+      return false;
+    } else {
+      return true;
+    }
   };
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
@@ -52,7 +71,11 @@ const PoolDataCard = ({
           >
             {t("button.deposit")}
           </Button>
-          <Button onClick={() => console.log("click")} variant={ButtonVariants.btnSecondaryGray}>
+          <Button
+            onClick={() => onWithdrawClick()}
+            variant={ButtonVariants.btnSecondaryGray}
+            disabled={checkIfWithdrawDisabled()}
+          >
             {t("button.withdraw")}
           </Button>
         </div>

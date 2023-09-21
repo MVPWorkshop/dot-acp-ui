@@ -13,11 +13,8 @@ import {
   addLiquidity,
   checkAddPoolLiquidityGasFee,
   checkCreatePoolGasFee,
-  checkWithdrawPoolLiquidityGasFee,
   createPool,
   getAllPools,
-  getPoolReserves,
-  removeLiquidity,
 } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -25,8 +22,6 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
-import { LpTokenAsset } from "../../../app/types";
-import Decimal from "decimal.js";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -42,7 +37,7 @@ type TokenValueProps = {
   tokenValue: number;
 };
 
-const PoolLiquidity = () => {
+const AddPoolLiquidity = () => {
   const { state, dispatch } = useAppContext();
 
   const navigate = useNavigate();
@@ -70,10 +65,6 @@ const PoolLiquidity = () => {
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [poolExists, setPoolExists] = useState<boolean>(false);
-  const [isPoolCardDeposit, setIsPoolCardDeposit] = useState<boolean>(false);
-  const [isPoolCardWithdrawal, setIsPoolCardWithdrawal] = useState<boolean>(false);
-  const [lpTokensAmountToBurn, setLpTokensAmountToBurn] = useState<string>("");
-  const [minimumTokenAmountExceeded, setMinimumTokenAmountExceeded] = useState<boolean>(false);
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -124,12 +115,6 @@ const PoolLiquidity = () => {
                 decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
                 assetTokenBalance: tokenAlreadySelected?.tokenAsset?.balance,
               });
-
-              if (location?.state?.pageType === LiquidityPageType.removeLiquidity) {
-                setIsPoolCardWithdrawal(true);
-              } else if (location?.state?.pageType === LiquidityPageType.addLiquidity) {
-                setIsPoolCardDeposit(true);
-              }
             }
           }
         }
@@ -152,28 +137,16 @@ const PoolLiquidity = () => {
             dispatch
           );
         } else {
-          if (location?.state?.pageType === LiquidityPageType.removeLiquidity) {
-            await removeLiquidity(
-              api,
-              selectedTokenB.assetTokenId,
-              selectedAccount,
-              lpTokensAmountToBurn,
-              nativeTokenWithSlippage.tokenValue.toString(),
-              assetTokenWithSlippage.tokenValue.toString(),
-              dispatch
-            );
-          } else {
-            await addLiquidity(
-              api,
-              selectedTokenB.assetTokenId,
-              selectedAccount,
-              nativeTokenValue,
-              assetTokenValue,
-              nativeTokenWithSlippage.tokenValue.toString(),
-              assetTokenWithSlippage.tokenValue.toString(),
-              dispatch
-            );
-          }
+          await addLiquidity(
+            api,
+            selectedTokenB.assetTokenId,
+            selectedAccount,
+            nativeTokenValue,
+            assetTokenValue,
+            nativeTokenWithSlippage.tokenValue.toString(),
+            assetTokenWithSlippage.tokenValue.toString(),
+            dispatch
+          );
         }
       }
     } catch (error) {
@@ -193,19 +166,6 @@ const PoolLiquidity = () => {
         selectedAccount,
         nativeTokenValue,
         assetTokenValue,
-        nativeTokenWithSlippage.tokenValue.toString(),
-        assetTokenWithSlippage.tokenValue.toString(),
-        dispatch
-      );
-  };
-
-  const handleWithdrawPoolLiquidityGasFee = async () => {
-    if (api)
-      await checkWithdrawPoolLiquidityGasFee(
-        api,
-        selectedTokenB.assetTokenId,
-        selectedAccount,
-        lpTokensAmountToBurn,
         nativeTokenWithSlippage.tokenValue.toString(),
         assetTokenWithSlippage.tokenValue.toString(),
         dispatch
@@ -310,15 +270,7 @@ const PoolLiquidity = () => {
       }
     }
     if (selectedTokenA && selectedTokenB) {
-      if (location?.state?.pageType === LiquidityPageType.removeLiquidity) {
-        if (minimumTokenAmountExceeded) {
-          return t("button.minimumTokenAmountExceeded");
-        } else {
-          return t("button.withdraw");
-        }
-      } else {
-        return t("button.deposit");
-      }
+      return t("button.deposit");
     }
   };
 
@@ -327,74 +279,6 @@ const PoolLiquidity = () => {
       return false;
     } else {
       return true;
-    }
-  };
-
-  const getNativeAndAssetTokensFromPool = async () => {
-    if (api) {
-      const res: any = await getPoolReserves(api, selectedTokenB.assetTokenId);
-
-      const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
-      const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance.replace(/[, ]/g, "");
-
-      const lpTokenTotalAsset: any = await api.query.poolAssets.asset(location?.state?.lpTokenId);
-
-      const lpTotalAssetSupply = lpTokenTotalAsset.toHuman()?.supply.replace(/[, ]/g, "");
-
-      console.log("lp total supply:", lpTotalAssetSupply);
-
-      const lpTokenUserAccount = await api.query.poolAssets.account(
-        location?.state?.lpTokenId,
-        selectedAccount?.address
-      );
-      const lpTokenUserAsset = lpTokenUserAccount.toHuman() as LpTokenAsset;
-      const lpTokenUserAssetBalance = parseInt(lpTokenUserAsset?.balance.replace(/[, ]/g, ""));
-
-      console.log("lp token user balance:", lpTokenUserAssetBalance);
-
-      setLpTokensAmountToBurn(lpTokenUserAssetBalance.toFixed(0));
-
-      if (res && slippageValue) {
-        const wndInPool = new Decimal(res[0].replace(/[, ]/g, ""));
-        const wndOut = wndInPool
-          .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
-          .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
-          .floor()
-          .toNumber();
-
-        const assetInPool = new Decimal(res[1].replace(/[, ]/g, ""));
-        const assetOut = assetInPool
-          .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
-          .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
-          .floor()
-          .toNumber();
-
-        const wndOutFormatted = formatDecimalsFromToken(wndOut, selectedTokenA?.nativeTokenDecimals);
-        const assetOutFormatted = formatDecimalsFromToken(assetOut, selectedTokenB?.decimals);
-
-        const wndOutSlippage = calculateSlippageReduce(wndOutFormatted, slippageValue);
-        const wndOutSlippageFormatted = formatInputTokenValue(wndOutSlippage, selectedTokenA?.nativeTokenDecimals);
-
-        const assetOutSlippage = calculateSlippageReduce(assetOutFormatted, slippageValue);
-        const assetOutSlippageFormatted = formatInputTokenValue(assetOutSlippage, selectedTokenB?.decimals);
-
-        // console.log("assetOut:", assetOut);
-        // console.log("wndOut:", wndOut);
-        // console.log("assetInPool:", assetInPool.toNumber());
-        // console.log("assetTokenInfoMinBalance:", assetTokenInfoMinBalance);
-        // console.log("a - b:", assetInPool.sub(assetOut).toString());
-
-        setMinimumTokenAmountExceeded(assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance));
-
-        setSelectedTokenNativeValue({
-          tokenValue: formatDecimalsFromToken(wndOut, selectedTokenA?.nativeTokenDecimals),
-        });
-
-        setNativeTokenWithSlippage({ tokenValue: parseInt(wndOutSlippageFormatted) });
-
-        setSelectedTokenAssetValue({ tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals) });
-        setAssetTokenWithSlippage({ tokenValue: parseInt(assetOutSlippageFormatted) });
-      }
     }
   };
 
@@ -417,11 +301,7 @@ const PoolLiquidity = () => {
 
   useEffect(() => {
     if (poolExists) {
-      if (location?.state?.pageType === LiquidityPageType.removeLiquidity) {
-        handleWithdrawPoolLiquidityGasFee();
-      } else {
-        handleAddPoolLiquidityGasFee();
-      }
+      handleAddPoolLiquidityGasFee();
     }
   }, [nativeTokenValue && assetTokenValue]);
 
@@ -432,12 +312,6 @@ const PoolLiquidity = () => {
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
   }, []);
-
-  useEffect(() => {
-    if (selectedTokenB.assetTokenId && location?.state?.pageType === LiquidityPageType.removeLiquidity) {
-      getNativeAndAssetTokensFromPool();
-    }
-  }, [selectedTokenB.assetTokenId]);
 
   useEffect(() => {
     if (params?.id) {
@@ -458,23 +332,20 @@ const PoolLiquidity = () => {
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
-        labelText={isPoolCardWithdrawal ? t("poolsPage.withdrawalAmount") : t("tokenAmountInput.youPay")}
+        labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenNativeValue?.tokenValue}
         onClick={() => console.log("open modal")}
         onSetTokenValue={(value) => setSelectedTokenAValue(value)}
         selectDisabled={true}
-        disabled={isPoolCardWithdrawal}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
-        labelText={isPoolCardWithdrawal ? t("poolsPage.withdrawalAmount") : t("tokenAmountInput.youPay")}
+        labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAssetValue?.tokenValue}
         onClick={() => setIsModalOpen(true)}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-        selectDisabled={isPoolCardWithdrawal}
-        disabled={isPoolCardWithdrawal}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -522,7 +393,7 @@ const PoolLiquidity = () => {
           </div>
         </div>
 
-        {poolExists && isPoolCardDeposit ? (
+        {poolExists ? (
           <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
             {t("poolsPage.poolExists")}
           </div>
@@ -564,4 +435,4 @@ const PoolLiquidity = () => {
   );
 };
 
-export default PoolLiquidity;
+export default AddPoolLiquidity;

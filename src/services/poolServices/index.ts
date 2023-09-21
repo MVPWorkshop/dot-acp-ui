@@ -198,7 +198,82 @@ export const addLiquidity = async (
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
         if (response.status.type === "Finalized" && response.dispatchError === undefined) {
-          dispatch({ type: ActionType.SET_POOL_CREATED, payload: true });
+          dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
+          await getAllPools(api);
+        }
+      }
+    })
+    .catch((error: any) => {
+      dotAcpToast.error(`Transaction failed ${error}`);
+      dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+    });
+};
+
+export const removeLiquidity = async (
+  api: ApiPromise,
+  assetTokenId: string,
+  account: any,
+  lpTokensAmountToBurn: string,
+  minNativeTokenValue: string,
+  minAssetTokenValue: string,
+  dispatch: Dispatch<PoolAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.removeLiquidity(
+    firstArg,
+    secondArg,
+    lpTokensAmountToBurn,
+    minNativeTokenValue,
+    minAssetTokenValue,
+    account.address
+  );
+
+  const injector = await web3FromSource(account?.meta.source);
+
+  result
+    .signAndSend(account.address, { signer: injector.signer }, async (response) => {
+      if (response.status.isInBlock) {
+        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
+        dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
+          style: {
+            maxWidth: "750px",
+          },
+        });
+      } else {
+        console.log(`Current status: ${response.status.type}`);
+        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+          if (response.dispatchError.isModule) {
+            const decoded = api.registry.findMetaError(response.dispatchError.asModule);
+            const { docs } = decoded;
+            dotAcpToast.error(`${docs.join(" ")}`);
+          } else {
+            dotAcpToast.error(response.dispatchError.toString());
+          }
+        } else {
+          dotAcpToast.success(`Current status: ${response.status.type}`);
+        }
+        if (response.status.type === "Finalized") {
+          dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+        }
+        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+          dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           await getAllPools(api);
         }
       }
@@ -283,6 +358,53 @@ export const checkAddPoolLiquidityGasFee = async (
     minAssetTokenValue,
     account.address
   );
+  const { partialFee } = await result.paymentInfo(account.address);
+  dispatch({
+    type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE,
+    payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
+  });
+  dispatch({
+    type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE,
+    payload: partialFee.toHuman(),
+  });
+};
+
+export const checkWithdrawPoolLiquidityGasFee = async (
+  api: ApiPromise,
+  assetTokenId: string,
+  account: any,
+  lpTokensAmountToBurn: string,
+  minNativeTokenValue: string,
+  minAssetTokenValue: string,
+  dispatch: Dispatch<PoolAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.removeLiquidity(
+    firstArg,
+    secondArg,
+    lpTokensAmountToBurn,
+    minNativeTokenValue,
+    minAssetTokenValue,
+    account.address
+  );
+
   const { partialFee } = await result.paymentInfo(account.address);
   dispatch({
     type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE,
