@@ -6,7 +6,7 @@ export interface PoolsState {
   pools: AnyJson[];
   poolsCards: PoolCardProps[];
   poolCardSelected: PoolCardProps | null;
-  poolCreated: boolean;
+  successModalOpen: boolean;
   poolLiquidityAdded: any;
   poolAssetTokenData: { tokenSymbol: string; assetTokenId: string; decimals: string };
   transferGasFeesMessage: string;
@@ -16,7 +16,7 @@ export interface PoolsState {
 
 export type PoolAction =
   | { type: ActionType.SET_POOLS; payload: AnyJson[] }
-  | { type: ActionType.SET_POOL_CREATED; payload: boolean }
+  | { type: ActionType.SET_SUCCESS_MODAL_OPEN; payload: boolean }
   | { type: ActionType.SET_POOL_LIQUIDITY; payload: any }
   | {
       type: ActionType.SET_POOL_ASSET_TOKEN_DATA;

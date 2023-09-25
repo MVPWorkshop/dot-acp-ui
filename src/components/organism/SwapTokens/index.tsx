@@ -1,7 +1,13 @@
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
+import {
+  ActionType,
+  ButtonVariants,
+  InputEditedType,
+  SwapAndPoolStatus,
+  TokenSelection,
+} from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -118,7 +124,7 @@ const SwapTokens = () => {
       );
 
       if (assetTokenPrice) {
-        const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+        const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
           selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
@@ -162,7 +168,7 @@ const SwapTokens = () => {
       );
 
       if (nativeTokenPrice) {
-        const nativeTokenNoSemicolons = nativeTokenPrice.toString().replace(/[, ]/g, "");
+        const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
           selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
@@ -203,7 +209,7 @@ const SwapTokens = () => {
           selectedTokens.tokenB.tokenId
         );
         if (assetTokenPrice) {
-          const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+          const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
             selectedTokens.tokenA.decimals
@@ -230,7 +236,7 @@ const SwapTokens = () => {
         );
 
         if (assetTokenPrice) {
-          const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+          const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
             selectedTokens.tokenB.decimals
@@ -338,7 +344,7 @@ const SwapTokens = () => {
     if (api) {
       const poolsAssetTokenIds = pools?.map((pool: any) => {
         if (pool?.[0]?.[1].interior?.X2) {
-          const assetTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
+          const assetTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString();
           return assetTokenIds;
         }
       });
@@ -359,12 +365,12 @@ const SwapTokens = () => {
           if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               api,
-              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await api.query.assets.metadata(
-                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
               );
 
               poolTokenPairsArray.push({
@@ -575,7 +581,7 @@ const SwapTokens = () => {
       <Button
         onClick={() => handleSwap()}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== "Swap"}
+        disabled={checkIfSwapIsPossible() !== SwapAndPoolStatus.Swap}
       >
         {checkIfSwapIsPossible()}
       </Button>

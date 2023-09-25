@@ -4,7 +4,7 @@ import { ActionType } from "../../app/types/enum";
 export const initialPoolsState: PoolsState = {
   pools: [],
   poolsCards: [],
-  poolCreated: false,
+  successModalOpen: false,
   poolLiquidityAdded: null,
   poolAssetTokenData: { tokenSymbol: "", assetTokenId: "", decimals: "" },
   transferGasFeesMessage: "",
@@ -17,8 +17,8 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
   switch (action.type) {
     case ActionType.SET_POOLS:
       return { ...state, pools: action.payload };
-    case ActionType.SET_POOL_CREATED:
-      return { ...state, poolCreated: action.payload };
+    case ActionType.SET_SUCCESS_MODAL_OPEN:
+      return { ...state, successModalOpen: action.payload };
     case ActionType.SET_POOL_LIQUIDITY:
       return { ...state, poolLiquidityAdded: action.payload };
     case ActionType.SET_POOL_ASSET_TOKEN_DATA:

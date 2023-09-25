@@ -6,8 +6,6 @@ import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useEffect } from "react";
 import { useAppContext } from "../../state";
 import { getPoolReserves } from "../../services/poolServices";
-import { toUnit } from "../../services/polkadotWalletServices";
-import { formatBalance } from "@polkadot/util";
 import PoolDataCard from "./PoolDataCard";
 import { ApiPromise } from "@polkadot/api";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
@@ -15,6 +13,7 @@ import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import dotAcpToast from "../../app/util/toast";
 import { t } from "i18next";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 const PoolsPage = () => {
   const { state, dispatch } = useAppContext();
@@ -45,32 +44,30 @@ const PoolsPage = () => {
           if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               apiPool,
-              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await apiPool.query.assets.metadata(
-                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
               );
 
-              const assetTokenBalance = toUnit(
-                poolReserve?.[1].replace(/[, ]/g, ""),
+              const assetTokenBalance = formatDecimalsFromToken(
+                poolReserve?.[1]?.replace(/[, ]/g, ""),
                 assetTokenMetadata.toHuman()?.decimals
               );
 
-              const nativeTokenBalance = formatBalance(poolReserve?.[0].replace(/[, ]/g, ""), {
-                withUnit: false,
-                withSi: false,
-              });
+              const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
               poolCardsArray.push({
                 name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
-                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, ""),
+                lpTokenId: lpTokenId,
+                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
                 totalTokensLocked: {
-                  nativeToken: nativeTokenBalance,
+                  nativeToken: nativeTokenBalance.toFixed(3),
                   nativeTokenIcon: NativeTokenIcon,
-                  assetToken: assetTokenBalance.toString(),
+                  assetToken: assetTokenBalance.toFixed(3),
                   assetTokenIcon: AssetTokenIcon,
                 },
               });
@@ -134,6 +131,7 @@ const PoolsPage = () => {
                     assetTokenIcon={item.totalTokensLocked.assetTokenIcon}
                     nativeTokenIcon={item.totalTokensLocked.nativeTokenIcon}
                     assetTokenId={item.assetTokenId}
+                    lpTokenId={item.lpTokenId}
                   />
                 </div>
               );

@@ -19,7 +19,7 @@ export enum ActionType {
   SET_SELECTED_ACCOUNT = "SET_SELECTED_ACCOUNT",
   SET_TOKEN_BALANCES = "SET_TOKEN_BALANCES",
   SET_POOLS = "SET_POOLS",
-  SET_POOL_CREATED = "SET_POOL_CREATED",
+  SET_SUCCESS_MODAL_OPEN = "SET_SUCCESS_MODAL_OPEN",
   SET_POOL_LIQUIDITY = "SET_POOL_LIQUIDITY",
   SET_POOL_ASSET_TOKEN_DATA = "SET_POOL_ASSET_TOKEN_DATA",
   SET_TRANSFER_GAS_FEES_MESSAGE = "SET_TRANSFER_GAS_FEES_MESSAGE",
@@ -40,4 +40,19 @@ export enum TokenSelection {
 export enum InputEditedType {
   exactIn = "exactIn",
   exactOut = "exactOut",
+}
+
+export enum LiquidityPageType {
+  addLiquidity = "addLiquidity",
+  removeLiquidity = "removeLiquidity",
+}
+
+export enum ServiceResponseStatus {
+  Finalized = "Finalized",
+}
+
+export enum SwapAndPoolStatus {
+  Swap = "Swap",
+  Withdraw = "Withdraw",
+  Deposit = "Deposit",
 }
