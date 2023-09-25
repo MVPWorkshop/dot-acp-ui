@@ -101,7 +101,7 @@ export const createPool = async (
           },
         });
       } else {
-        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -179,7 +179,7 @@ export const addLiquidity = async (
           },
         });
       } else {
-        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -252,7 +252,7 @@ export const removeLiquidity = async (
           },
         });
       } else {
-        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;

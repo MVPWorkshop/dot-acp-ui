@@ -53,7 +53,7 @@ export const swapNativeForAssetExactIn = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -124,7 +124,7 @@ export const swapNativeForAssetExactOut = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           console.log("success");
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -204,7 +204,7 @@ export const swapAssetForAssetExactIn = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -283,7 +283,7 @@ export const swapAssetForAssetExactOut = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
