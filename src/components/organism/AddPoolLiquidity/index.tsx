@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, LiquidityPageType, SwapAndPoolStatus } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
@@ -84,19 +84,12 @@ const AddPoolLiquidity = () => {
   const checkIfPoolAlreadyExists = (id: string) => {
     let exists = false;
 
-    // if (id) {
-    //   exists = pools.map((pool: PLEASE_ADD_TYPE) => {
-    //     return pool?.[0]?.[1]?.interior?.X2 && id && pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id;
-    //   }
-    // }
-
     if (id) {
-      pools?.forEach((pool: any) => {
-        if (pool?.[0]?.[1]?.interior?.X2 && id) {
-          if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id) {
-            exists = true;
-          }
-        }
+      exists = !!pools.find((pool: any) => {
+        return (
+          pool?.[0]?.[1]?.interior?.X2 &&
+          pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id
+        );
       });
     }
 
@@ -279,15 +272,6 @@ const AddPoolLiquidity = () => {
     }
   };
 
-  const checkIfSwapIsPossible = () => {
-    // deposit or create pool, no withdraw
-    if (returnSwapStatus() === "Withdraw" || returnSwapStatus() === "Deposit") {
-      return false;
-    } else {
-      return true;
-    }
-  };
-
   useEffect(() => {
     if (tokenBalances) {
       setSelectedTokenA({
@@ -410,7 +394,11 @@ const AddPoolLiquidity = () => {
         ) : null}
       </div>
 
-      <Button onClick={handlePool} variant={ButtonVariants.btnInteractivePink} disabled={checkIfSwapIsPossible()}>
+      <Button
+        onClick={handlePool}
+        variant={ButtonVariants.btnInteractivePink}
+        disabled={returnSwapStatus() === SwapAndPoolStatus.Deposit}
+      >
         {returnSwapStatus()}
       </Button>
 

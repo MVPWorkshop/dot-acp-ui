@@ -5,7 +5,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, LiquidityPageType, SwapAndPoolStatus } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import {
@@ -329,7 +329,7 @@ const WithdrawPoolLiquidity = () => {
       <Button
         onClick={handlePool}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnSwapStatus() !== "Withdraw"}
+        disabled={returnSwapStatus() !== SwapAndPoolStatus.Withdraw}
       >
         {returnSwapStatus()}
       </Button>

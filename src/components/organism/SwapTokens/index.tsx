@@ -1,7 +1,13 @@
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
+import {
+  ActionType,
+  ButtonVariants,
+  InputEditedType,
+  SwapAndPoolStatus,
+  TokenSelection,
+} from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -575,7 +581,7 @@ const SwapTokens = () => {
       <Button
         onClick={() => handleSwap()}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== "Swap"}
+        disabled={checkIfSwapIsPossible() !== SwapAndPoolStatus.Swap}
       >
         {checkIfSwapIsPossible()}
       </Button>
