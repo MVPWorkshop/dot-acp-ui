@@ -47,14 +47,12 @@ export const swapNativeForAssetExactIn = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -66,13 +64,13 @@ export const swapNativeForAssetExactIn = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -120,14 +118,12 @@ export const swapNativeForAssetExactOut = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
           console.log("success");
           if (response.dispatchError.isModule) {
@@ -140,13 +136,13 @@ export const swapNativeForAssetExactOut = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -202,14 +198,12 @@ export const swapAssetForAssetExactIn = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -221,13 +215,13 @@ export const swapAssetForAssetExactIn = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -283,14 +277,12 @@ export const swapAssetForAssetExactOut = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -302,13 +294,13 @@ export const swapAssetForAssetExactOut = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;

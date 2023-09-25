@@ -95,14 +95,12 @@ export const createPool = async (
       }
 
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -175,14 +173,12 @@ export const addLiquidity = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, async (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -197,7 +193,7 @@ export const addLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
-        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError === undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           await getAllPools(api);
         }
@@ -250,14 +246,12 @@ export const removeLiquidity = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, async (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
         if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -272,7 +266,7 @@ export const removeLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
-        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError === undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           await getAllPools(api);
         }
