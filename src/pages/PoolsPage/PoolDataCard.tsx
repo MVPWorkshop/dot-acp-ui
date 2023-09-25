@@ -42,7 +42,13 @@ const PoolDataCard = ({
     });
   };
 
-  const checkIfWithdrawDisabled = () => lpTokenAsset && parseInt(lpTokenAsset?.balance) > 0;
+  const checkIfWithdrawDisabled = () => {
+    if (lpTokenAsset && parseInt(lpTokenAsset?.balance) > 0) {
+      return false;
+    } else {
+      return true;
+    }
+  };
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
@@ -69,7 +75,7 @@ const PoolDataCard = ({
           <Button
             onClick={() => onWithdrawClick()}
             variant={ButtonVariants.btnSecondaryGray}
-            disabled={checkIfWithdrawDisabled() || undefined}
+            disabled={checkIfWithdrawDisabled()}
           >
             {t("button.withdraw")}
           </Button>

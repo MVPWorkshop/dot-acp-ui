@@ -1,11 +1,11 @@
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, LiquidityPageType, SwapAndPoolStatus } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, SwapAndPoolStatus } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { toUnit } from "../../../services/polkadotWalletServices";
@@ -42,7 +42,6 @@ const AddPoolLiquidity = () => {
   const { state, dispatch } = useAppContext();
 
   const navigate = useNavigate();
-  const location = useLocation();
   const params = useParams();
 
   const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, successModalOpen } = state;
@@ -244,28 +243,23 @@ const AddPoolLiquidity = () => {
   };
 
   const returnSwapStatus = () => {
-    // const tokenBWalletBalance = tokenBalances?.assets?.find((token: any) => {
-    //   return token.tokenId === selectedTokenB.assetTokenId;
-    // });
-    if (location?.state?.pageType !== LiquidityPageType.removeLiquidity) {
-      if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
-        return t("button.selectToken");
-      }
-      if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
-        return t("button.enterAmount");
-      }
-      if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-        return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
-      }
-      if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
-        return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
-      }
-      if (
-        selectedTokenAssetValue?.tokenValue >
-        Number(toUnit(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, ""), Number(selectedTokenB.decimals)))
-      ) {
-        return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
-      }
+    if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
+      return t("button.selectToken");
+    }
+    if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
+      return t("button.enterAmount");
+    }
+    if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
+      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+    }
+    if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
+      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+    }
+    if (
+      selectedTokenAssetValue?.tokenValue >
+      Number(toUnit(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, ""), Number(selectedTokenB.decimals)))
+    ) {
+      return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
     }
     if (selectedTokenA && selectedTokenB) {
       return t("button.deposit");
@@ -317,9 +311,7 @@ const AddPoolLiquidity = () => {
         <BackArrow width={24} height={24} />
       </button>
       <h3 className="heading-6 font-unbounded-variable font-normal">
-        {location?.state?.pageType === LiquidityPageType.removeLiquidity
-          ? t("poolsPage.removeLiquidity")
-          : t("poolsPage.addLiquidity")}
+        {poolExists ? t("poolsPage.addLiquidity") : t("poolsPage.newPosition")}
       </h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
       <TokenAmountInput
@@ -397,7 +389,7 @@ const AddPoolLiquidity = () => {
       <Button
         onClick={handlePool}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnSwapStatus() === SwapAndPoolStatus.Deposit}
+        disabled={returnSwapStatus() !== SwapAndPoolStatus.Deposit}
       >
         {returnSwapStatus()}
       </Button>
