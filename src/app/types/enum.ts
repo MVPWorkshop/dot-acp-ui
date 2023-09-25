@@ -46,3 +46,7 @@ export enum LiquidityPageType {
   addLiquidity = "addLiquidity",
   removeLiquidity = "removeLiquidity",
 }
+
+export enum ServiceResponseStatus {
+  Finalized = "Finalized",
+}

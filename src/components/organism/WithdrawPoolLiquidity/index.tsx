@@ -21,6 +21,7 @@ import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import { LpTokenAsset } from "../../../app/types";
 import Decimal from "decimal.js";
+import classNames from "classnames";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -71,10 +72,10 @@ const WithdrawPoolLiquidity = () => {
     selectedTokenA?.nativeTokenDecimals
   )
     .toLocaleString()
-    .replace(/[, ]/g, "");
+    ?.replace(/[, ]/g, "");
   const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
     .toLocaleString()
-    .replace(/[, ]/g, "");
+    ?.replace(/[, ]/g, "");
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -83,7 +84,7 @@ const WithdrawPoolLiquidity = () => {
   const populateAssetToken = () => {
     pools?.forEach((pool: any) => {
       if (pool?.[0]?.[1]?.interior?.X2) {
-        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === params?.id) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === params?.id) {
           if (params?.id) {
             const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
               if (params?.id) {
@@ -157,30 +158,30 @@ const WithdrawPoolLiquidity = () => {
       const res: any = await getPoolReserves(api, selectedTokenB.assetTokenId);
 
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
-      const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance.replace(/[, ]/g, "");
+      const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance?.replace(/[, ]/g, "");
 
       const lpTokenTotalAsset: any = await api.query.poolAssets.asset(location?.state?.lpTokenId);
 
-      const lpTotalAssetSupply = lpTokenTotalAsset.toHuman()?.supply.replace(/[, ]/g, "");
+      const lpTotalAssetSupply = lpTokenTotalAsset.toHuman()?.supply?.replace(/[, ]/g, "");
 
       const lpTokenUserAccount = await api.query.poolAssets.account(
         location?.state?.lpTokenId,
         selectedAccount?.address
       );
       const lpTokenUserAsset = lpTokenUserAccount.toHuman() as LpTokenAsset;
-      const lpTokenUserAssetBalance = parseInt(lpTokenUserAsset?.balance.replace(/[, ]/g, ""));
+      const lpTokenUserAssetBalance = parseInt(lpTokenUserAsset?.balance?.replace(/[, ]/g, ""));
 
       setLpTokensAmountToBurn(lpTokenUserAssetBalance.toFixed(0));
 
       if (res && slippageValue) {
-        const wndInPool = new Decimal(res[0].replace(/[, ]/g, ""));
+        const wndInPool = new Decimal(res[0]?.replace(/[, ]/g, ""));
         const wndOut = wndInPool
           .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
           .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
           .floor()
           .toNumber();
 
-        const assetInPool = new Decimal(res[1].replace(/[, ]/g, ""));
+        const assetInPool = new Decimal(res[1]?.replace(/[, ]/g, ""));
         const assetOut = assetInPool
           .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
           .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
@@ -211,15 +212,19 @@ const WithdrawPoolLiquidity = () => {
   };
 
   useEffect(() => {
-    setSelectedTokenA({
-      nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
-      nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
-    });
+    if (tokenBalances) {
+      setSelectedTokenA({
+        nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
+        nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
+      });
+    }
   }, [tokenBalances]);
 
   useEffect(() => {
-    handleWithdrawPoolLiquidityGasFee();
-  }, [nativeTokenValue && assetTokenValue]);
+    if (nativeTokenValue && assetTokenValue) {
+      handleWithdrawPoolLiquidityGasFee();
+    }
+  }, [nativeTokenValue, assetTokenValue]);
 
   useEffect(() => {
     if (successModalOpen) setIsSuccessModalOpen(true);
@@ -282,9 +287,10 @@ const WithdrawPoolLiquidity = () => {
         <div className="flex w-full gap-2">
           <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
             <button
-              className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                slippageAuto ? "bg-purple-100" : "bg-white"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": !slippageAuto,
+                "bg-purple-100": slippageAuto,
+              })}
               onClick={() => {
                 setSlippageAuto(true);
                 setSlippageValue(15);
@@ -293,9 +299,10 @@ const WithdrawPoolLiquidity = () => {
               {t("tokenAmountInput.auto")}
             </button>
             <button
-              className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
-                slippageAuto ? "bg-white" : "bg-purple-100"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": slippageAuto,
+                "bg-purple-100": !slippageAuto,
+              })}
               onClick={() => setSlippageAuto(false)}
             >
               {t("tokenAmountInput.custom")}
@@ -311,7 +318,7 @@ const WithdrawPoolLiquidity = () => {
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
                 placeholder="15"
-                disabled={slippageAuto ? true : false}
+                disabled={slippageAuto}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
             </div>

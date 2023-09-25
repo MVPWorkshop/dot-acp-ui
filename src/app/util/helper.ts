@@ -20,7 +20,7 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
 
 export const urlTo = (path: string, params?: UrlParamType) => {
   for (const param in params) {
-    path = path.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
+    path = path?.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
   }
   return path;
 };

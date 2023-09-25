@@ -2,7 +2,7 @@ import { ApiPromise } from "@polkadot/api";
 import { web3FromSource } from "@polkadot/extension-dapp";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
-import { ActionType } from "../../app/types/enum";
+import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 
@@ -81,7 +81,7 @@ export const createPool = async (
 
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
-      if (response.status.type === "Finalized") {
+      if (response.status.type === ServiceResponseStatus.Finalized) {
         addLiquidity(
           api,
           assetTokenId,
@@ -103,7 +103,7 @@ export const createPool = async (
         });
       } else {
         console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -114,7 +114,7 @@ export const createPool = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized") {
+        if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
       }
@@ -183,7 +183,7 @@ export const addLiquidity = async (
         });
       } else {
         console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -194,10 +194,10 @@ export const addLiquidity = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized") {
+        if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError === undefined) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           await getAllPools(api);
         }
@@ -258,7 +258,7 @@ export const removeLiquidity = async (
         });
       } else {
         console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError !== undefined) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -269,10 +269,10 @@ export const removeLiquidity = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized") {
+        if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError === undefined) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           await getAllPools(api);
         }

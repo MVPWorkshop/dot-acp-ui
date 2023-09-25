@@ -22,6 +22,7 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
+import classNames from "classnames";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -71,10 +72,10 @@ const AddPoolLiquidity = () => {
     selectedTokenA?.nativeTokenDecimals
   )
     .toLocaleString()
-    .replace(/[, ]/g, "");
+    ?.replace(/[, ]/g, "");
   const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
     .toLocaleString()
-    .replace(/[, ]/g, "");
+    ?.replace(/[, ]/g, "");
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -83,10 +84,16 @@ const AddPoolLiquidity = () => {
   const checkIfPoolAlreadyExists = (id: string) => {
     let exists = false;
 
+    // if (id) {
+    //   exists = pools.map((pool: PLEASE_ADD_TYPE) => {
+    //     return pool?.[0]?.[1]?.interior?.X2 && id && pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id;
+    //   }
+    // }
+
     if (id) {
       pools?.forEach((pool: any) => {
         if (pool?.[0]?.[1]?.interior?.X2 && id) {
-          if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === id) {
+          if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id) {
             exists = true;
           }
         }
@@ -99,16 +106,14 @@ const AddPoolLiquidity = () => {
   const populateAssetToken = () => {
     pools?.forEach((pool: any) => {
       if (pool?.[0]?.[1]?.interior?.X2) {
-        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString() === params?.id) {
+        if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === params?.id) {
           if (params?.id) {
-            // da li ja ovde dobijam koliko imam asset tokena ili koliko imam tog asset tokena u tom pool-u ?
             const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
               if (params?.id) {
                 return token.tokenId === params?.id.toString();
               }
             });
             if (tokenAlreadySelected) {
-              console.log("pass");
               setSelectedTokenB({
                 tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
                 assetTokenId: params?.id,
@@ -186,7 +191,7 @@ const AddPoolLiquidity = () => {
       const assetTokenPrice = await getAssetTokenFromNativeToken(api, selectedTokenB?.assetTokenId, valueWithDecimals);
 
       if (assetTokenPrice && slippageValue) {
-        const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+        const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
 
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
@@ -209,7 +214,7 @@ const AddPoolLiquidity = () => {
       const nativeTokenPrice = await getNativeTokenFromAssetToken(api, selectedTokenB?.assetTokenId, valueWithDecimals);
 
       if (nativeTokenPrice && slippageValue) {
-        const nativeTokenNoSemicolons = nativeTokenPrice.toString().replace(/[, ]/g, "");
+        const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
 
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
@@ -264,7 +269,7 @@ const AddPoolLiquidity = () => {
       }
       if (
         selectedTokenAssetValue?.tokenValue >
-        Number(toUnit(selectedTokenB.assetTokenBalance.replace(/[, ]/g, ""), Number(selectedTokenB.decimals)))
+        Number(toUnit(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, ""), Number(selectedTokenB.decimals)))
       ) {
         return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
       }
@@ -275,6 +280,7 @@ const AddPoolLiquidity = () => {
   };
 
   const checkIfSwapIsPossible = () => {
+    // deposit or create pool, no withdraw
     if (returnSwapStatus() === "Withdraw" || returnSwapStatus() === "Deposit") {
       return false;
     } else {
@@ -283,10 +289,12 @@ const AddPoolLiquidity = () => {
   };
 
   useEffect(() => {
-    setSelectedTokenA({
-      nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
-      nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
-    });
+    if (tokenBalances) {
+      setSelectedTokenA({
+        nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
+        nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
+      });
+    }
   }, [tokenBalances]);
 
   useEffect(() => {
@@ -300,10 +308,10 @@ const AddPoolLiquidity = () => {
   }, [poolExists, selectedTokenB.assetTokenId]);
 
   useEffect(() => {
-    if (poolExists) {
+    if (poolExists && nativeTokenValue && assetTokenValue) {
       handleAddPoolLiquidityGasFee();
     }
-  }, [nativeTokenValue && assetTokenValue]);
+  }, [nativeTokenValue, assetTokenValue]);
 
   useEffect(() => {
     if (successModalOpen) setIsSuccessModalOpen(true);
@@ -357,9 +365,10 @@ const AddPoolLiquidity = () => {
         <div className="flex w-full gap-2">
           <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
             <button
-              className={`flex basis-1/2 justify-center rounded-lg  px-4 py-3 ${
-                slippageAuto ? "bg-purple-100" : "bg-white"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": !slippageAuto,
+                "bg-purple-100": slippageAuto,
+              })}
               onClick={() => {
                 setSlippageAuto(true);
                 setSlippageValue(15);
@@ -368,9 +377,10 @@ const AddPoolLiquidity = () => {
               {t("tokenAmountInput.auto")}
             </button>
             <button
-              className={`flex basis-1/2 justify-center rounded-lg px-4 py-3 ${
-                slippageAuto ? "bg-white" : "bg-purple-100"
-              }`}
+              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                "bg-white": slippageAuto,
+                "bg-purple-100": !slippageAuto,
+              })}
               onClick={() => setSlippageAuto(false)}
             >
               {t("tokenAmountInput.custom")}
@@ -386,7 +396,7 @@ const AddPoolLiquidity = () => {
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
                 placeholder="15"
-                disabled={slippageAuto ? true : false}
+                disabled={slippageAuto}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
             </div>

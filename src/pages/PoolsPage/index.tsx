@@ -44,26 +44,26 @@ const PoolsPage = () => {
           if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               apiPool,
-              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await apiPool.query.assets.metadata(
-                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
               );
 
               const assetTokenBalance = formatDecimalsFromToken(
-                poolReserve?.[1].replace(/[, ]/g, ""),
+                poolReserve?.[1]?.replace(/[, ]/g, ""),
                 assetTokenMetadata.toHuman()?.decimals
               );
 
-              const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0].replace(/[, ]/g, ""), "12");
+              const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
               poolCardsArray.push({
                 name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
                 lpTokenId: lpTokenId,
-                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, ""),
+                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
                 totalTokensLocked: {
                   nativeToken: nativeTokenBalance.toFixed(3),
                   nativeTokenIcon: NativeTokenIcon,

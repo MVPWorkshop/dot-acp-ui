@@ -44,7 +44,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   const myAssetTokenData = [];
 
   for (const item of allChainAssets) {
-    const cleanedTokenId = item?.tokenId?.[0].replace(/[, ]/g, "");
+    const cleanedTokenId = item?.tokenId?.[0]?.replace(/[, ]/g, "");
     const tokenAsset = await api.query.assets.account(cleanedTokenId, walletAddress);
 
     if (tokenAsset.toHuman()) {
