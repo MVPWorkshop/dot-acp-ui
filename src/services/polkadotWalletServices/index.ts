@@ -9,7 +9,7 @@ import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider("wss://westmint-rpc.polkadot.io");
+  const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),

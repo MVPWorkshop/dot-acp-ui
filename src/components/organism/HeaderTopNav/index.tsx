@@ -29,11 +29,11 @@ const HeaderTopNav = () => {
       <div className="pr-[140px]">
         <Logo />
       </div>
-      <div className="flex gap-16 text-text-color-label-light">
+      <div className="flex gap-16 text-gray-200">
         <NavLink
           to={SWAP_ROUTE}
           className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-text-color-header-light": location.pathname.includes(SWAP_ROUTE),
+            "text-gray-400": location.pathname.includes(SWAP_ROUTE),
           })}
         >
           {t("button.swap")}
@@ -41,7 +41,7 @@ const HeaderTopNav = () => {
         <NavLink
           to={POOLS_ROUTE}
           className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-text-color-header-light": location.pathname.includes(POOLS_ROUTE),
+            "text-gray-400": location.pathname.includes(POOLS_ROUTE),
           })}
         >
           {t("button.pool")}
@@ -55,7 +55,7 @@ const HeaderTopNav = () => {
         ) : (
           <>
             <div className="flex items-center justify-center gap-[26px]">
-              <div className="flex flex-col text-text-color-body-light">
+              <div className="flex flex-col text-gray-300">
                 <div className="font-[500]">{selectedAccount?.meta.name || "Account"}</div>
                 <div className="text-small">{reduceAddress(selectedAccount?.address, 6, 6)}</div>
               </div>

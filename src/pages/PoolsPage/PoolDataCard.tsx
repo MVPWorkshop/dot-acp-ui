@@ -87,13 +87,11 @@ const PoolDataCard = ({
               {assetTokens}
             </span>
           </div>
-          <p className="text-small font-medium uppercase text-text-color-label-light">
-            {t("poolDataCard.totalTokensLocked")}
-          </p>
+          <p className="text-small font-medium uppercase text-gray-200">{t("poolDataCard.totalTokensLocked")}</p>
         </div>
         <div className="flex basis-1/2 flex-col items-center justify-end text-large font-medium">
           <span>{lpTokenAsset?.balance ? lpTokenAsset.balance?.replace(/[, ]/g, "") : 0}</span>
-          <p className="text-small font-medium uppercase text-text-color-label-light">{t("poolDataCard.lpTokens")}</p>
+          <p className="text-small font-medium uppercase text-gray-200">{t("poolDataCard.lpTokens")}</p>
         </div>
       </div>
     </div>

@@ -312,7 +312,7 @@ const AddPoolLiquidity = () => {
       <h3 className="heading-6 font-unbounded-variable font-normal">
         {poolExists ? t("poolsPage.addLiquidity") : t("poolsPage.newPosition")}
       </h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
+      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
@@ -333,12 +333,12 @@ const AddPoolLiquidity = () => {
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full justify-between text-medium font-normal text-text-color-label-light">
+        <div className="flex w-full justify-between text-medium font-normal text-gray-200">
           <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
           <span>15%</span>
         </div>
         <div className="flex w-full gap-2">
-          <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
+          <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
             <button
               className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
                 "bg-white": !slippageAuto,
@@ -369,11 +369,11 @@ const AddPoolLiquidity = () => {
                 fixedDecimalScale={true}
                 thousandSeparator={false}
                 allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
+                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 placeholder="15"
                 disabled={slippageAuto}
               />
-              <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
+              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
           </div>
         </div>
