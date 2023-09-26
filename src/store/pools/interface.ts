@@ -12,6 +12,7 @@ export interface PoolsState {
   transferGasFeesMessage: string;
   poolGasFee: string;
   addLiquidityGasFee: string;
+  poolsTokenMetadata: any;
 }
 
 export type PoolAction =
@@ -26,4 +27,5 @@ export type PoolAction =
   | { type: ActionType.SET_POOL_GAS_FEE; payload: string }
   | { type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE; payload: string }
   | { type: ActionType.SET_POOLS_CARDS; payload: PoolCardProps[] }
-  | { type: ActionType.SET_POOL_CARD_SELECTED; payload: PoolCardProps };
+  | { type: ActionType.SET_POOL_CARD_SELECTED; payload: PoolCardProps }
+  | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: any };
