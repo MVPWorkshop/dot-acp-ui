@@ -2,13 +2,6 @@ import { t } from "i18next";
 import { Decimal } from "decimal.js";
 import { UrlParamType } from "../types";
 
-const init = () => {
-  // start sentry
-  // start analytics
-};
-
-export { init };
-
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {
     const addressLeftPart = address.substring(0, lengthLeft);
@@ -20,7 +13,7 @@ export const reduceAddress = (address: string | undefined, lengthLeft: number, l
 
 export const urlTo = (path: string, params?: UrlParamType) => {
   for (const param in params) {
-    path = path.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
+    path = path?.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
   }
   return path;
 };
@@ -34,7 +27,10 @@ export const calculateSlippageAdd = (tokenValue: number, slippageValue: number) 
 };
 
 export const formatInputTokenValue = (base: number, decimals: string) => {
-  return new Decimal(base).times(Math.pow(10, parseFloat(decimals))).toString();
+  return new Decimal(base)
+    .times(Math.pow(10, parseFloat(decimals)))
+    .floor()
+    .toString();
 };
 
 export const formatDecimalsFromToken = (base: number, decimals: string) => {

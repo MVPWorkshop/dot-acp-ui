@@ -41,7 +41,7 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
               <ArrowRight />
               {tokenB.symbol} {tokenB.icon}
             </div>
-            <div className="flex w-full justify-center text-text-color-label-light">
+            <div className="flex w-full justify-center text-gray-200">
               <div>{actionLabel}</div>
             </div>
             <div className="flex items-center justify-center gap-2 font-unbounded-variable text-medium">

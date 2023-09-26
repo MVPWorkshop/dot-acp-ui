@@ -1,10 +1,10 @@
 import Button from "../../components/atom/Button";
-import { ButtonVariants } from "../../app/types/enum";
+import { ButtonVariants, LiquidityPageType } from "../../app/types/enum";
 import { ReactComponent as AddIconPink } from "../../assets/img/add-icon-pink.svg";
 import { LpTokenAsset } from "../../app/types";
 import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
-import { ADD_LIQUIDITY_TO_EXISTING } from "../../app/router/routes";
+import { ADD_LIQUIDITY_TO_EXISTING, REMOVE_LIQUIDITY_FROM_EXISTING } from "../../app/router/routes";
 import { urlTo } from "../../app/util/helper";
 
 type PoolDataCardProps = {
@@ -15,6 +15,7 @@ type PoolDataCardProps = {
   assetTokenIcon: string;
   lpTokenAsset: LpTokenAsset | null;
   assetTokenId: string;
+  lpTokenId: string | null;
 };
 
 const PoolDataCard = ({
@@ -25,11 +26,24 @@ const PoolDataCard = ({
   nativeTokenIcon,
   assetTokenIcon,
   assetTokenId,
+  lpTokenId,
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
+
   const onDepositClick = () => {
-    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }));
+    navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }), {
+      state: { pageType: LiquidityPageType.addLiquidity },
+    });
   };
+
+  const onWithdrawClick = () => {
+    navigate(urlTo(REMOVE_LIQUIDITY_FROM_EXISTING, { id: assetTokenId }), {
+      state: { pageType: LiquidityPageType.removeLiquidity, lpTokenId: lpTokenId },
+    });
+  };
+
+  const checkIfWithdrawDisabled = (balance: number) => !(balance > 0);
+
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
       <div className="flex gap-2">
@@ -52,7 +66,11 @@ const PoolDataCard = ({
           >
             {t("button.deposit")}
           </Button>
-          <Button onClick={() => console.log("click")} variant={ButtonVariants.btnSecondaryGray}>
+          <Button
+            onClick={() => onWithdrawClick()}
+            variant={ButtonVariants.btnSecondaryGray}
+            disabled={checkIfWithdrawDisabled(lpTokenAsset ? parseInt(lpTokenAsset?.balance) : 0)}
+          >
             {t("button.withdraw")}
           </Button>
         </div>
@@ -69,13 +87,11 @@ const PoolDataCard = ({
               {assetTokens}
             </span>
           </div>
-          <p className="text-small font-medium uppercase text-text-color-label-light">
-            {t("poolDataCard.totalTokensLocked")}
-          </p>
+          <p className="text-small font-medium uppercase text-gray-200">{t("poolDataCard.totalTokensLocked")}</p>
         </div>
         <div className="flex basis-1/2 flex-col items-center justify-end text-large font-medium">
-          <span>{lpTokenAsset?.balance ? lpTokenAsset.balance.replace(/[, ]/g, "") : 0}</span>
-          <p className="text-small font-medium uppercase text-text-color-label-light">{t("poolDataCard.lpTokens")}</p>
+          <span>{lpTokenAsset?.balance ? lpTokenAsset.balance?.replace(/[, ]/g, "") : 0}</span>
+          <p className="text-small font-medium uppercase text-gray-200">{t("poolDataCard.lpTokens")}</p>
         </div>
       </div>
     </div>

@@ -14,7 +14,6 @@ export const swapNativeForAssetExactIn = async (
   reverse: boolean,
   dispatch: Dispatch<SwapAction>
 ) => {
-  // WND - NATIVE TOKEN - here we add the slippage
   const firstArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -24,7 +23,6 @@ export const swapNativeForAssetExactIn = async (
     })
     .toU8a();
 
-  // RASTA ex. - ASSET TOKEN
   const secondArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -35,11 +33,11 @@ export const swapNativeForAssetExactIn = async (
     .toU8a();
 
   const result = api.tx.assetConversion.swapExactTokensForTokens(
-    reverse ? [secondArg, firstArg] : [firstArg, secondArg], // path array
-    reverse ? assetTokenValue : nativeTokenValue, // amount of tokens to swap - here we add the slippage
-    reverse ? nativeTokenValue : assetTokenValue, // minimum amount of token2 user wants to receive
-    account.address, // address to receive swapped tokens
-    false // Keep alive parameter
+    reverse ? [secondArg, firstArg] : [firstArg, secondArg],
+    reverse ? assetTokenValue : nativeTokenValue,
+    reverse ? nativeTokenValue : assetTokenValue,
+    account.address,
+    false
   );
 
   const injector = await web3FromSource(account?.meta.source);
@@ -47,15 +45,13 @@ export const swapNativeForAssetExactIn = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -66,13 +62,13 @@ export const swapNativeForAssetExactIn = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -87,7 +83,6 @@ export const swapNativeForAssetExactOut = async (
   reverse: boolean,
   dispatch: Dispatch<SwapAction>
 ) => {
-  // WND - NATIVE TOKEN
   const firstArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -97,7 +92,6 @@ export const swapNativeForAssetExactOut = async (
     })
     .toU8a();
 
-  // RASTA ex. - ASSET TOKEN
   const secondArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -108,11 +102,11 @@ export const swapNativeForAssetExactOut = async (
     .toU8a();
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
-    reverse ? [firstArg, secondArg] : [secondArg, firstArg], // path array
-    reverse ? nativeTokenValue : assetTokenValue, // amount of tokens to get
-    reverse ? assetTokenValue : nativeTokenValue, // maximum amount of tokens to spend
-    account.address, // address to receive swapped tokens
-    false // Keep alive parameter
+    reverse ? [firstArg, secondArg] : [secondArg, firstArg],
+    reverse ? nativeTokenValue : assetTokenValue,
+    reverse ? assetTokenValue : nativeTokenValue,
+    account.address,
+    false
   );
 
   const injector = await web3FromSource(account?.meta.source);
@@ -120,15 +114,13 @@ export const swapNativeForAssetExactOut = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           console.log("success");
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
@@ -140,13 +132,13 @@ export const swapNativeForAssetExactOut = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -169,7 +161,7 @@ export const swapAssetForAssetExactIn = async (
       },
     })
     .toU8a();
-  // WND - NATIVE TOKEN - here we add the slippage
+
   const secondArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -179,7 +171,6 @@ export const swapAssetForAssetExactIn = async (
     })
     .toU8a();
 
-  // RASTA ex. - ASSET TOKEN
   const thirdArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -190,11 +181,11 @@ export const swapAssetForAssetExactIn = async (
     .toU8a();
 
   const result = api.tx.assetConversion.swapExactTokensForTokens(
-    [firstArg, secondArg, thirdArg], // path array
-    assetTokenAValue, // amount of tokens to swap - here we add the slippage
-    assetTokenBValue, // minimum amount of token2 user wants to receive
-    account.address, // address to receive swapped tokens
-    false // Keep alive parameter
+    [firstArg, secondArg, thirdArg],
+    assetTokenAValue,
+    assetTokenBValue,
+    account.address,
+    false
   );
 
   const injector = await web3FromSource(account?.meta.source);
@@ -202,15 +193,13 @@ export const swapAssetForAssetExactIn = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -221,13 +210,13 @@ export const swapAssetForAssetExactIn = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;
@@ -250,7 +239,7 @@ export const swapAssetForAssetExactOut = async (
       },
     })
     .toU8a();
-  // WND - NATIVE TOKEN - here we add the slippage
+
   const secondArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -260,7 +249,6 @@ export const swapAssetForAssetExactOut = async (
     })
     .toU8a();
 
-  // RASTA ex. - ASSET TOKEN
   const thirdArg = api
     .createType("MultiLocation", {
       parents: 0,
@@ -271,11 +259,11 @@ export const swapAssetForAssetExactOut = async (
     .toU8a();
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
-    [firstArg, secondArg, thirdArg], // path array
-    assetTokenAValue, // amount of tokens to get
-    assetTokenBValue, // maximum amount of tokens to spend
-    account.address, // address to receive swapped tokens
-    false // Keep alive parameter
+    [firstArg, secondArg, thirdArg],
+    assetTokenAValue,
+    assetTokenBValue,
+    account.address,
+    false
   );
 
   const injector = await web3FromSource(account?.meta.source);
@@ -283,15 +271,13 @@ export const swapAssetForAssetExactOut = async (
   result
     .signAndSend(account.address, { signer: injector.signer }, (response) => {
       if (response.status.isInBlock) {
-        console.log(`Completed at block hash #${response.status.asInBlock.toString()}`);
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
             maxWidth: "750px",
           },
         });
       } else {
-        console.log(`Current status: ${response.status.type}`);
-        if (response.status.type === "Finalized" && response.dispatchError !== undefined) {
+        if (response.status.type === "Finalized" && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -302,13 +288,13 @@ export const swapAssetForAssetExactOut = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && response.dispatchError === undefined) {
+        if (response.status.type === "Finalized" && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
         }
       }
     })
     .catch((error: any) => {
-      console.log(`Transaction failed ${error}`);
+      dotAcpToast.error(`Transaction failed: ${error}`);
     });
 
   return result;

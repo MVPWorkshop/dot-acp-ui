@@ -62,7 +62,7 @@ button {
 
     &-disabled {
       @extend .btn-interactive;
-      @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
+      @apply bg-gray-100 text-gray-200 hover:bg-gray-100 hover:text-gray-200;
     }
   }
 
@@ -81,7 +81,7 @@ button {
 
     &-disabled {
       @extend .btn-select;
-      @apply bg-text-color-disabled-light text-text-color-label-light hover:bg-text-color-disabled-light hover:text-text-color-label-light;
+      @apply bg-gray-100 text-gray-200 hover:bg-gray-100 hover:text-gray-200;
     }
   }
 }

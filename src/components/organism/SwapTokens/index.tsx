@@ -1,7 +1,13 @@
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
+import {
+  ActionType,
+  ButtonVariants,
+  InputEditedType,
+  SwapAndPoolStatus,
+  TokenSelection,
+} from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -52,7 +58,7 @@ type TokenValueSlippageProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { tokenBalances, pools, api, selectedAccount, swapFinalized } = state;
+  const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -118,7 +124,7 @@ const SwapTokens = () => {
       );
 
       if (assetTokenPrice) {
-        const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+        const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
           selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
@@ -162,7 +168,7 @@ const SwapTokens = () => {
       );
 
       if (nativeTokenPrice) {
-        const nativeTokenNoSemicolons = nativeTokenPrice.toString().replace(/[, ]/g, "");
+        const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
           selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
@@ -203,7 +209,7 @@ const SwapTokens = () => {
           selectedTokens.tokenB.tokenId
         );
         if (assetTokenPrice) {
-          const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+          const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
             selectedTokens.tokenA.decimals
@@ -230,7 +236,7 @@ const SwapTokens = () => {
         );
 
         if (assetTokenPrice) {
-          const assetTokenNoSemicolons = assetTokenPrice.toString().replace(/[, ]/g, "");
+          const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
             selectedTokens.tokenB.decimals
@@ -334,11 +340,11 @@ const SwapTokens = () => {
     }
   };
 
-  const getPoolTokenPairs = async () => {
+  const getSwapTokenA = async () => {
     if (api) {
       const poolsAssetTokenIds = pools?.map((pool: any) => {
         if (pool?.[0]?.[1].interior?.X2) {
-          const assetTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
+          const assetTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString();
           return assetTokenIds;
         }
       });
@@ -359,12 +365,12 @@ const SwapTokens = () => {
           if (pool?.[0]?.[1]?.interior?.X2) {
             const poolReserve: any = await getPoolReserves(
               api,
-              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
             );
 
             if (poolReserve?.length > 0) {
               const assetTokenMetadata: any = await api.query.assets.metadata(
-                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "")
+                pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
               );
 
               poolTokenPairsArray.push({
@@ -471,9 +477,18 @@ const SwapTokens = () => {
       }
     }
   };
-
+  const getSwapTokenB = () => {
+    const poolLiquidTokens: any = [nativeToken]
+      .concat(poolsTokenMetadata)
+      ?.filter(
+        (item: any) =>
+          item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
+      );
+    return poolLiquidTokens;
+  };
   const fillTokenPairsAndOpenModal = (tokenInputSelected: TokenSelection) => {
-    getPoolTokenPairs().then((res: any) => setAvailablePoolTokens(res));
+    if (tokenInputSelected === "tokenA") getSwapTokenA().then((res: any) => setAvailablePoolTokens(res));
+    if (tokenInputSelected === "tokenB") setAvailablePoolTokens(getSwapTokenB());
     setTokenSelectionModal(tokenInputSelected);
   };
 
@@ -489,7 +504,7 @@ const SwapTokens = () => {
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
+      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
       <TokenAmountInput
         tokenText={selectedTokens.tokenA?.tokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
@@ -510,12 +525,12 @@ const SwapTokens = () => {
       />
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full flex-row justify-between text-medium font-normal text-text-color-label-light">
+        <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
           <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
           <span>{slippageValue}%</span>
         </div>
         <div className="flex flex-row gap-2">
-          <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
+          <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-gray-400">
             <button
               className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
                 "bg-white": slippageAuto,
@@ -547,10 +562,10 @@ const SwapTokens = () => {
                 fixedDecimalScale={true}
                 thousandSeparator={false}
                 allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
+                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 disabled={slippageAuto}
               />
-              <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
+              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
           </div>
         </div>
@@ -575,7 +590,7 @@ const SwapTokens = () => {
       <Button
         onClick={() => handleSwap()}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== "Swap"}
+        disabled={checkIfSwapIsPossible() !== SwapAndPoolStatus.Swap}
       >
         {checkIfSwapIsPossible()}
       </Button>

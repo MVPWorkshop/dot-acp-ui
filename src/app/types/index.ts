@@ -11,6 +11,7 @@ export type LpTokenAsset = {
 export type PoolCardProps = {
   name: string;
   lpTokenAsset: LpTokenAsset | null;
+  lpTokenId: string | null;
   assetTokenId: string;
   totalTokensLocked: {
     nativeToken: string;

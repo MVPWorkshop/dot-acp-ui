@@ -55,10 +55,8 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
                     <DotToken width={36} height={36} />
                   </div>
                   <div className="flex flex-col items-start">
-                    <div className="text-text-color-header-light group-hover:text-white">
-                      {item.assetTokenMetadata.name}
-                    </div>
-                    <div className="text-small text-text-color-body-light group-hover:text-white">
+                    <div className="text-gray-400 group-hover:text-white">{item.assetTokenMetadata.name}</div>
+                    <div className="text-small text-gray-300 group-hover:text-white">
                       {item.assetTokenMetadata.symbol}
                     </div>
                   </div>
