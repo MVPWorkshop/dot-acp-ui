@@ -47,7 +47,7 @@ const TokenAmountInput = ({
         }
       )}
     >
-      <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-text-color-label-light">
+      <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-gray-200">
         {labelText}
       </label>
       <NumericFormat
@@ -58,7 +58,7 @@ const TokenAmountInput = ({
         displayType={"input"}
         disabled={disabled}
         placeholder={"0"}
-        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-text-color-body-light outline-none"
+        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
         onValueChange={({ floatValue }) => {

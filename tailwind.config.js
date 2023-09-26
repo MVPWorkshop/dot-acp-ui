@@ -6,7 +6,6 @@ export default {
       fontFamily: {
         "unbounded-variable": ["UnboundedVariable", "sans-serif"],
         inter: ["Inter", "sans-serif"],
-        titillium: ["TitilliumWeb", "sans-serif"],
       },
       colors: {
         pink: {
@@ -45,31 +44,14 @@ export default {
           600: "#BEE52E",
           700: "#A9CC29",
         },
-        "text-color": {
-          "header-light": "#000000E5",
-          "body-light": "#000000B2",
-          "label-light": "#00000080",
-          "disabled-light": "#00000059",
-          "header-dark": "#FFFFFFE5",
-          "body-dark": "#FFFFFFB2",
-          "label-dark": "#FFFFFF80",
-          "disabled-dark": "#FFFFFF59",
+        gray: {
+          10: "#FFFFFF4D",
+          50: "#0000000F",
+          100: "#00000059",
+          200: "#00000080",
+          300: "#000000B2",
+          400: "#000000E5",
         },
-        //TODO: change colors
-        "theme-light": {
-          "text-header": "#000000E5",
-          "text-body": "#000000B2",
-          "text-label": "#00000080",
-          "text-disabled": "#00000059",
-        },
-        "theme-dark": {
-          "text-header": "#FFFFFFE5",
-          "text-body": "#FFFFFFB2",
-          "text-label": "#FFFFFF80",
-          "text-disabled": "#FFFFFF59",
-        },
-        "modal-header-border-color": "#0000000F",
-        "modal-border-color": "#FFFFFF4D",
       },
       boxShadow: {
         "modal-box-shadow":

@@ -495,7 +495,7 @@ const SwapTokens = () => {
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-b-modal-header-border-color" />
+      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
       <TokenAmountInput
         tokenText={selectedTokens.tokenA?.tokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
@@ -516,12 +516,12 @@ const SwapTokens = () => {
       />
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full flex-row justify-between text-medium font-normal text-text-color-label-light">
+        <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
           <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
           <span>{slippageValue}%</span>
         </div>
         <div className="flex flex-row gap-2">
-          <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-text-color-header-light">
+          <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-gray-400">
             <button
               className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
                 "bg-white": slippageAuto,
@@ -553,10 +553,10 @@ const SwapTokens = () => {
                 fixedDecimalScale={true}
                 thousandSeparator={false}
                 allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-text-color-label-light outline-none"
+                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 disabled={slippageAuto}
               />
-              <span className="absolute bottom-1/3 right-2 text-medium text-text-color-disabled-light">%</span>
+              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
           </div>
         </div>

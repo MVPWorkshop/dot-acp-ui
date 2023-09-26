@@ -99,12 +99,10 @@ const PoolsPage = () => {
       <div className="flex w-full max-w-[1280px] flex-col">
         <div className="flex items-center justify-between px-6 py-8">
           <div className="flex flex-col  gap-[4px] leading-[120%]">
-            <div className="font-unbounded-variable text-heading-5 font-[700] tracking-[.046px] text-text-color-header-light">
+            <div className="font-unbounded-variable text-heading-5 font-[700] tracking-[.046px] text-gray-400">
               {t("poolsPage.pools")}
             </div>
-            <div className="tracking-[.2px] text-text-color-body-light">
-              {t("poolsPage.earnFeesByProvidingLiquidity")}
-            </div>
+            <div className="tracking-[.2px] text-gray-300">{t("poolsPage.earnFeesByProvidingLiquidity")}</div>
           </div>
           <div>
             {selectedAccount ? (
@@ -140,7 +138,7 @@ const PoolsPage = () => {
         ) : (
           <div className="flex h-[664px] flex-col items-center justify-center gap-4 rounded-2xl bg-white p-6">
             <TokenIcon />
-            <div className="text-center text-text-color-body-light">
+            <div className="text-center text-gray-300">
               {selectedAccount ? t("poolsPage.noActiveLiquidityPositions") : t("poolsPage.connectWalletToView")}
             </div>
           </div>
