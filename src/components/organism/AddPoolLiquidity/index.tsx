@@ -8,7 +8,6 @@ import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants, SwapAndPoolStatus } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { toUnit } from "../../../services/polkadotWalletServices";
 import {
   addLiquidity,
   checkAddPoolLiquidityGasFee,
@@ -257,7 +256,7 @@ const AddPoolLiquidity = () => {
     }
     if (
       selectedTokenAssetValue?.tokenValue >
-      Number(toUnit(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, ""), Number(selectedTokenB.decimals)))
+      formatDecimalsFromToken(parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")), selectedTokenB.decimals)
     ) {
       return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
     }

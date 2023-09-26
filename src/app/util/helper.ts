@@ -2,13 +2,6 @@ import { t } from "i18next";
 import { Decimal } from "decimal.js";
 import { UrlParamType } from "../types";
 
-const init = () => {
-  // start sentry
-  // start analytics
-};
-
-export { init };
-
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {
     const addressLeftPart = address.substring(0, lengthLeft);
