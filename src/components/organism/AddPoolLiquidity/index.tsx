@@ -241,7 +241,7 @@ const AddPoolLiquidity = () => {
     }
   };
 
-  const returnSwapStatus = () => {
+  const returnButtonStatus = () => {
     if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
       return t("button.selectToken");
     }
@@ -388,9 +388,9 @@ const AddPoolLiquidity = () => {
       <Button
         onClick={handlePool}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnSwapStatus() !== SwapAndPoolStatus.Deposit}
+        disabled={returnButtonStatus() !== SwapAndPoolStatus.Deposit}
       >
-        {returnSwapStatus()}
+        {returnButtonStatus()}
       </Button>
 
       <PoolSelectTokenModal
