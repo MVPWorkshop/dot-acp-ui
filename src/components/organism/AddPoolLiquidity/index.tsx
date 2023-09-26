@@ -12,7 +12,6 @@ import {
   addLiquidity,
   checkAddPoolLiquidityGasFee,
   checkCreatePoolGasFee,
-  createPool,
   getAllPools,
 } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -121,29 +120,16 @@ const AddPoolLiquidity = () => {
   const handlePool = async () => {
     try {
       if (api) {
-        if (!poolExists) {
-          await createPool(
-            api,
-            selectedTokenB.assetTokenId,
-            selectedAccount,
-            nativeTokenValue,
-            assetTokenValue,
-            nativeTokenWithSlippage.tokenValue.toString(),
-            assetTokenWithSlippage.tokenValue.toString(),
-            dispatch
-          );
-        } else {
-          await addLiquidity(
-            api,
-            selectedTokenB.assetTokenId,
-            selectedAccount,
-            nativeTokenValue,
-            assetTokenValue,
-            nativeTokenWithSlippage.tokenValue.toString(),
-            assetTokenWithSlippage.tokenValue.toString(),
-            dispatch
-          );
-        }
+        await addLiquidity(
+          api,
+          selectedTokenB.assetTokenId,
+          selectedAccount,
+          nativeTokenValue,
+          assetTokenValue,
+          nativeTokenWithSlippage.tokenValue.toString(),
+          assetTokenWithSlippage.tokenValue.toString(),
+          dispatch
+        );
       }
     } catch (error) {
       dotAcpToast.error(`Error: ${error}`);
@@ -309,9 +295,7 @@ const AddPoolLiquidity = () => {
       <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
         <BackArrow width={24} height={24} />
       </button>
-      <h3 className="heading-6 font-unbounded-variable font-normal">
-        {poolExists ? t("poolsPage.addLiquidity") : t("poolsPage.newPosition")}
-      </h3>
+      <h3 className="heading-6 font-unbounded-variable font-normal">{t("poolsPage.addLiquidity")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
@@ -377,12 +361,6 @@ const AddPoolLiquidity = () => {
             </div>
           </div>
         </div>
-
-        {poolExists ? (
-          <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-            {t("poolsPage.poolExists")}
-          </div>
-        ) : null}
       </div>
 
       <Button
