@@ -11,7 +11,7 @@ import {
 } from "../../store";
 import { setupPolkadotApi } from "../../services/polkadotWalletServices";
 import { ActionType } from "../types/enum";
-import { getAllPools, getAllLiquidPullsTokensMetadata } from "../../services/poolServices";
+import { getAllPools, getAllLiquidPoolsTokensMetadata } from "../../services/poolServices";
 import dotAcpToast from "../util/toast";
 import { SwapAction } from "../../store/swap/interface";
 
@@ -34,7 +34,7 @@ const useStateAndDispatch = () => {
         const polkaApi = await setupPolkadotApi();
         dispatch({ type: ActionType.SET_API, payload: polkaApi });
         const pools = await getAllPools(polkaApi);
-        const poolsTokenMetadata = await getAllLiquidPullsTokensMetadata(polkaApi);
+        const poolsTokenMetadata = await getAllLiquidPoolsTokensMetadata(polkaApi);
 
         if (pools) {
           dispatch({ type: ActionType.SET_POOLS, payload: pools });

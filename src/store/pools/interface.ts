@@ -1,6 +1,6 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
 import { ActionType } from "../../app/types/enum";
-import { PoolCardProps } from "../../app/types";
+import { PoolCardProps, PoolsTokenMetadata } from "../../app/types";
 
 export interface PoolsState {
   pools: AnyJson[];
@@ -12,7 +12,7 @@ export interface PoolsState {
   transferGasFeesMessage: string;
   poolGasFee: string;
   addLiquidityGasFee: string;
-  poolsTokenMetadata: any;
+  poolsTokenMetadata: PoolsTokenMetadata[];
 }
 
 export type PoolAction =
@@ -28,4 +28,4 @@ export type PoolAction =
   | { type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE; payload: string }
   | { type: ActionType.SET_POOLS_CARDS; payload: PoolCardProps[] }
   | { type: ActionType.SET_POOL_CARD_SELECTED; payload: PoolCardProps }
-  | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: any };
+  | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: PoolsTokenMetadata[] };

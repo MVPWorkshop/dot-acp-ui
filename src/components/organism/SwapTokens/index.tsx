@@ -388,6 +388,7 @@ const SwapTokens = () => {
       const assetTokensNotInPoolTokenPairsArray = assetTokens.filter((item: any) =>
         assetTokensInPoolTokenPairsArray.includes(item.assetTokenMetadata.symbol)
       );
+      setAvailablePoolTokens(assetTokensNotInPoolTokenPairsArray);
 
       return assetTokensNotInPoolTokenPairsArray;
     }
@@ -484,11 +485,12 @@ const SwapTokens = () => {
         (item: any) =>
           item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
       );
+    setAvailablePoolTokens(poolLiquidTokens);
     return poolLiquidTokens;
   };
   const fillTokenPairsAndOpenModal = (tokenInputSelected: TokenSelection) => {
-    if (tokenInputSelected === "tokenA") getSwapTokenA().then((res: any) => setAvailablePoolTokens(res));
-    if (tokenInputSelected === "tokenB") setAvailablePoolTokens(getSwapTokenB());
+    if (tokenInputSelected === "tokenA") getSwapTokenA();
+    if (tokenInputSelected === "tokenB") getSwapTokenB();
     setTokenSelectionModal(tokenInputSelected);
   };
 

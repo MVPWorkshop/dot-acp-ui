@@ -43,3 +43,11 @@ export type TokenBalanceData = {
 export type UrlParamType = {
   id: string;
 };
+
+export type PoolsTokenMetadata = {
+  tokenId: string;
+  assetTokenMetadata: any;
+  tokenAsset: {
+    balance: number | undefined;
+  };
+};

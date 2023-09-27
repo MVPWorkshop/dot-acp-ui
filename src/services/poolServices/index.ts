@@ -363,7 +363,7 @@ export const checkAddPoolLiquidityGasFee = async (
   });
 };
 
-export const getAllLiquidPullsTokensMetadata = async (api: ApiPromise) => {
+export const getAllLiquidPoolsTokensMetadata = async (api: ApiPromise) => {
   const poolsTokenData = [];
   const pools = await getAllPools(api);
   if (pools) {
@@ -383,7 +383,7 @@ export const getAllLiquidPullsTokensMetadata = async (api: ApiPromise) => {
             tokenId: item,
             assetTokenMetadata: poolsTokenMetadata.toHuman(),
             tokenAsset: {
-              balance: "0",
+              balance: 0,
             },
           };
           poolsTokenData.push(resultObject);
