@@ -58,7 +58,7 @@ type TokenValueSlippageProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { tokenBalances, pools, api, selectedAccount, swapFinalized } = state;
+  const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -340,7 +340,7 @@ const SwapTokens = () => {
     }
   };
 
-  const getPoolTokenPairs = async () => {
+  const getSwapTokenA = async () => {
     if (api) {
       const poolsAssetTokenIds = pools?.map((pool: any) => {
         if (pool?.[0]?.[1].interior?.X2) {
@@ -388,6 +388,7 @@ const SwapTokens = () => {
       const assetTokensNotInPoolTokenPairsArray = assetTokens.filter((item: any) =>
         assetTokensInPoolTokenPairsArray.includes(item.assetTokenMetadata.symbol)
       );
+      setAvailablePoolTokens(assetTokensNotInPoolTokenPairsArray);
 
       return assetTokensNotInPoolTokenPairsArray;
     }
@@ -477,9 +478,19 @@ const SwapTokens = () => {
       }
     }
   };
-
+  const getSwapTokenB = () => {
+    const poolLiquidTokens: any = [nativeToken]
+      .concat(poolsTokenMetadata)
+      ?.filter(
+        (item: any) =>
+          item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
+      );
+    setAvailablePoolTokens(poolLiquidTokens);
+    return poolLiquidTokens;
+  };
   const fillTokenPairsAndOpenModal = (tokenInputSelected: TokenSelection) => {
-    getPoolTokenPairs().then((res: any) => setAvailablePoolTokens(res));
+    if (tokenInputSelected === "tokenA") getSwapTokenA();
+    if (tokenInputSelected === "tokenB") getSwapTokenB();
     setTokenSelectionModal(tokenInputSelected);
   };
 

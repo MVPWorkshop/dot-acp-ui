@@ -363,6 +363,37 @@ export const checkAddPoolLiquidityGasFee = async (
   });
 };
 
+export const getAllLiquidPoolsTokensMetadata = async (api: ApiPromise) => {
+  const poolsTokenData = [];
+  const pools = await getAllPools(api);
+  if (pools) {
+    const poolsAssetTokenIds = pools?.map((pool: any) => {
+      if (pool?.[0]?.[1].interior?.X2) {
+        const poolsTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
+        return poolsTokenIds;
+      }
+    });
+
+    for (const item of poolsAssetTokenIds) {
+      if (item) {
+        const poolReserves: any = await getPoolReserves(api, item);
+        if (poolReserves?.length > 0) {
+          const poolsTokenMetadata = await api.query.assets.metadata(item);
+          const resultObject = {
+            tokenId: item,
+            assetTokenMetadata: poolsTokenMetadata.toHuman(),
+            tokenAsset: {
+              balance: 0,
+            },
+          };
+          poolsTokenData.push(resultObject);
+        }
+      }
+    }
+  }
+  return poolsTokenData;
+};
+
 export const checkWithdrawPoolLiquidityGasFee = async (
   api: ApiPromise,
   assetTokenId: string,
