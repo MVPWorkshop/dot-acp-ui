@@ -1,13 +1,7 @@
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import {
-  ActionType,
-  ButtonVariants,
-  InputEditedType,
-  SwapAndPoolStatus,
-  TokenSelection,
-} from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -92,7 +86,6 @@ const SwapTokens = () => {
   const [slippageValue, setSlippageValue] = useState<number>(10);
   const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
   const [availablePoolTokens, setAvailablePoolTokens] = useState<any[]>([]);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
   const nativeToken = {
     tokenId: "",
@@ -305,27 +298,27 @@ const SwapTokens = () => {
     }
   };
 
-  const checkIfSwapIsPossible = () => {
+  const getSwapButtonProperties = useMemo(() => {
     if (selectedAccount && tokenBalances?.balance) {
       if (!selectedTokens.tokenA || !selectedTokens.tokenB) {
-        return t("button.selectToken");
+        return { label: t("button.selectToken"), disabled: true };
       }
       if (selectedTokenAValue?.tokenValue <= 0) {
-        return t("button.enterAmount");
+        return { label: t("button.enterAmount"), disabled: true };
       }
       if (
         walletHasEnoughWnd === false &&
         (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
           selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken)
       ) {
-        return t("button.insufficientTokenAmount", { token: TokenSelection.NativeToken });
+        return { label: t("button.insufficientTokenAmount", { token: TokenSelection.NativeToken }), disabled: true };
       }
       if (
         (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
           selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) &&
         walletHasEnoughWnd
       ) {
-        return t("button.swap");
+        return { label: t("button.swap"), disabled: true };
       }
       if (
         selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
@@ -333,12 +326,22 @@ const SwapTokens = () => {
         selectedTokenAValue.tokenValue > 0 &&
         selectedTokenBValue.tokenValue > 0
       ) {
-        return t("button.swap");
+        return { label: t("button.swap"), disabled: false };
       }
     } else {
-      return t("button.connectWallet");
+      return { label: t("button.connectWallet"), disabled: true };
     }
-  };
+
+    return { label: "", disabled: true };
+  }, [
+    selectedAccount?.address,
+    tokenBalances?.balance,
+    selectedTokens.tokenA.decimals,
+    selectedTokens.tokenB.decimals,
+    selectedTokenAValue.tokenValue,
+    selectedTokenBValue.tokenValue,
+    walletHasEnoughWnd,
+  ]);
 
   const getPoolTokenPairs = async () => {
     if (api) {
@@ -484,13 +487,8 @@ const SwapTokens = () => {
   };
 
   const closeSuccessModal = () => {
-    setIsSuccessModalOpen(false);
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
-
-  useEffect(() => {
-    if (swapFinalized) setIsSuccessModalOpen(true);
-  }, [swapFinalized]);
 
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -579,15 +577,15 @@ const SwapTokens = () => {
       />
 
       <Button
-        onClick={() => handleSwap()}
+        onClick={() => (getSwapButtonProperties.disabled ? null : handleSwap())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== SwapAndPoolStatus.Swap}
+        disabled={getSwapButtonProperties.disabled}
       >
-        {checkIfSwapIsPossible()}
+        {getSwapButtonProperties.label}
       </Button>
 
       <SwapAndPoolSuccessModal
-        open={isSuccessModalOpen}
+        open={swapFinalized}
         onClose={closeSuccessModal}
         contentTitle={"Successfully swapped"}
         tokenA={{

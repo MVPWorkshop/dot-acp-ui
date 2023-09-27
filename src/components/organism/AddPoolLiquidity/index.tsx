@@ -1,11 +1,11 @@
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, SwapAndPoolStatus } from "../../../app/types/enum";
+import { ActionType, ButtonVariants } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import {
@@ -45,7 +45,6 @@ const AddPoolLiquidity = () => {
   const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, successModalOpen } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
@@ -155,7 +154,6 @@ const AddPoolLiquidity = () => {
   };
 
   const closeSuccessModal = async () => {
-    setIsSuccessModalOpen(false);
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     if (api) await getAllPools(api);
     navigateToPools();
@@ -227,29 +225,51 @@ const AddPoolLiquidity = () => {
     }
   };
 
-  const returnButtonStatus = () => {
+  const getButtonProperties = useMemo(() => {
     if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
-      return t("button.selectToken");
+      return { label: t("button.selectToken"), disabled: true };
     }
+
     if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
-      return t("button.enterAmount");
+      return { label: t("button.enterAmount"), disabled: true };
     }
+
     if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+      return {
+        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+        disabled: true,
+      };
     }
+
     if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+      return {
+        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+        disabled: true,
+      };
     }
+
     if (
       selectedTokenAssetValue?.tokenValue >
       formatDecimalsFromToken(parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")), selectedTokenB.decimals)
     ) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
+      return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
     }
+
     if (selectedTokenA && selectedTokenB) {
-      return t("button.deposit");
+      return { label: t("button.deposit"), disabled: false };
     }
-  };
+
+    return { label: "", disabled: true };
+  }, [
+    selectedTokenA.nativeTokenDecimals,
+    selectedTokenB.assetTokenBalance,
+    selectedTokenA.nativeTokenSymbol,
+    selectedTokenB.tokenSymbol,
+    selectedTokenB.decimals,
+    selectedTokenNativeValue.tokenValue,
+    selectedTokenAssetValue.tokenValue,
+    tokenBalances,
+  ]);
 
   useEffect(() => {
     if (tokenBalances) {
@@ -275,10 +295,6 @@ const AddPoolLiquidity = () => {
       handleAddPoolLiquidityGasFee();
     }
   }, [nativeTokenValue, assetTokenValue]);
-
-  useEffect(() => {
-    if (successModalOpen) setIsSuccessModalOpen(true);
-  }, [successModalOpen]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -364,11 +380,11 @@ const AddPoolLiquidity = () => {
       </div>
 
       <Button
-        onClick={handlePool}
+        onClick={() => (getButtonProperties.disabled ? null : handlePool())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnButtonStatus() !== SwapAndPoolStatus.Deposit}
+        disabled={getButtonProperties.disabled}
       >
-        {returnButtonStatus()}
+        {getButtonProperties.label}
       </Button>
 
       <PoolSelectTokenModal
@@ -379,7 +395,7 @@ const AddPoolLiquidity = () => {
       />
 
       <SwapAndPoolSuccessModal
-        open={isSuccessModalOpen}
+        open={successModalOpen}
         onClose={closeSuccessModal}
         contentTitle={
           poolExists
