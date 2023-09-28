@@ -11,6 +11,7 @@ export const initialPoolsState: PoolsState = {
   poolGasFee: "",
   addLiquidityGasFee: "",
   poolCardSelected: null,
+  poolsTokenMetadata: [],
 };
 
 export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState => {
@@ -33,6 +34,8 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
       return { ...state, poolsCards: action.payload };
     case ActionType.SET_POOL_CARD_SELECTED:
       return { ...state, poolCardSelected: action.payload };
+    case ActionType.SET_POOLS_TOKEN_METADATA:
+      return { ...state, poolsTokenMetadata: action.payload };
     default:
       return state;
   }
