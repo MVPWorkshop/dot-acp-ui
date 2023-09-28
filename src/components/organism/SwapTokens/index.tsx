@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
@@ -227,6 +227,7 @@ const SwapTokens = () => {
           selectedTokens.tokenA.tokenId,
           selectedTokens.tokenB.tokenId
         );
+
         if (assetTokenPrice) {
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
@@ -253,21 +254,23 @@ const SwapTokens = () => {
         return;
       }
     }
+
     setSelectedTokenAValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactIn });
+
     if (selectedTokenAValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfAssetTokenFromNativeToken(value);
+        await getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfNativeTokenFromAssetToken(value);
+        await getPriceOfNativeTokenFromAssetToken(value);
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else {
-        getPriceOfAssetTokenBFromAssetTokenA(value);
+        await getPriceOfAssetTokenBFromAssetTokenA(value);
       }
     }
   };
@@ -285,14 +288,14 @@ const SwapTokens = () => {
     setInputEdited({ inputType: InputEditedType.exactOut });
     if (selectedTokenBValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfNativeTokenFromAssetToken(value);
+        await getPriceOfNativeTokenFromAssetToken(value);
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfAssetTokenFromNativeToken(value);
+        await getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else {
-        getPriceOfAssetTokenAFromAssetTokenB(value);
+        await getPriceOfAssetTokenAFromAssetTokenB(value);
       }
     }
   };
@@ -500,6 +503,37 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
+  const onSwapSelectModal = async (tokenData: any) => {
+    setSelectedTokens((prev) => {
+      return {
+        ...prev,
+        [tokenSelectionModal]: tokenData,
+      };
+    });
+
+    setTokenSelectionModal(TokenSelection.None);
+  };
+
+  useEffect(() => {
+    if (
+      tokenSelectionModal === TokenSelection.TokenB &&
+      selectedTokens.tokenB.tokenSymbol !== TokenSelection.NativeToken
+    ) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    } else {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    }
+
+    if (
+      tokenSelectionModal === TokenSelection.TokenA &&
+      selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken
+    ) {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    } else {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    }
+  }, [tokenSelectionModal, selectedTokens.tokenB.tokenSymbol, selectedTokens.tokenA.tokenSymbol]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -577,13 +611,7 @@ const SwapTokens = () => {
           tokensData={availablePoolTokens}
           onClose={() => setTokenSelectionModal(TokenSelection.None)}
           onSelect={(tokenData) => {
-            setSelectedTokens((prev) => {
-              return {
-                ...prev,
-                [tokenSelectionModal]: tokenData,
-              };
-            });
-            setTokenSelectionModal(TokenSelection.None);
+            onSwapSelectModal(tokenData);
           }}
         />
 
