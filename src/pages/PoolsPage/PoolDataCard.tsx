@@ -44,7 +44,7 @@ const PoolDataCard = ({
     });
   };
 
-  const checkIfWithdrawOdDepositDisabled = () => {
+  const checkIfWithdrawOrDepositDisabled = () => {
     if (lpTokenAsset) {
       if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances) {
         return false;
@@ -72,11 +72,11 @@ const PoolDataCard = ({
             onClick={() => onDepositClick()}
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
-            disabled={checkIfWithdrawOdDepositDisabled()}
+            disabled={checkIfWithdrawOrDepositDisabled()}
             className="group relative"
           >
             {t("button.deposit")}
-            {checkIfWithdrawOdDepositDisabled() && (
+            {checkIfWithdrawOrDepositDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
                 {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>
@@ -85,11 +85,11 @@ const PoolDataCard = ({
           <Button
             onClick={() => onWithdrawClick()}
             variant={ButtonVariants.btnSecondaryGray}
-            disabled={checkIfWithdrawOdDepositDisabled()}
+            disabled={checkIfWithdrawOrDepositDisabled()}
             className="group relative"
           >
             {t("button.withdraw")}
-            {checkIfWithdrawOdDepositDisabled() && (
+            {checkIfWithdrawOrDepositDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
                 {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>

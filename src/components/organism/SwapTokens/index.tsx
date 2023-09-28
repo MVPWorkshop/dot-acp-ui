@@ -1,13 +1,7 @@
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import {
-  ActionType,
-  ButtonVariants,
-  InputEditedType,
-  SwapAndPoolStatus,
-  TokenSelection,
-} from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -92,7 +86,6 @@ const SwapTokens = () => {
   const [slippageValue, setSlippageValue] = useState<number>(10);
   const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
   const [availablePoolTokens, setAvailablePoolTokens] = useState<any[]>([]);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
 
   const nativeToken = {
     tokenId: "",
@@ -234,7 +227,6 @@ const SwapTokens = () => {
           selectedTokens.tokenA.tokenId,
           selectedTokens.tokenB.tokenId
         );
-
         if (assetTokenPrice) {
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
@@ -305,27 +297,27 @@ const SwapTokens = () => {
     }
   };
 
-  const checkIfSwapIsPossible = () => {
+  const getSwapButtonProperties = useMemo(() => {
     if (selectedAccount && tokenBalances?.balance) {
       if (!selectedTokens.tokenA || !selectedTokens.tokenB) {
-        return t("button.selectToken");
+        return { label: t("button.selectToken"), disabled: true };
       }
-      if (selectedTokenAValue?.tokenValue <= 0) {
-        return t("button.enterAmount");
+      if (selectedTokenAValue?.tokenValue <= 0 || selectedTokenBValue?.tokenValue <= 0) {
+        return { label: t("button.enterAmount"), disabled: true };
       }
       if (
         walletHasEnoughWnd === false &&
         (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
           selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken)
       ) {
-        return t("button.insufficientTokenAmount", { token: TokenSelection.NativeToken });
+        return { label: t("button.insufficientTokenAmount", { token: TokenSelection.NativeToken }), disabled: true };
       }
       if (
         (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
           selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) &&
         walletHasEnoughWnd
       ) {
-        return t("button.swap");
+        return { label: t("button.swap"), disabled: false };
       }
       if (
         selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
@@ -333,12 +325,22 @@ const SwapTokens = () => {
         selectedTokenAValue.tokenValue > 0 &&
         selectedTokenBValue.tokenValue > 0
       ) {
-        return t("button.swap");
+        return { label: t("button.swap"), disabled: false };
       }
     } else {
-      return t("button.connectWallet");
+      return { label: t("button.connectWallet"), disabled: true };
     }
-  };
+
+    return { label: "", disabled: true };
+  }, [
+    selectedAccount?.address,
+    tokenBalances?.balance,
+    selectedTokens.tokenA.decimals,
+    selectedTokens.tokenB.decimals,
+    selectedTokenAValue.tokenValue,
+    selectedTokenBValue.tokenValue,
+    walletHasEnoughWnd,
+  ]);
 
   const getSwapTokenA = async () => {
     if (api) {
@@ -389,8 +391,6 @@ const SwapTokens = () => {
         assetTokensInPoolTokenPairsArray.includes(item.assetTokenMetadata.symbol)
       );
       setAvailablePoolTokens(assetTokensNotInPoolTokenPairsArray);
-
-      return assetTokensNotInPoolTokenPairsArray;
     }
   };
 
@@ -478,6 +478,7 @@ const SwapTokens = () => {
       }
     }
   };
+
   const getSwapTokenB = () => {
     const poolLiquidTokens: any = [nativeToken]
       .concat(poolsTokenMetadata)
@@ -488,6 +489,7 @@ const SwapTokens = () => {
     setAvailablePoolTokens(poolLiquidTokens);
     return poolLiquidTokens;
   };
+
   const fillTokenPairsAndOpenModal = (tokenInputSelected: TokenSelection) => {
     if (tokenInputSelected === "tokenA") getSwapTokenA();
     if (tokenInputSelected === "tokenB") getSwapTokenB();
@@ -495,124 +497,121 @@ const SwapTokens = () => {
   };
 
   const closeSuccessModal = () => {
-    setIsSuccessModalOpen(false);
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
-  useEffect(() => {
-    if (swapFinalized) setIsSuccessModalOpen(true);
-  }, [swapFinalized]);
-
   return (
-    <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
-      <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
-      <TokenAmountInput
-        tokenText={selectedTokens.tokenA?.tokenSymbol}
-        labelText={t("tokenAmountInput.youPay")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenAValue.tokenValue}
-        onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
-        onSetTokenValue={(value) => tokenAValue(value)}
-        disabled={!selectedAccount}
-      />
-      <TokenAmountInput
-        tokenText={selectedTokens.tokenB?.tokenSymbol}
-        labelText={t("tokenAmountInput.youReceive")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenBValue.tokenValue}
-        onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
-        onSetTokenValue={(value) => tokenBValue(value)}
-        disabled={!selectedAccount}
-      />
+    <div className="flex max-w-[460px] flex-col gap-4">
+      <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+        <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
+        <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
+        <TokenAmountInput
+          tokenText={selectedTokens.tokenA?.tokenSymbol}
+          labelText={t("tokenAmountInput.youPay")}
+          tokenIcon={<DotToken />}
+          tokenValue={selectedTokenAValue.tokenValue}
+          onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
+          onSetTokenValue={(value) => tokenAValue(value)}
+          disabled={!selectedAccount}
+        />
+        <TokenAmountInput
+          tokenText={selectedTokens.tokenB?.tokenSymbol}
+          labelText={t("tokenAmountInput.youReceive")}
+          tokenIcon={<DotToken />}
+          tokenValue={selectedTokenBValue.tokenValue}
+          onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
+          onSetTokenValue={(value) => tokenBValue(value)}
+          disabled={!selectedAccount}
+        />
 
-      <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
-          <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-          <span>{slippageValue}%</span>
-        </div>
-        <div className="flex flex-row gap-2">
-          <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-gray-400">
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": slippageAuto,
-                "bg-purple-100": !slippageAuto,
-              })}
-              onClick={() => {
-                setSlippageAuto(true);
-                setSlippageValue(10);
-              }}
-            >
-              {t("tokenAmountInput.auto")}
-            </button>
-
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": slippageAuto,
-                "bg-purple-100": !slippageAuto,
-              })}
-              onClick={() => setSlippageAuto(false)}
-            >
-              {t("tokenAmountInput.custom")}
-            </button>
+        <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+          <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+            <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
+            <span>{slippageValue}%</span>
           </div>
-          <div className="flex basis-1/3">
-            <div className="relative flex">
-              <NumericFormat
-                value={slippageValue}
-                onValueChange={({ value }) => setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0)}
-                fixedDecimalScale={true}
-                thousandSeparator={false}
-                allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                disabled={slippageAuto}
-              />
-              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+          <div className="flex flex-row gap-2">
+            <div className="flex w-full basis-8/12 flex-row rounded-xl bg-white p-1 text-large font-normal text-gray-400">
+              <button
+                className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                  "bg-white": !slippageAuto,
+                  "bg-purple-100": slippageAuto,
+                })}
+                onClick={() => {
+                  setSlippageAuto(true);
+                  setSlippageValue(10);
+                }}
+              >
+                {t("tokenAmountInput.auto")}
+              </button>
+
+              <button
+                className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                  "bg-white": slippageAuto,
+                  "bg-purple-100": !slippageAuto,
+                })}
+                onClick={() => setSlippageAuto(false)}
+              >
+                {t("tokenAmountInput.custom")}
+              </button>
+            </div>
+            <div className="flex basis-1/3">
+              <div className="relative flex">
+                <NumericFormat
+                  value={slippageValue}
+                  onValueChange={({ value }) => setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0)}
+                  fixedDecimalScale={true}
+                  thousandSeparator={false}
+                  allowNegative={false}
+                  className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
+                  disabled={slippageAuto}
+                />
+                <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <SwapSelectTokenModal
+          open={tokenSelectionModal !== TokenSelection.None}
+          title={t("modal.selectToken")}
+          tokensData={availablePoolTokens}
+          onClose={() => setTokenSelectionModal(TokenSelection.None)}
+          onSelect={(tokenData) => {
+            setSelectedTokens((prev) => {
+              return {
+                ...prev,
+                [tokenSelectionModal]: tokenData,
+              };
+            });
+            setTokenSelectionModal(TokenSelection.None);
+          }}
+        />
+
+        <Button
+          onClick={() => (getSwapButtonProperties.disabled ? null : handleSwap())}
+          variant={ButtonVariants.btnInteractivePink}
+          disabled={getSwapButtonProperties.disabled}
+        >
+          {getSwapButtonProperties.label}
+        </Button>
+
+        <SwapAndPoolSuccessModal
+          open={swapFinalized}
+          onClose={closeSuccessModal}
+          contentTitle={"Successfully swapped"}
+          tokenA={{
+            symbol: selectedTokens.tokenA.tokenSymbol,
+            value: selectedTokenAValue.tokenValue,
+            icon: <DotToken />,
+          }}
+          tokenB={{
+            symbol: selectedTokens.tokenB.tokenSymbol,
+            value: selectedTokenBValue.tokenValue,
+            icon: <DotToken />,
+          }}
+          actionLabel="Swapped"
+        />
       </div>
-
-      <SwapSelectTokenModal
-        open={tokenSelectionModal !== TokenSelection.None}
-        title={t("modal.selectToken")}
-        tokensData={availablePoolTokens}
-        onClose={() => setTokenSelectionModal(TokenSelection.None)}
-        onSelect={(tokenData) => {
-          setSelectedTokens((prev) => {
-            return {
-              ...prev,
-              [tokenSelectionModal]: tokenData,
-            };
-          });
-          setTokenSelectionModal(TokenSelection.None);
-        }}
-      />
-
-      <Button
-        onClick={() => handleSwap()}
-        variant={ButtonVariants.btnInteractivePink}
-        disabled={checkIfSwapIsPossible() !== SwapAndPoolStatus.Swap}
-      >
-        {checkIfSwapIsPossible()}
-      </Button>
-
-      <SwapAndPoolSuccessModal
-        open={isSuccessModalOpen}
-        onClose={closeSuccessModal}
-        contentTitle={"Successfully swapped"}
-        tokenA={{
-          symbol: selectedTokens.tokenA.tokenSymbol,
-          value: selectedTokenAValue.tokenValue,
-          icon: <DotToken />,
-        }}
-        tokenB={{
-          symbol: selectedTokens.tokenB.tokenSymbol,
-          value: selectedTokenBValue.tokenValue,
-          icon: <DotToken />,
-        }}
-        actionLabel="Swapped"
-      />
     </div>
   );
 };

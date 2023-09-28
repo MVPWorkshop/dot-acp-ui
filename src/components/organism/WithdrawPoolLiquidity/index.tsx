@@ -1,11 +1,11 @@
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, LiquidityPageType, SwapAndPoolStatus } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import {
@@ -47,7 +47,6 @@ const WithdrawPoolLiquidity = () => {
   const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, successModalOpen } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
@@ -137,21 +136,22 @@ const WithdrawPoolLiquidity = () => {
   };
 
   const closeSuccessModal = async () => {
-    setIsSuccessModalOpen(false);
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     if (api) await getAllPools(api);
     navigateToPools();
   };
 
-  const returnSwapStatus = () => {
+  const getWithdrawButtonProperties = useMemo(() => {
     if (selectedTokenA && selectedTokenB) {
       if (minimumTokenAmountExceeded) {
-        return t("button.minimumTokenAmountExceeded");
+        return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
       } else {
-        return t("button.withdraw");
+        return { label: t("button.withdraw"), disabled: false };
       }
     }
-  };
+
+    return { label: "", disabled: true };
+  }, [selectedTokenA.nativeTokenDecimals, selectedTokenB.decimals, minimumTokenAmountExceeded]);
 
   const getNativeAndAssetTokensFromPool = async () => {
     if (api) {
@@ -225,10 +225,6 @@ const WithdrawPoolLiquidity = () => {
       handleWithdrawPoolLiquidityGasFee();
     }
   }, [nativeTokenValue, assetTokenValue]);
-
-  useEffect(() => {
-    if (successModalOpen) setIsSuccessModalOpen(true);
-  }, [successModalOpen]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -327,11 +323,11 @@ const WithdrawPoolLiquidity = () => {
       </div>
 
       <Button
-        onClick={handlePool}
+        onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool)}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnSwapStatus() !== SwapAndPoolStatus.Withdraw}
+        disabled={getWithdrawButtonProperties.disabled}
       >
-        {returnSwapStatus()}
+        {getWithdrawButtonProperties.label}
       </Button>
 
       <PoolSelectTokenModal
@@ -342,7 +338,7 @@ const WithdrawPoolLiquidity = () => {
       />
 
       <SwapAndPoolSuccessModal
-        open={isSuccessModalOpen}
+        open={successModalOpen}
         onClose={closeSuccessModal}
         contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
         actionLabel={t("modal.removeFromPool.withdrawal")}

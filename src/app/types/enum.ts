@@ -51,9 +51,3 @@ export enum LiquidityPageType {
 export enum ServiceResponseStatus {
   Finalized = "Finalized",
 }
-
-export enum SwapAndPoolStatus {
-  Swap = "Swap",
-  Withdraw = "Withdraw",
-  Deposit = "Deposit",
-}
