@@ -16,6 +16,7 @@ type PoolDataCardProps = {
   lpTokenAsset: LpTokenAsset | null;
   assetTokenId: string;
   lpTokenId: string | null;
+  tokenBalances: number | undefined;
 };
 
 const PoolDataCard = ({
@@ -27,6 +28,7 @@ const PoolDataCard = ({
   assetTokenIcon,
   assetTokenId,
   lpTokenId,
+  tokenBalances,
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
 
@@ -42,7 +44,14 @@ const PoolDataCard = ({
     });
   };
 
-  const checkIfWithdrawDisabled = (balance: number) => !(balance > 0);
+  const checkIfWithdrawOdDepositDisabled = () => {
+    if (lpTokenAsset) {
+      if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
@@ -63,15 +72,28 @@ const PoolDataCard = ({
             onClick={() => onDepositClick()}
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
+            disabled={checkIfWithdrawOdDepositDisabled()}
+            className="group relative"
           >
             {t("button.deposit")}
+            {checkIfWithdrawOdDepositDisabled() && (
+              <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+              </div>
+            )}
           </Button>
           <Button
             onClick={() => onWithdrawClick()}
             variant={ButtonVariants.btnSecondaryGray}
-            disabled={checkIfWithdrawDisabled(lpTokenAsset ? parseInt(lpTokenAsset?.balance) : 0)}
+            disabled={checkIfWithdrawOdDepositDisabled()}
+            className="group relative"
           >
             {t("button.withdraw")}
+            {checkIfWithdrawOdDepositDisabled() && (
+              <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+              </div>
+            )}
           </Button>
         </div>
       </div>
