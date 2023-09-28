@@ -104,7 +104,9 @@
     "poolExists": "No need to create a new pool. Liquidity can be added to the existing one.",
     "removeLiquidity": "Remove Liquidity",
     "withdrawalAmount": "Withdrawal amount",
-    "newPosition": "New Position"
+    "newPosition": "New Position",
+    "doNotHaveLiquidityPair": "You don't have tokens from this liquidity pair.",
+    "connectWallet": "Please connect your wallet"
   },
   "swapPage": {
     "addLiquidity": "Add Liquidity",

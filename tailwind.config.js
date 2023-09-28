@@ -55,6 +55,7 @@ export default {
           300: "#000000B2",
           400: "#000000E5",
         },
+        warning: "#FFF9E9",
       },
       boxShadow: {
         "modal-box-shadow":
