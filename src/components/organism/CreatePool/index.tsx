@@ -16,6 +16,8 @@ import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import classNames from "classnames";
 import WarningMessage from "../../atom/WarningMessage";
+import Lottie from "react-lottie";
+import { lottieOptions } from "../../../assets/loader";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -36,7 +38,16 @@ const CreatePool = () => {
 
   const navigate = useNavigate();
 
-  const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, successModalOpen } = state;
+  const {
+    tokenBalances,
+    api,
+    selectedAccount,
+    pools,
+    transferGasFeesMessage,
+    poolGasFee,
+    successModalOpen,
+    createPoolLoading,
+  } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -243,6 +254,7 @@ const CreatePool = () => {
           onClick={() => console.log("open modal")}
           onSetTokenValue={(value) => setSelectedTokenAValue(value)}
           selectDisabled={true}
+          disabled={createPoolLoading}
         />
         <TokenAmountInput
           tokenText={selectedTokenB?.tokenSymbol}
@@ -251,6 +263,8 @@ const CreatePool = () => {
           tokenValue={selectedTokenAssetValue?.tokenValue}
           onClick={() => setIsModalOpen(true)}
           onSetTokenValue={(value) => setSelectedTokenBValue(value)}
+          disabled={createPoolLoading}
+          selectDisabled={createPoolLoading}
         />
         <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -293,7 +307,7 @@ const CreatePool = () => {
                   allowNegative={false}
                   className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                   placeholder="15"
-                  disabled={slippageAuto}
+                  disabled={slippageAuto || createPoolLoading}
                 />
                 <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
               </div>
@@ -310,9 +324,9 @@ const CreatePool = () => {
         <Button
           onClick={() => (getButtonProperties.disabled ? null : handlePool())}
           variant={ButtonVariants.btnInteractivePink}
-          disabled={getButtonProperties.disabled}
+          disabled={getButtonProperties.disabled || createPoolLoading}
         >
-          {getButtonProperties.label}
+          {createPoolLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
         </Button>
 
         <PoolSelectTokenModal

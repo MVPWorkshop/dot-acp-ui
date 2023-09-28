@@ -13,6 +13,9 @@ export interface PoolsState {
   poolGasFee: string;
   addLiquidityGasFee: string;
   poolsTokenMetadata: PoolsTokenMetadata[];
+  createPoolLoading: boolean;
+  addLiquidityLoading: boolean;
+  withdrawLiquidityLoading: boolean;
 }
 
 export type PoolAction =
@@ -28,4 +31,7 @@ export type PoolAction =
   | { type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE; payload: string }
   | { type: ActionType.SET_POOLS_CARDS; payload: PoolCardProps[] }
   | { type: ActionType.SET_POOL_CARD_SELECTED; payload: PoolCardProps }
-  | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: PoolsTokenMetadata[] };
+  | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: PoolsTokenMetadata[] }
+  | { type: ActionType.SET_CREATE_POOL_LOADING; payload: boolean }
+  | { type: ActionType.SET_ADD_LIQUIDITY_LOADING; payload: boolean }
+  | { type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING; payload: boolean };

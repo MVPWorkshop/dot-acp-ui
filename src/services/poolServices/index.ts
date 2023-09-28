@@ -76,6 +76,8 @@ export const createPool = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: true });
+
   const result = api.tx.assetConversion.createPool(firstArg, secondArg);
   const injector = await web3FromSource(account?.meta.source);
 
@@ -106,20 +108,25 @@ export const createPool = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+          dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
         }
       }
     })
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed ${error}`);
       dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+      dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
     });
 };
 
@@ -150,6 +157,8 @@ export const addLiquidity = async (
       },
     })
     .toU8a();
+
+  dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: true });
 
   const result = api.tx.assetConversion.addLiquidity(
     firstArg,
@@ -184,17 +193,21 @@ export const addLiquidity = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
+          dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           await getAllPools(api);
         }
       }
@@ -202,6 +215,7 @@ export const addLiquidity = async (
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed ${error}`);
       dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+      dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
     });
 };
 
@@ -232,6 +246,8 @@ export const removeLiquidity = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: true });
+
   const result = api.tx.assetConversion.removeLiquidity(
     firstArg,
     secondArg,
@@ -257,17 +273,21 @@ export const removeLiquidity = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
+          dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           await getAllPools(api);
         }
       }
@@ -275,6 +295,7 @@ export const removeLiquidity = async (
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed ${error}`);
       dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
+      dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
     });
 };
 

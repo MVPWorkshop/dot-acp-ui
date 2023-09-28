@@ -7,6 +7,7 @@ import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
+import Lottie from "react-lottie";
 import {
   swapNativeForAssetExactIn,
   swapNativeForAssetExactOut,
@@ -29,6 +30,7 @@ import { getPoolReserves } from "../../../services/poolServices";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import classNames from "classnames";
 import { InputEditedProps } from "../../../app/types";
+import { lottieOptions } from "../../../assets/loader";
 
 type TokenProps = {
   tokenSymbol: string;
@@ -52,7 +54,7 @@ type TokenValueSlippageProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized } = state;
+  const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized, swapLoading } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -546,7 +548,7 @@ const SwapTokens = () => {
           tokenValue={selectedTokenAValue.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value)}
-          disabled={!selectedAccount}
+          disabled={!selectedAccount || swapLoading}
         />
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
@@ -555,7 +557,7 @@ const SwapTokens = () => {
           tokenValue={selectedTokenBValue.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value)}
-          disabled={!selectedAccount}
+          disabled={!selectedAccount || swapLoading}
         />
 
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
@@ -597,7 +599,7 @@ const SwapTokens = () => {
                   thousandSeparator={false}
                   allowNegative={false}
                   className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                  disabled={slippageAuto}
+                  disabled={slippageAuto || swapLoading}
                 />
                 <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
               </div>
@@ -618,9 +620,9 @@ const SwapTokens = () => {
         <Button
           onClick={() => (getSwapButtonProperties.disabled ? null : handleSwap())}
           variant={ButtonVariants.btnInteractivePink}
-          disabled={getSwapButtonProperties.disabled}
+          disabled={getSwapButtonProperties.disabled || swapLoading}
         >
-          {getSwapButtonProperties.label}
+          {swapLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getSwapButtonProperties.label}
         </Button>
 
         <SwapAndPoolSuccessModal

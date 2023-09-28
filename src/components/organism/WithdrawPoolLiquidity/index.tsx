@@ -22,6 +22,8 @@ import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import { LpTokenAsset } from "../../../app/types";
 import Decimal from "decimal.js";
 import classNames from "classnames";
+import { lottieOptions } from "../../../assets/loader";
+import Lottie from "react-lottie";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -44,7 +46,15 @@ const WithdrawPoolLiquidity = () => {
   const location = useLocation();
   const params = useParams();
 
-  const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, successModalOpen } = state;
+  const {
+    tokenBalances,
+    api,
+    selectedAccount,
+    pools,
+    transferGasFeesMessage,
+    successModalOpen,
+    withdrawLiquidityLoading,
+  } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -314,7 +324,7 @@ const WithdrawPoolLiquidity = () => {
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 placeholder="15"
-                disabled={slippageAuto}
+                disabled={slippageAuto || withdrawLiquidityLoading}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
@@ -323,11 +333,15 @@ const WithdrawPoolLiquidity = () => {
       </div>
 
       <Button
-        onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool)}
+        onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={getWithdrawButtonProperties.disabled}
+        disabled={getWithdrawButtonProperties.disabled || withdrawLiquidityLoading}
       >
-        {getWithdrawButtonProperties.label}
+        {withdrawLiquidityLoading ? (
+          <Lottie options={lottieOptions} height={30} width={30} />
+        ) : (
+          getWithdrawButtonProperties.label
+        )}
       </Button>
 
       <PoolSelectTokenModal
