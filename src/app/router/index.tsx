@@ -1,5 +1,4 @@
-import HomePage from "../../pages/HomePage";
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import PoolsPage from "../../pages/PoolsPage";
 import SwapPage from "../../pages/SwapPage";
 import LiquidityPage from "../../pages/LiquidityPage/index.tsx";
@@ -21,7 +20,7 @@ const router = createBrowserRouter([
     children: [
       {
         path: HOME_ROUTE,
-        element: <HomePage />,
+        element: <Navigate to={SWAP_ROUTE} />,
       },
       {
         path: POOLS_ROUTE,
