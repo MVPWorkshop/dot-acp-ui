@@ -15,6 +15,8 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 import classNames from "classnames";
+import { lottieOptions } from "../../../assets/loader";
+import Lottie from "react-lottie";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -36,7 +38,16 @@ const AddPoolLiquidity = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, successModalOpen } = state;
+  const {
+    tokenBalances,
+    api,
+    selectedAccount,
+    pools,
+    transferGasFeesMessage,
+    poolGasFee,
+    successModalOpen,
+    addLiquidityLoading,
+  } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
@@ -284,6 +295,7 @@ const AddPoolLiquidity = () => {
         onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenAValue(value)}
         selectDisabled={true}
+        disabled={addLiquidityLoading}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
@@ -293,6 +305,7 @@ const AddPoolLiquidity = () => {
         onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
         selectDisabled={true}
+        disabled={addLiquidityLoading}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -335,7 +348,7 @@ const AddPoolLiquidity = () => {
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 placeholder="15"
-                disabled={slippageAuto}
+                disabled={slippageAuto || addLiquidityLoading}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
@@ -346,9 +359,9 @@ const AddPoolLiquidity = () => {
       <Button
         onClick={() => (getButtonProperties.disabled ? null : handlePool())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={getButtonProperties.disabled}
+        disabled={getButtonProperties.disabled || addLiquidityLoading}
       >
-        {getButtonProperties.label}
+        {addLiquidityLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
       </Button>
 
       <SwapAndPoolSuccessModal
