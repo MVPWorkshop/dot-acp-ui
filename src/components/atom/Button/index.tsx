@@ -57,7 +57,9 @@ const Button = ({ children, disabled, className, icon, variant, onClick }: Butto
           (variant === ButtonVariants.btnInteractiveGhost && disabled),
         "btn-select-pink": variant === ButtonVariants.btnSelectPink,
         "btn-select-gray": variant === ButtonVariants.btnSelectGray,
-        "btn-select-disabled": variant === ButtonVariants.btnSelectPink && disabled,
+        "btn-select-disabled":
+          (variant === ButtonVariants.btnSelectPink && disabled) ||
+          (variant === ButtonVariants.btnSelectGray && disabled),
       })}
       onClick={() => (!disabled ? onClick() : null)}
       disabled={disabled}
