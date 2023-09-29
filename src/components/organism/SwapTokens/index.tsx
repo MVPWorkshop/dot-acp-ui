@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
@@ -508,7 +508,7 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
-  const onSwapSelectModal = async (tokenData: any) => {
+  const onSwapSelectModal = (tokenData: any) => {
     setSelectedTokens((prev) => {
       return {
         ...prev,
@@ -516,25 +516,19 @@ const SwapTokens = () => {
       };
     });
 
-    console.log(tokenData);
-
-    if (tokenSelectionModal === TokenSelection.TokenB && selectedTokenAValue.tokenValue > 0) {
-      tokenAValue(selectedTokenAValue.tokenValue);
-    }
-
     setTokenSelectionModal(TokenSelection.None);
   };
 
-  // useEffect(() => {
-  //   console.log("token selected:", selectedTokens.tokenB.tokenSymbol);
-  //   if (tokenSelectionModal === TokenSelection.TokenB && selectedTokenAValue.tokenValue > 0) {
-  //     tokenAValue(selectedTokenAValue.tokenValue);
-  //   }
+  useEffect(() => {
+    console.log("token selected:", selectedTokens.tokenB.tokenSymbol);
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenAValue.tokenValue > 0) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    }
 
-  //   if (tokenSelectionModal === TokenSelection.TokenA && selectedTokenBValue.tokenValue > 0) {
-  //     tokenBValue(selectedTokenBValue.tokenValue);
-  //   }
-  // }, [tokenSelectionModal]);
+    if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenBValue.tokenValue > 0) {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    }
+  }, [selectedTokens]);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
