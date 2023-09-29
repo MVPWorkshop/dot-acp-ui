@@ -85,7 +85,7 @@ const SwapTokens = () => {
     tokenValue: 0,
   });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
-  const [slippageValue, setSlippageValue] = useState<number>(10);
+  const [slippageValue, setSlippageValue] = useState<number>(15);
   const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
   const [availablePoolTokens, setAvailablePoolTokens] = useState<any[]>([]);
 
@@ -288,6 +288,7 @@ const SwapTokens = () => {
     }
     setSelectedTokenBValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactOut });
+
     if (selectedTokenBValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfNativeTokenFromAssetToken(value);
@@ -564,7 +565,6 @@ const SwapTokens = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
-                  setSlippageValue(10);
                 }}
               >
                 {t("tokenAmountInput.auto")}
