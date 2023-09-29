@@ -117,7 +117,7 @@ const SwapTokens = () => {
           : selectedTokens?.tokenA?.tokenId,
         valueWithDecimals
       );
-      console.log("pass");
+
       if (assetTokenPrice) {
         const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
@@ -131,7 +131,7 @@ const SwapTokens = () => {
           inputEdited.inputType === InputEditedType.exactIn
             ? calculateSlippageReduce(assetTokenNoDecimals, slippageValue)
             : calculateSlippageAdd(assetTokenNoDecimals, slippageValue);
-        console.log("pass 1");
+
         if (inputEdited.inputType === InputEditedType.exactIn) {
           setTokenAValueForSwap({ tokenValue: value });
           setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
@@ -256,25 +256,22 @@ const SwapTokens = () => {
         return;
       }
     }
-    console.log("tokenAValue:", selectedTokens.tokenB.tokenSymbol);
+
     setSelectedTokenAValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactIn });
 
     if (selectedTokenAValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
-        console.log("1");
         getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
-        console.log("2");
         getPriceOfNativeTokenFromAssetToken(value);
         if (tokenBalances?.balance) {
           setWalletHasEnoughWnd(value <= tokenBalances?.balance);
         }
       } else {
-        console.log("3");
         getPriceOfAssetTokenBFromAssetTokenA(value);
       }
     }
@@ -520,7 +517,6 @@ const SwapTokens = () => {
   };
 
   useEffect(() => {
-    console.log("token selected:", selectedTokens.tokenB.tokenSymbol);
     if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenAValue.tokenValue > 0) {
       tokenAValue(selectedTokenAValue.tokenValue);
     }
