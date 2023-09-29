@@ -1,5 +1,5 @@
 import { t } from "i18next";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
@@ -85,7 +85,7 @@ const SwapTokens = () => {
     tokenValue: 0,
   });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
-  const [slippageValue, setSlippageValue] = useState<number>(10);
+  const [slippageValue, setSlippageValue] = useState<number>(15);
   const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
   const [availablePoolTokens, setAvailablePoolTokens] = useState<any[]>([]);
 
@@ -255,8 +255,10 @@ const SwapTokens = () => {
         return;
       }
     }
+
     setSelectedTokenAValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactIn });
+
     if (selectedTokenAValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfAssetTokenFromNativeToken(value);
@@ -285,6 +287,7 @@ const SwapTokens = () => {
     }
     setSelectedTokenBValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactOut });
+
     if (selectedTokenBValue) {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfNativeTokenFromAssetToken(value);
@@ -502,6 +505,14 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
+  useEffect(() => {
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenAValue.tokenValue > 0) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenBValue.tokenValue > 0) {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    }
+  }, [slippageValue]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -540,7 +551,6 @@ const SwapTokens = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
-                  setSlippageValue(10);
                 }}
               >
                 {t("tokenAmountInput.auto")}

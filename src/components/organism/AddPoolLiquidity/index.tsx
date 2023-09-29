@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
@@ -17,6 +17,7 @@ import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../.
 import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
+import { InputEditedProps } from "../../../app/types";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -65,6 +66,7 @@ const AddPoolLiquidity = () => {
   const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
+  const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -190,6 +192,7 @@ const AddPoolLiquidity = () => {
   };
 
   const setSelectedTokenAValue = (value: number) => {
+    setInputEdited({ inputType: InputEditedType.exactIn });
     if (selectedTokenNativeValue && slippageValue) {
       const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
@@ -200,6 +203,7 @@ const AddPoolLiquidity = () => {
   };
 
   const setSelectedTokenBValue = (value: number) => {
+    setInputEdited({ inputType: InputEditedType.exactOut });
     if (selectedTokenAssetValue && slippageValue) {
       const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
@@ -280,6 +284,14 @@ const AddPoolLiquidity = () => {
     }
   }, [params?.id]);
 
+  useEffect(() => {
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenNativeValue.tokenValue > 0) {
+      setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
+    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenAssetValue.tokenValue > 0) {
+      setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
+    }
+  }, [slippageValue]);
+
   return (
     <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
@@ -312,7 +324,7 @@ const AddPoolLiquidity = () => {
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
         <div className="flex w-full justify-between text-medium font-normal text-gray-200">
           <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-          <span>15%</span>
+          <span>{slippageValue}%</span>
         </div>
         <div className="flex w-full gap-2">
           <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
@@ -323,7 +335,6 @@ const AddPoolLiquidity = () => {
               })}
               onClick={() => {
                 setSlippageAuto(true);
-                setSlippageValue(15);
               }}
             >
               {t("tokenAmountInput.auto")}
