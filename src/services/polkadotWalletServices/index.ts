@@ -75,9 +75,12 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 };
 
 export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: any) => {
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
+
   const extensions = await web3Enable("DOT-ACP-UI");
 
   if (!extensions) {
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     throw Error("No Extension");
   }
 
@@ -86,14 +89,15 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: allAccounts });
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: allAccounts?.[0] });
 
-  localStorage.setItem("wallet-connected", JSON.stringify(allAccounts?.[0]));
-
   if (api) {
     try {
       const walletTokens: any = await getWalletTokensBalance(api, allAccounts?.[0]?.address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
+      localStorage.setItem("wallet-connected", JSON.stringify(allAccounts?.[0]));
       dotAcpToast.success("Account balance successfully fetched!");
+      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     } catch (error) {
+      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
       dotAcpToast.error(`Wallet connection error: ${error}`);
     }
   }

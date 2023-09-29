@@ -160,45 +160,52 @@ const CreatePool = () => {
   };
 
   const getButtonProperties = useMemo(() => {
-    if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
-      return { label: t("button.selectToken"), disabled: true };
-    }
+    if (tokenBalances?.assets) {
+      if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
+        return { label: t("button.selectToken"), disabled: true };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
-      return { label: t("button.enterAmount"), disabled: true };
-    }
+      if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
+        return { label: t("button.enterAmount"), disabled: true };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-      return {
-        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-        disabled: true,
-      };
-    }
+      if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
-      return {
-        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-        disabled: true,
-      };
-    }
+      if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
 
-    if (
-      selectedTokenAssetValue?.tokenValue >
-      formatDecimalsFromToken(parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")), selectedTokenB.decimals)
-    ) {
-      return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
-    }
+      if (
+        selectedTokenAssetValue?.tokenValue >
+        formatDecimalsFromToken(
+          parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")),
+          selectedTokenB.decimals
+        )
+      ) {
+        return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
+      }
 
-    if (selectedTokenA && selectedTokenB && poolExists) {
-      return { label: t("button.enterAmount"), disabled: true };
-    }
+      if (selectedTokenA && selectedTokenB && poolExists) {
+        return { label: t("button.enterAmount"), disabled: true };
+      }
 
-    if (selectedTokenA && selectedTokenB && assetTokenMinValueExceeded) {
-      return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
-    }
+      if (selectedTokenA && selectedTokenB && assetTokenMinValueExceeded) {
+        return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
+      }
 
-    if (selectedTokenA && selectedTokenB && !assetTokenMinValueExceeded) {
-      return { label: t("button.deposit"), disabled: false };
+      if (selectedTokenA && selectedTokenB && !assetTokenMinValueExceeded) {
+        return { label: t("button.deposit"), disabled: false };
+      }
+    } else {
+      return { label: t("button.connectWallet"), disabled: true };
     }
 
     return { label: "", disabled: true };
@@ -254,7 +261,7 @@ const CreatePool = () => {
           onClick={() => console.log("open modal")}
           onSetTokenValue={(value) => setSelectedTokenAValue(value)}
           selectDisabled={true}
-          disabled={createPoolLoading}
+          disabled={createPoolLoading || !tokenBalances?.assets}
         />
         <TokenAmountInput
           tokenText={selectedTokenB?.tokenSymbol}
@@ -263,7 +270,7 @@ const CreatePool = () => {
           tokenValue={selectedTokenAssetValue?.tokenValue}
           onClick={() => setIsModalOpen(true)}
           onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-          disabled={createPoolLoading}
+          disabled={createPoolLoading || !tokenBalances?.assets}
           selectDisabled={createPoolLoading}
         />
         <div className="mt-1 text-small">{transferGasFeesMessage}</div>
@@ -324,7 +331,7 @@ const CreatePool = () => {
         <Button
           onClick={() => (getButtonProperties.disabled ? null : handlePool())}
           variant={ButtonVariants.btnInteractivePink}
-          disabled={getButtonProperties.disabled || createPoolLoading}
+          disabled={getButtonProperties.disabled || createPoolLoading || !tokenBalances?.assets}
         >
           {createPoolLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
         </Button>

@@ -210,37 +210,44 @@ const AddPoolLiquidity = () => {
   };
 
   const getButtonProperties = useMemo(() => {
-    if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
-      return { label: t("button.selectToken"), disabled: true };
-    }
+    if (tokenBalances?.assets) {
+      if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
+        return { label: t("button.selectToken"), disabled: true };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
-      return { label: t("button.enterAmount"), disabled: true };
-    }
+      if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
+        return { label: t("button.enterAmount"), disabled: true };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-      return {
-        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-        disabled: true,
-      };
-    }
+      if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
 
-    if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
-      return {
-        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-        disabled: true,
-      };
-    }
+      if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
 
-    if (
-      selectedTokenAssetValue?.tokenValue >
-      formatDecimalsFromToken(parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")), selectedTokenB.decimals)
-    ) {
-      return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
-    }
+      if (
+        selectedTokenAssetValue?.tokenValue >
+        formatDecimalsFromToken(
+          parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")),
+          selectedTokenB.decimals
+        )
+      ) {
+        return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
+      }
 
-    if (selectedTokenA && selectedTokenB) {
-      return { label: t("button.deposit"), disabled: false };
+      if (selectedTokenA && selectedTokenB) {
+        return { label: t("button.deposit"), disabled: false };
+      }
+    } else {
+      return { label: t("button.connectWallet"), disabled: true };
     }
 
     return { label: "", disabled: true };
@@ -294,8 +301,8 @@ const AddPoolLiquidity = () => {
         tokenValue={selectedTokenNativeValue?.tokenValue}
         onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenAValue(value)}
-        selectDisabled={true}
-        disabled={addLiquidityLoading}
+        selectDisabled={true || !tokenBalances?.assets}
+        disabled={addLiquidityLoading || !tokenBalances?.assets}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
@@ -304,8 +311,8 @@ const AddPoolLiquidity = () => {
         tokenValue={selectedTokenAssetValue?.tokenValue}
         onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-        selectDisabled={true}
-        disabled={addLiquidityLoading}
+        selectDisabled={true || !tokenBalances?.assets}
+        disabled={addLiquidityLoading || !tokenBalances?.assets}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -359,7 +366,7 @@ const AddPoolLiquidity = () => {
       <Button
         onClick={() => (getButtonProperties.disabled ? null : handlePool())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={getButtonProperties.disabled || addLiquidityLoading}
+        disabled={getButtonProperties.disabled || addLiquidityLoading || !tokenBalances?.assets}
       >
         {addLiquidityLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
       </Button>

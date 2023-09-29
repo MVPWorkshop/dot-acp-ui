@@ -12,10 +12,12 @@ import Button from "../../atom/Button/index.tsx";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { lottieOptions } from "../../../assets/loader/index.tsx";
+import Lottie from "react-lottie";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
-  const { api } = state;
+  const { api, walletConnectLoading } = state;
   const location = useLocation();
   const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
 
@@ -63,7 +65,7 @@ const HeaderTopNav = () => {
           {t("button.pool")}
         </NavLink>
       </div>
-      <div>
+      <div className="w-[180px]">
         {walletConnected ? (
           <div className="flex items-center justify-center gap-[26px]">
             <div className="flex flex-col text-gray-300">
@@ -77,8 +79,12 @@ const HeaderTopNav = () => {
             </div>
           </div>
         ) : (
-          <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg}>
-            {t("button.connectWallet")}
+          <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg} disabled={walletConnectLoading}>
+            {walletConnectLoading ? (
+              <Lottie options={lottieOptions} height={20} width={20} />
+            ) : (
+              t("button.connectWallet")
+            )}
           </Button>
         )}
       </div>
