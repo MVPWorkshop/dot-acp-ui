@@ -7,6 +7,8 @@ import { Dispatch } from "react";
 import { WalletAction } from "../../store/wallet/interface";
 import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { TokenBalanceData } from "../../app/types";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
@@ -18,6 +20,7 @@ export const setupPolkadotApi = async () => {
   ]);
 
   console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+
   return api;
 };
 
@@ -73,6 +76,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 
 export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: any) => {
   const extensions = await web3Enable("DOT-ACP-UI");
+
   if (!extensions) {
     throw Error("No Extension");
   }
@@ -82,13 +86,22 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: allAccounts });
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: allAccounts?.[0] });
 
+  localStorage.setItem("wallet-connected", JSON.stringify(allAccounts?.[0]));
+
   if (api) {
     try {
       const walletTokens: any = await getWalletTokensBalance(api, allAccounts?.[0]?.address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
-      dotAcpToast.success("Success");
+      dotAcpToast.success("Account balance successfully fetched!");
     } catch (error) {
       dotAcpToast.error(`Wallet connection error: ${error}`);
     }
   }
+};
+
+export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
+  localStorage.removeItem("wallet-connected");
+  dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as InjectedAccountWithMeta });
+  dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });
 };

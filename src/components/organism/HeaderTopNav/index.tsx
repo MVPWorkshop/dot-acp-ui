@@ -6,15 +6,20 @@ import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
 import { ButtonVariants } from "../../../app/types/enum.ts";
 import { reduceAddress } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast.ts";
-import { handleConnection } from "../../../services/polkadotWalletServices";
+import { handleConnection, handleDisconnect } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state/index.tsx";
 import Button from "../../atom/Button/index.tsx";
 import { t } from "i18next";
+import { useEffect, useState } from "react";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
-  const { api, selectedAccount } = state;
+  const { api } = state;
   const location = useLocation();
+  const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
+
+  const walletConnected = localStorage.getItem("wallet-connected");
 
   const connectWallet = async () => {
     try {
@@ -23,6 +28,17 @@ const HeaderTopNav = () => {
       dotAcpToast.error(`Error connecting: ${error}`);
     }
   };
+
+  const disconnectWallet = () => {
+    handleDisconnect(dispatch);
+    setWalletAccount({} as InjectedAccountWithMeta);
+  };
+
+  useEffect(() => {
+    if (walletConnected) {
+      setWalletAccount(JSON.parse(walletConnected));
+    }
+  }, [walletConnected]);
 
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
@@ -48,22 +64,22 @@ const HeaderTopNav = () => {
         </NavLink>
       </div>
       <div>
-        {!selectedAccount?.address ? (
+        {walletConnected ? (
+          <div className="flex items-center justify-center gap-[26px]">
+            <div className="flex flex-col text-gray-300">
+              <div className="font-[500]">{walletAccount?.meta?.name || "Account"}</div>
+              <div className="text-small">{reduceAddress(walletAccount?.address, 6, 6)}</div>
+            </div>
+            <div>
+              <button onClick={() => disconnectWallet()}>
+                <AccountImage />
+              </button>
+            </div>
+          </div>
+        ) : (
           <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg}>
             {t("button.connectWallet")}
           </Button>
-        ) : (
-          <>
-            <div className="flex items-center justify-center gap-[26px]">
-              <div className="flex flex-col text-gray-300">
-                <div className="font-[500]">{selectedAccount?.meta.name || "Account"}</div>
-                <div className="text-small">{reduceAddress(selectedAccount?.address, 6, 6)}</div>
-              </div>
-              <div>
-                <AccountImage />
-              </div>
-            </div>
-          </>
         )}
       </div>
     </nav>
