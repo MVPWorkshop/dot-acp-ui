@@ -46,7 +46,7 @@ type TokenValueSlippageProps = {
 };
 
 type TokenSelectedProps = {
-  tokenSelected: TokenPosition.tokenA | TokenPosition.tokenB;
+  tokenSelected: TokenPosition;
 };
 
 const SwapTokens = () => {
@@ -392,6 +392,7 @@ const SwapTokens = () => {
 
       assetTokensInPoolTokenPairsArray.push(TokenSelection.NativeToken);
 
+      // todo: refactor to be sure what data we are passing - remove any
       const assetTokensNotInPoolTokenPairsArray: any = assetTokens.filter((item: any) =>
         assetTokensInPoolTokenPairsArray.includes(item.assetTokenMetadata.symbol)
       );
