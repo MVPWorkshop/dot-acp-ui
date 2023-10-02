@@ -6,7 +6,12 @@ import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants, InputEditedType } from "../../../app/types/enum";
-import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
+import {
+  calculateSlippageReduce,
+  checkIfPoolAlreadyExists,
+  formatDecimalsFromToken,
+  formatInputTokenValue,
+} from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -18,6 +23,8 @@ import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
 import { InputEditedProps } from "../../../app/types";
+import PoolSelectTokenModal from "../PoolSelectTokenModal";
+import CreatePool from "../CreatePool";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -33,11 +40,15 @@ type TokenValueProps = {
   tokenValue: number;
 };
 
-const AddPoolLiquidity = () => {
+type AddPoolLiquidityProps = {
+  tokenBId?: { id: string };
+};
+
+const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const { state, dispatch } = useAppContext();
 
   const navigate = useNavigate();
-  const params = useParams();
+  const params = tokenBId ? tokenBId : useParams();
 
   const {
     tokenBalances,
@@ -67,6 +78,8 @@ const AddPoolLiquidity = () => {
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [poolExists, setPoolExists] = useState<boolean>(false);
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -299,106 +312,142 @@ const AddPoolLiquidity = () => {
     }
   }, [slippageValue]);
 
+  useEffect(() => {
+    if (tokenBId?.id) {
+      const checkPoolExists = checkIfPoolAlreadyExists(tokenBId.id, pools);
+      setPoolExists(checkPoolExists);
+    }
+  }, [tokenBId?.id]);
+
+  useEffect(() => {
+    if (tokenBId?.id) {
+      const checkPoolExists = checkIfPoolAlreadyExists(selectedTokenB.assetTokenId, pools);
+      setPoolExists(checkPoolExists);
+    }
+  }, [selectedTokenB.assetTokenId]);
+
   return (
-    <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
-      <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
-        <BackArrow width={24} height={24} />
-      </button>
-      <h3 className="heading-6 font-unbounded-variable font-normal">{t("poolsPage.addLiquidity")}</h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
-      <TokenAmountInput
-        tokenText={selectedTokenA?.nativeTokenSymbol}
-        labelText={t("tokenAmountInput.youPay")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenNativeValue?.tokenValue}
-        onClick={() => null}
-        onSetTokenValue={(value) => setSelectedTokenAValue(value)}
-        selectDisabled={true || !tokenBalances?.assets}
-        disabled={addLiquidityLoading || !tokenBalances?.assets}
-      />
-      <TokenAmountInput
-        tokenText={selectedTokenB?.tokenSymbol}
-        labelText={t("tokenAmountInput.youPay")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenAssetValue?.tokenValue}
-        onClick={() => null}
-        onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-        selectDisabled={true || !tokenBalances?.assets}
-        disabled={addLiquidityLoading || !tokenBalances?.assets}
-      />
-      <div className="mt-1 text-small">{transferGasFeesMessage}</div>
+    <>
+      {tokenBId?.id && poolExists === false ? (
+        <CreatePool tokenBSelected={selectedTokenB} />
+      ) : (
+        <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+          <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
+            <BackArrow width={24} height={24} />
+          </button>
+          <h3 className="heading-6 font-unbounded-variable font-normal">{t("poolsPage.addLiquidity")}</h3>
+          <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
+          <TokenAmountInput
+            tokenText={selectedTokenA?.nativeTokenSymbol}
+            labelText={t("tokenAmountInput.youPay")}
+            tokenIcon={<DotToken />}
+            tokenValue={selectedTokenNativeValue?.tokenValue}
+            onClick={() => null}
+            onSetTokenValue={(value) => setSelectedTokenAValue(value)}
+            selectDisabled={true}
+            disabled={addLiquidityLoading}
+          />
+          <TokenAmountInput
+            tokenText={selectedTokenB?.tokenSymbol}
+            labelText={t("tokenAmountInput.youPay")}
+            tokenIcon={<DotToken />}
+            tokenValue={selectedTokenAssetValue?.tokenValue}
+            onClick={() => setIsModalOpen(true)}
+            onSetTokenValue={(value) => setSelectedTokenBValue(value)}
+            selectDisabled={!tokenBId?.id}
+            disabled={addLiquidityLoading}
+          />
+          <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
-      <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full justify-between text-medium font-normal text-gray-200">
-          <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-          <span>{slippageValue}%</span>
-        </div>
-        <div className="flex w-full gap-2">
-          <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": !slippageAuto,
-                "bg-purple-100": slippageAuto,
-              })}
-              onClick={() => {
-                setSlippageAuto(true);
-              }}
-            >
-              {t("tokenAmountInput.auto")}
-            </button>
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": slippageAuto,
-                "bg-purple-100": !slippageAuto,
-              })}
-              onClick={() => setSlippageAuto(false)}
-            >
-              {t("tokenAmountInput.custom")}
-            </button>
-          </div>
-          <div className="flex basis-1/3">
-            <div className="relative flex">
-              <NumericFormat
-                value={slippageValue}
-                onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
-                fixedDecimalScale={true}
-                thousandSeparator={false}
-                allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                placeholder="15"
-                disabled={slippageAuto || addLiquidityLoading}
-              />
-              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+          <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+            <div className="flex w-full justify-between text-medium font-normal text-gray-200">
+              <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
+              <span>{slippageValue}%</span>
             </div>
+            <div className="flex w-full gap-2">
+              <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
+                <button
+                  className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                    "bg-white": !slippageAuto,
+                    "bg-purple-100": slippageAuto,
+                  })}
+                  onClick={() => {
+                    setSlippageAuto(true);
+                  }}
+                >
+                  {t("tokenAmountInput.auto")}
+                </button>
+                <button
+                  className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                    "bg-white": slippageAuto,
+                    "bg-purple-100": !slippageAuto,
+                  })}
+                  onClick={() => setSlippageAuto(false)}
+                >
+                  {t("tokenAmountInput.custom")}
+                </button>
+              </div>
+              <div className="flex basis-1/3">
+                <div className="relative flex">
+                  <NumericFormat
+                    value={slippageValue}
+                    onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                    fixedDecimalScale={true}
+                    thousandSeparator={false}
+                    allowNegative={false}
+                    className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
+                    placeholder="15"
+                    disabled={slippageAuto || addLiquidityLoading}
+                  />
+                  <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+                </div>
+              </div>
+            </div>
+            {poolExists ? (
+              <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
+                {t("poolsPage.poolExists")}
+              </div>
+            ) : null}
           </div>
+
+          <Button
+            onClick={() => (getButtonProperties.disabled ? null : handlePool())}
+            variant={ButtonVariants.btnInteractivePink}
+            disabled={getButtonProperties.disabled || addLiquidityLoading}
+          >
+            {addLiquidityLoading ? (
+              <Lottie options={lottieOptions} height={30} width={30} />
+            ) : (
+              getButtonProperties.label
+            )}
+          </Button>
+
+          <PoolSelectTokenModal
+            onSelect={setSelectedTokenB}
+            onClose={() => setIsModalOpen(false)}
+            open={isModalOpen}
+            title={t("button.selectToken")}
+          />
+
+          <SwapAndPoolSuccessModal
+            open={successModalOpen}
+            onClose={closeSuccessModal}
+            contentTitle={t("modal.addTooExistingPool.successfullyAddedLiquidity")}
+            tokenA={{
+              value: selectedTokenNativeValue.tokenValue,
+              symbol: selectedTokenA.nativeTokenSymbol,
+              icon: <DotToken />,
+            }}
+            tokenB={{
+              value: selectedTokenAssetValue.tokenValue,
+              symbol: selectedTokenB.tokenSymbol,
+              icon: <DotToken />,
+            }}
+            actionLabel={t("modal.added")}
+          />
         </div>
-      </div>
-
-      <Button
-        onClick={() => (getButtonProperties.disabled ? null : handlePool())}
-        variant={ButtonVariants.btnInteractivePink}
-        disabled={getButtonProperties.disabled || addLiquidityLoading || !tokenBalances?.assets}
-      >
-        {addLiquidityLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
-      </Button>
-
-      <SwapAndPoolSuccessModal
-        open={successModalOpen}
-        onClose={closeSuccessModal}
-        contentTitle={t("modal.addTooExistingPool.successfullyAddedLiquidity")}
-        tokenA={{
-          value: selectedTokenNativeValue.tokenValue,
-          symbol: selectedTokenA.nativeTokenSymbol,
-          icon: <DotToken />,
-        }}
-        tokenB={{
-          value: selectedTokenAssetValue.tokenValue,
-          symbol: selectedTokenB.tokenSymbol,
-          icon: <DotToken />,
-        }}
-        actionLabel={t("modal.added")}
-      />
-    </div>
+      )}
+    </>
   );
 };
 
