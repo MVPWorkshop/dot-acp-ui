@@ -39,9 +39,9 @@ const HeaderTopNav = () => {
 
   useEffect(() => {
     if (walletConnected) {
-      setWalletAccount(JSON.parse(walletConnected));
+      setWalletAccount(walletConnected);
     }
-  }, [walletConnected]);
+  }, [walletConnected?.address]);
 
   return (
     <nav className="flex h-[73px] items-center justify-between px-[23px]">
