@@ -152,12 +152,16 @@ const WithdrawPoolLiquidity = () => {
   };
 
   const getWithdrawButtonProperties = useMemo(() => {
-    if (selectedTokenA && selectedTokenB) {
-      if (minimumTokenAmountExceeded) {
-        return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
-      } else {
-        return { label: t("button.withdraw"), disabled: false };
+    if (tokenBalances?.assets) {
+      if (selectedTokenA && selectedTokenB) {
+        if (minimumTokenAmountExceeded) {
+          return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
+        } else {
+          return { label: t("button.withdraw"), disabled: false };
+        }
       }
+    } else {
+      return { label: t("button.connectWallet"), disabled: true };
     }
 
     return { label: "", disabled: true };

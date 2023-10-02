@@ -7,6 +7,9 @@ import { Dispatch } from "react";
 import { WalletAction } from "../../store/wallet/interface";
 import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { TokenBalanceData } from "../../app/types";
+import LocalStorage from "../../app/util/localStorage";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
@@ -18,6 +21,7 @@ export const setupPolkadotApi = async () => {
   ]);
 
   console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+
   return api;
 };
 
@@ -72,8 +76,12 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 };
 
 export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: any) => {
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
+
   const extensions = await web3Enable("DOT-ACP-UI");
+
   if (!extensions) {
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     throw Error("No Extension");
   }
 
@@ -86,9 +94,19 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
     try {
       const walletTokens: any = await getWalletTokensBalance(api, allAccounts?.[0]?.address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
-      dotAcpToast.success("Success");
+      LocalStorage.set("wallet-connected", allAccounts?.[0]);
+      dotAcpToast.success("Account balance successfully fetched!");
+      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     } catch (error) {
+      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
       dotAcpToast.error(`Wallet connection error: ${error}`);
     }
   }
+};
+
+export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
+  LocalStorage.remove("wallet-connected");
+  dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as InjectedAccountWithMeta });
+  dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });
 };

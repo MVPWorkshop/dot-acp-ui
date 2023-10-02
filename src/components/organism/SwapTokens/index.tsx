@@ -303,7 +303,7 @@ const SwapTokens = () => {
   };
 
   const getSwapButtonProperties = useMemo(() => {
-    if (selectedAccount && tokenBalances?.balance) {
+    if (tokenBalances?.assets) {
       if (!selectedTokens.tokenA || !selectedTokens.tokenB) {
         return { label: t("button.selectToken"), disabled: true };
       }
@@ -541,7 +541,7 @@ const SwapTokens = () => {
           tokenValue={selectedTokenAValue.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value)}
-          disabled={!selectedAccount || swapLoading}
+          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
         />
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
@@ -550,7 +550,7 @@ const SwapTokens = () => {
           tokenValue={selectedTokenBValue.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value)}
-          disabled={!selectedAccount || swapLoading}
+          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
         />
 
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
