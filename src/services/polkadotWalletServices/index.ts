@@ -9,6 +9,7 @@ import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { TokenBalanceData } from "../../app/types";
+import LocalStorage from "../../app/util/localStorage";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
@@ -93,7 +94,7 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
     try {
       const walletTokens: any = await getWalletTokensBalance(api, allAccounts?.[0]?.address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
-      localStorage.setItem("wallet-connected", JSON.stringify(allAccounts?.[0]));
+      LocalStorage.set("wallet-connected", allAccounts?.[0]);
       dotAcpToast.success("Account balance successfully fetched!");
       dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     } catch (error) {
@@ -104,7 +105,7 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
 };
 
 export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
-  localStorage.removeItem("wallet-connected");
+  LocalStorage.remove("wallet-connected");
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as InjectedAccountWithMeta });
   dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });

@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { lottieOptions } from "../../../assets/loader/index.tsx";
 import Lottie from "react-lottie";
+import LocalStorage from "../../../app/util/localStorage.ts";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -21,7 +22,7 @@ const HeaderTopNav = () => {
   const location = useLocation();
   const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
 
-  const walletConnected = localStorage.getItem("wallet-connected");
+  const walletConnected = LocalStorage.get("wallet-connected");
 
   const connectWallet = async () => {
     try {
