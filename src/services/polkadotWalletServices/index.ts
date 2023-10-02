@@ -7,7 +7,7 @@ import { Dispatch } from "react";
 import { WalletAction } from "../../store/wallet/interface";
 import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
-import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { InjectedAccountWithMeta, InjectedExtension } from "@polkadot/extension-inject/types";
 import { TokenBalanceData } from "../../app/types";
 
 export const setupPolkadotApi = async () => {
@@ -83,6 +83,8 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: an
     dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     throw Error("No Extension");
   }
+
+  dispatch({ type: ActionType.SET_WALLET_EXTENSIONS, payload: extensions as InjectedExtension[] });
 
   const allAccounts = await web3Accounts();
 

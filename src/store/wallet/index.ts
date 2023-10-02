@@ -7,6 +7,7 @@ export const initialWalletState: WalletState = {
   selectedAccount: null,
   tokenBalances: null,
   walletConnectLoading: false,
+  extensions: [],
 };
 
 export const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
@@ -21,6 +22,8 @@ export const walletReducer = (state: WalletState, action: WalletAction): WalletS
       return { ...state, tokenBalances: action.payload };
     case ActionType.SET_WALLET_CONNECT_LOADING:
       return { ...state, walletConnectLoading: action.payload };
+    case ActionType.SET_WALLET_EXTENSIONS:
+      return { ...state, extensions: action.payload };
     default:
       return state;
   }

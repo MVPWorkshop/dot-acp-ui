@@ -14,17 +14,21 @@ import { useEffect, useState } from "react";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { lottieOptions } from "../../../assets/loader/index.tsx";
 import Lottie from "react-lottie";
+import WalletConnectModal from "../WalletConnectModal/index.tsx";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
   const { api, walletConnectLoading } = state;
   const location = useLocation();
+
   const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
+  const [walletConnectOpen, setWalletConnectOpen] = useState(false);
 
   const walletConnected = localStorage.getItem("wallet-connected");
 
   const connectWallet = async () => {
     try {
+      setWalletConnectOpen(true);
       await handleConnection(dispatch, api);
     } catch (error) {
       dotAcpToast.error(`Error connecting: ${error}`);
@@ -43,52 +47,61 @@ const HeaderTopNav = () => {
   }, [walletConnected]);
 
   return (
-    <nav className="flex h-[73px] items-center justify-between px-[23px]">
-      <div className="pr-[140px]">
-        <Logo />
-      </div>
-      <div className="flex gap-16 text-gray-200">
-        <NavLink
-          to={SWAP_ROUTE}
-          className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-gray-400": location.pathname.includes(SWAP_ROUTE),
-          })}
-        >
-          {t("button.swap")}
-        </NavLink>
-        <NavLink
-          to={POOLS_ROUTE}
-          className={classNames("font-unbounded-variable tracking-[.96px]", {
-            "text-gray-400": location.pathname.includes(POOLS_ROUTE),
-          })}
-        >
-          {t("button.pool")}
-        </NavLink>
-      </div>
-      <div className="w-[180px]">
-        {walletConnected ? (
-          <div className="flex items-center justify-center gap-[26px]">
-            <div className="flex flex-col text-gray-300">
-              <div className="font-[500]">{walletAccount?.meta?.name || "Account"}</div>
-              <div className="text-small">{reduceAddress(walletAccount?.address, 6, 6)}</div>
+    <>
+      <nav className="flex h-[73px] items-center justify-between px-[23px]">
+        <div className="pr-[140px]">
+          <Logo />
+        </div>
+        <div className="flex gap-16 text-gray-200">
+          <NavLink
+            to={SWAP_ROUTE}
+            className={classNames("font-unbounded-variable tracking-[.96px]", {
+              "text-gray-400": location.pathname.includes(SWAP_ROUTE),
+            })}
+          >
+            {t("button.swap")}
+          </NavLink>
+          <NavLink
+            to={POOLS_ROUTE}
+            className={classNames("font-unbounded-variable tracking-[.96px]", {
+              "text-gray-400": location.pathname.includes(POOLS_ROUTE),
+            })}
+          >
+            {t("button.pool")}
+          </NavLink>
+        </div>
+        <div className="w-[180px]">
+          {walletConnected ? (
+            <div className="flex items-center justify-center gap-[26px]">
+              <div className="flex flex-col text-gray-300">
+                <div className="font-[500]">{walletAccount?.meta?.name || "Account"}</div>
+                <div className="text-small">{reduceAddress(walletAccount?.address, 6, 6)}</div>
+              </div>
+              <div>
+                <button onClick={() => disconnectWallet()}>
+                  <AccountImage />
+                </button>
+              </div>
             </div>
-            <div>
-              <button onClick={() => disconnectWallet()}>
-                <AccountImage />
-              </button>
-            </div>
-          </div>
-        ) : (
-          <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg} disabled={walletConnectLoading}>
-            {walletConnectLoading ? (
-              <Lottie options={lottieOptions} height={20} width={20} />
-            ) : (
-              t("button.connectWallet")
-            )}
-          </Button>
-        )}
-      </div>
-    </nav>
+          ) : (
+            <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg} disabled={walletConnectLoading}>
+              {walletConnectLoading ? (
+                <Lottie options={lottieOptions} height={20} width={20} />
+              ) : (
+                t("button.connectWallet")
+              )}
+            </Button>
+          )}
+        </div>
+      </nav>
+      <WalletConnectModal
+        title="Connect a Wallet"
+        walletExtensions={[{ name: "metamask" }, { name: "Fearless" }]}
+        open={walletConnectOpen}
+        onClose={() => setWalletConnectOpen(false)}
+        onClick={connectWallet}
+      />
+    </>
   );
 };
 
