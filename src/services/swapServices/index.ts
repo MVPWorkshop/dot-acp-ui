@@ -32,6 +32,8 @@ export const swapNativeForAssetExactIn = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
+
   const result = api.tx.assetConversion.swapExactTokensForTokens(
     reverse ? [secondArg, firstArg] : [firstArg, secondArg],
     reverse ? assetTokenValue : nativeTokenValue,
@@ -56,8 +58,10 @@ export const swapNativeForAssetExactIn = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
@@ -72,6 +76,7 @@ export const swapNativeForAssetExactIn = async (
             type: ActionType.SET_SWAP_GAS_FEE,
             payload: "",
           });
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
@@ -85,6 +90,7 @@ export const swapNativeForAssetExactIn = async (
         type: ActionType.SET_SWAP_GAS_FEE,
         payload: "",
       });
+      dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
   return result;
@@ -117,6 +123,8 @@ export const swapNativeForAssetExactOut = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
+
   const result = api.tx.assetConversion.swapTokensForExactTokens(
     reverse ? [firstArg, secondArg] : [secondArg, firstArg],
     reverse ? nativeTokenValue : assetTokenValue,
@@ -137,16 +145,18 @@ export const swapNativeForAssetExactOut = async (
         });
       } else {
         if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
-          console.log("success");
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
@@ -158,6 +168,7 @@ export const swapNativeForAssetExactOut = async (
             type: ActionType.SET_SWAP_GAS_FEE,
             payload: "",
           });
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
@@ -171,6 +182,7 @@ export const swapNativeForAssetExactOut = async (
         type: ActionType.SET_SWAP_GAS_FEE,
         payload: "",
       });
+      dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
   return result;
@@ -212,6 +224,8 @@ export const swapAssetForAssetExactIn = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
+
   const result = api.tx.assetConversion.swapExactTokensForTokens(
     [firstArg, secondArg, thirdArg],
     assetTokenAValue,
@@ -236,11 +250,14 @@ export const swapAssetForAssetExactIn = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
@@ -252,6 +269,7 @@ export const swapAssetForAssetExactIn = async (
             type: ActionType.SET_SWAP_GAS_FEE,
             payload: "",
           });
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
@@ -265,6 +283,7 @@ export const swapAssetForAssetExactIn = async (
         type: ActionType.SET_SWAP_GAS_FEE,
         payload: "",
       });
+      dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
   return result;
@@ -306,6 +325,8 @@ export const swapAssetForAssetExactOut = async (
     })
     .toU8a();
 
+  dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
+
   const result = api.tx.assetConversion.swapTokensForExactTokens(
     [firstArg, secondArg, thirdArg],
     assetTokenAValue,
@@ -330,11 +351,14 @@ export const swapAssetForAssetExactOut = async (
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
             dotAcpToast.error(`${docs.join(" ")}`);
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
@@ -346,6 +370,7 @@ export const swapAssetForAssetExactOut = async (
             type: ActionType.SET_SWAP_GAS_FEE,
             payload: "",
           });
+          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
@@ -359,6 +384,7 @@ export const swapAssetForAssetExactOut = async (
         type: ActionType.SET_SWAP_GAS_FEE,
         payload: "",
       });
+      dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
   return result;

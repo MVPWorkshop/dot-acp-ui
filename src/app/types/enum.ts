@@ -31,6 +31,10 @@ export enum ActionType {
   SET_POOLS_TOKEN_METADATA = "SET_POOLS_TOKEN_METADATA",
   SET_SWAP_GAS_FEES_MESSAGE = "SET_SWAP_GAS_FEES_MESSAGE",
   SET_SWAP_GAS_FEE = "SET_SWAP_GAS_FEE",
+  SET_CREATE_POOL_LOADING = "SET_CREATE_POOL_LOADING",
+  SET_SWAP_LOADING = "SET_SWAP_LOADING",
+  SET_ADD_LIQUIDITY_LOADING = "SET_ADD_LIQUIDITY_LOADING",
+  SET_WITHDRAW_LIQUIDITY_LOADING = "SET_WITHDRAW_LIQUIDITY_LOADING",
 }
 
 export enum TokenSelection {
@@ -54,8 +58,7 @@ export enum ServiceResponseStatus {
   Finalized = "Finalized",
 }
 
-export enum SwapAndPoolStatus {
-  Swap = "Swap",
-  Withdraw = "Withdraw",
-  Deposit = "Deposit",
+export enum TokenPosition {
+  tokenA = "A",
+  tokenB = "B",
 }

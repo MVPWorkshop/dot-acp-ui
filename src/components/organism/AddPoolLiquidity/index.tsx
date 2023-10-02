@@ -1,27 +1,23 @@
 import { t } from "i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ActionType, ButtonVariants, SwapAndPoolStatus } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import {
-  addLiquidity,
-  checkAddPoolLiquidityGasFee,
-  checkCreatePoolGasFee,
-  createPool,
-  getAllPools,
-} from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 import classNames from "classnames";
+import { lottieOptions } from "../../../assets/loader";
+import Lottie from "react-lottie";
+import { InputEditedProps } from "../../../app/types";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -43,10 +39,17 @@ const AddPoolLiquidity = () => {
   const navigate = useNavigate();
   const params = useParams();
 
-  const { tokenBalances, api, selectedAccount, pools, transferGasFeesMessage, poolGasFee, successModalOpen } = state;
+  const {
+    tokenBalances,
+    api,
+    selectedAccount,
+    pools,
+    transferGasFeesMessage,
+    poolGasFee,
+    successModalOpen,
+    addLiquidityLoading,
+  } = state;
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
@@ -63,7 +66,7 @@ const AddPoolLiquidity = () => {
   const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
-  const [poolExists, setPoolExists] = useState<boolean>(false);
+  const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -77,21 +80,6 @@ const AddPoolLiquidity = () => {
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
-  };
-
-  const checkIfPoolAlreadyExists = (id: string) => {
-    let exists = false;
-
-    if (id) {
-      exists = !!pools.find((pool: any) => {
-        return (
-          pool?.[0]?.[1]?.interior?.X2 &&
-          pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id
-        );
-      });
-    }
-
-    setPoolExists(exists);
   };
 
   const populateAssetToken = () => {
@@ -121,37 +109,20 @@ const AddPoolLiquidity = () => {
   const handlePool = async () => {
     try {
       if (api) {
-        if (!poolExists) {
-          await createPool(
-            api,
-            selectedTokenB.assetTokenId,
-            selectedAccount,
-            nativeTokenValue,
-            assetTokenValue,
-            nativeTokenWithSlippage.tokenValue.toString(),
-            assetTokenWithSlippage.tokenValue.toString(),
-            dispatch
-          );
-        } else {
-          await addLiquidity(
-            api,
-            selectedTokenB.assetTokenId,
-            selectedAccount,
-            nativeTokenValue,
-            assetTokenValue,
-            nativeTokenWithSlippage.tokenValue.toString(),
-            assetTokenWithSlippage.tokenValue.toString(),
-            dispatch
-          );
-        }
+        await addLiquidity(
+          api,
+          selectedTokenB.assetTokenId,
+          selectedAccount,
+          nativeTokenValue,
+          assetTokenValue,
+          nativeTokenWithSlippage.tokenValue.toString(),
+          assetTokenWithSlippage.tokenValue.toString(),
+          dispatch
+        );
       }
     } catch (error) {
       dotAcpToast.error(`Error: ${error}`);
     }
-  };
-
-  const handlePoolGasFee = async () => {
-    if (api) await checkCreatePoolGasFee(api, selectedTokenB.assetTokenId, selectedAccount, dispatch);
   };
 
   const handleAddPoolLiquidityGasFee = async () => {
@@ -169,7 +140,6 @@ const AddPoolLiquidity = () => {
   };
 
   const closeSuccessModal = async () => {
-    setIsSuccessModalOpen(false);
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     if (api) await getAllPools(api);
     navigateToPools();
@@ -222,6 +192,7 @@ const AddPoolLiquidity = () => {
   };
 
   const setSelectedTokenAValue = (value: number) => {
+    setInputEdited({ inputType: InputEditedType.exactIn });
     if (selectedTokenNativeValue && slippageValue) {
       const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
@@ -232,6 +203,7 @@ const AddPoolLiquidity = () => {
   };
 
   const setSelectedTokenBValue = (value: number) => {
+    setInputEdited({ inputType: InputEditedType.exactOut });
     if (selectedTokenAssetValue && slippageValue) {
       const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
@@ -241,29 +213,51 @@ const AddPoolLiquidity = () => {
     }
   };
 
-  const returnButtonStatus = () => {
+  const getButtonProperties = useMemo(() => {
     if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
-      return t("button.selectToken");
+      return { label: t("button.selectToken"), disabled: true };
     }
+
     if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
-      return t("button.enterAmount");
+      return { label: t("button.enterAmount"), disabled: true };
     }
+
     if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+      return {
+        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+        disabled: true,
+      };
     }
+
     if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol });
+      return {
+        label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+        disabled: true,
+      };
     }
+
     if (
       selectedTokenAssetValue?.tokenValue >
       formatDecimalsFromToken(parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")), selectedTokenB.decimals)
     ) {
-      return t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol });
+      return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
     }
+
     if (selectedTokenA && selectedTokenB) {
-      return t("button.deposit");
+      return { label: t("button.deposit"), disabled: false };
     }
-  };
+
+    return { label: "", disabled: true };
+  }, [
+    selectedTokenA.nativeTokenDecimals,
+    selectedTokenB.assetTokenBalance,
+    selectedTokenA.nativeTokenSymbol,
+    selectedTokenB.tokenSymbol,
+    selectedTokenB.decimals,
+    selectedTokenNativeValue.tokenValue,
+    selectedTokenAssetValue.tokenValue,
+    tokenBalances,
+  ]);
 
   useEffect(() => {
     if (tokenBalances) {
@@ -275,24 +269,10 @@ const AddPoolLiquidity = () => {
   }, [tokenBalances]);
 
   useEffect(() => {
-    checkIfPoolAlreadyExists(selectedTokenB.assetTokenId);
-  }, [selectedTokenB.assetTokenId]);
-
-  useEffect(() => {
-    if (!poolExists && selectedTokenB.assetTokenId) {
-      handlePoolGasFee();
-    }
-  }, [poolExists, selectedTokenB.assetTokenId]);
-
-  useEffect(() => {
-    if (poolExists && nativeTokenValue && assetTokenValue) {
+    if (nativeTokenWithSlippage.tokenValue > 0 && assetTokenWithSlippage.tokenValue > 0) {
       handleAddPoolLiquidityGasFee();
     }
-  }, [nativeTokenValue, assetTokenValue]);
-
-  useEffect(() => {
-    if (successModalOpen) setIsSuccessModalOpen(true);
-  }, [successModalOpen]);
+  }, [nativeTokenWithSlippage.tokenValue, assetTokenWithSlippage.tokenValue]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -304,38 +284,47 @@ const AddPoolLiquidity = () => {
     }
   }, [params?.id]);
 
+  useEffect(() => {
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenNativeValue.tokenValue > 0) {
+      setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
+    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenAssetValue.tokenValue > 0) {
+      setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
+    }
+  }, [slippageValue]);
+
   return (
     <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
         <BackArrow width={24} height={24} />
       </button>
-      <h3 className="heading-6 font-unbounded-variable font-normal">
-        {poolExists ? t("poolsPage.addLiquidity") : t("poolsPage.newPosition")}
-      </h3>
+      <h3 className="heading-6 font-unbounded-variable font-normal">{t("poolsPage.addLiquidity")}</h3>
       <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
       <TokenAmountInput
         tokenText={selectedTokenA?.nativeTokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenNativeValue?.tokenValue}
-        onClick={() => console.log("open modal")}
+        onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenAValue(value)}
         selectDisabled={true}
+        disabled={addLiquidityLoading}
       />
       <TokenAmountInput
         tokenText={selectedTokenB?.tokenSymbol}
         labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAssetValue?.tokenValue}
-        onClick={() => setIsModalOpen(true)}
+        onClick={() => null}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
+        selectDisabled={true}
+        disabled={addLiquidityLoading}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
         <div className="flex w-full justify-between text-medium font-normal text-gray-200">
           <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-          <span>15%</span>
+          <span>{slippageValue}%</span>
         </div>
         <div className="flex w-full gap-2">
           <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
@@ -346,7 +335,6 @@ const AddPoolLiquidity = () => {
               })}
               onClick={() => {
                 setSlippageAuto(true);
-                setSlippageValue(15);
               }}
             >
               {t("tokenAmountInput.auto")}
@@ -371,43 +359,26 @@ const AddPoolLiquidity = () => {
                 allowNegative={false}
                 className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
                 placeholder="15"
-                disabled={slippageAuto}
+                disabled={slippageAuto || addLiquidityLoading}
               />
               <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
             </div>
           </div>
         </div>
-
-        {poolExists ? (
-          <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-            {t("poolsPage.poolExists")}
-          </div>
-        ) : null}
       </div>
 
       <Button
-        onClick={handlePool}
+        onClick={() => (getButtonProperties.disabled ? null : handlePool())}
         variant={ButtonVariants.btnInteractivePink}
-        disabled={returnButtonStatus() !== SwapAndPoolStatus.Deposit}
+        disabled={getButtonProperties.disabled || addLiquidityLoading}
       >
-        {returnButtonStatus()}
+        {addLiquidityLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
       </Button>
 
-      <PoolSelectTokenModal
-        onSelect={setSelectedTokenB}
-        onClose={() => setIsModalOpen(false)}
-        open={isModalOpen}
-        title={t("button.selectToken")}
-      />
-
       <SwapAndPoolSuccessModal
-        open={isSuccessModalOpen}
+        open={successModalOpen}
         onClose={closeSuccessModal}
-        contentTitle={
-          poolExists
-            ? t("modal.addTooExistingPool.successfullyAddedLiquidity")
-            : t("modal.createPool.poolSuccessfullyCreated")
-        }
+        contentTitle={t("modal.addTooExistingPool.successfullyAddedLiquidity")}
         tokenA={{
           value: selectedTokenNativeValue.tokenValue,
           symbol: selectedTokenA.nativeTokenSymbol,
