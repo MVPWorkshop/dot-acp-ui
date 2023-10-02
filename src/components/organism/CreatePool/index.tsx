@@ -6,7 +6,12 @@ import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
-import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
+import {
+  calculateSlippageReduce,
+  checkIfPoolAlreadyExists,
+  formatDecimalsFromToken,
+  formatInputTokenValue,
+} from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { checkCreatePoolGasFee, createPool, getAllPools } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -26,15 +31,21 @@ type AssetTokenProps = {
   decimals: string;
   assetTokenBalance: string;
 };
+
 type NativeTokenProps = {
   nativeTokenSymbol: any;
   nativeTokenDecimals: any;
 };
+
 type TokenValueProps = {
   tokenValue: number;
 };
 
-const CreatePool = () => {
+type CreatePoolProps = {
+  tokenBSelected?: AssetTokenProps;
+};
+
+const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const { state, dispatch } = useAppContext();
 
   const navigate = useNavigate();
@@ -83,21 +94,6 @@ const CreatePool = () => {
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
-  };
-
-  const checkIfPoolAlreadyExists = (id: string) => {
-    let exists = false;
-
-    if (id) {
-      exists = !!pools.find((pool: any) => {
-        return (
-          pool?.[0]?.[1]?.interior?.X2 &&
-          pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id
-        );
-      });
-    }
-
-    setPoolExists(exists);
   };
 
   const handlePool = async () => {
@@ -190,10 +186,6 @@ const CreatePool = () => {
       return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
     }
 
-    if (selectedTokenA && selectedTokenB && poolExists) {
-      return { label: t("button.enterAmount"), disabled: true };
-    }
-
     if (selectedTokenA && selectedTokenB && assetTokenMinValueExceeded) {
       return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
     }
@@ -222,14 +214,15 @@ const CreatePool = () => {
   }, [tokenBalances]);
 
   useEffect(() => {
-    checkIfPoolAlreadyExists(selectedTokenB.assetTokenId);
+    const poolExists = checkIfPoolAlreadyExists(selectedTokenB.assetTokenId, pools);
+    setPoolExists(poolExists);
   }, [selectedTokenB.assetTokenId]);
 
   useEffect(() => {
-    if (!poolExists && selectedTokenB.assetTokenId) {
+    if (selectedTokenB.assetTokenId) {
       handlePoolGasFee();
     }
-  }, [poolExists, selectedTokenB.assetTokenId]);
+  }, [selectedTokenB.assetTokenId]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -245,6 +238,12 @@ const CreatePool = () => {
       setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
     }
   }, [slippageValue]);
+
+  useEffect(() => {
+    if (tokenBSelected) {
+      setSelectedTokenB(tokenBSelected);
+    }
+  }, [tokenBSelected]);
 
   return (
     <>
@@ -324,12 +323,6 @@ const CreatePool = () => {
                   </div>
                 </div>
               </div>
-
-              {poolExists ? (
-                <div className="flex rounded-lg bg-lime-500 px-4 py-2 text-medium font-normal text-cyan-700">
-                  {t("poolsPage.poolExists")}
-                </div>
-              ) : null}
             </div>
 
             <Button
@@ -354,11 +347,7 @@ const CreatePool = () => {
             <SwapAndPoolSuccessModal
               open={successModalOpen}
               onClose={closeSuccessModal}
-              contentTitle={
-                poolExists
-                  ? t("modal.addTooExistingPool.successfullyAddedLiquidity")
-                  : t("modal.createPool.poolSuccessfullyCreated")
-              }
+              contentTitle={t("modal.createPool.poolSuccessfullyCreated")}
               tokenA={{
                 value: selectedTokenNativeValue.tokenValue,
                 symbol: selectedTokenA.nativeTokenSymbol,
