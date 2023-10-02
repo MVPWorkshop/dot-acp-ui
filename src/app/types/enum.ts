@@ -56,3 +56,8 @@ export enum LiquidityPageType {
 export enum ServiceResponseStatus {
   Finalized = "Finalized",
 }
+
+export enum TokenPosition {
+  tokenA = "A",
+  tokenB = "B",
+}

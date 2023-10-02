@@ -245,6 +245,13 @@ const CreatePool = () => {
     checkAssetTokenMinAmount();
   }, [selectedTokenAssetValue.tokenValue]);
 
+  useEffect(() => {
+    if (selectedTokenAssetValue.tokenValue > 0 && selectedTokenNativeValue.tokenValue > 0) {
+      setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
+      setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
+    }
+  }, [slippageValue]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -278,7 +285,7 @@ const CreatePool = () => {
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
           <div className="flex w-full justify-between text-medium font-normal text-gray-200">
             <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-            <span>15%</span>
+            <span>{slippageValue}%</span>
           </div>
           <div className="flex w-full gap-2">
             <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
@@ -289,7 +296,6 @@ const CreatePool = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
-                  setSlippageValue(15);
                 }}
               >
                 {t("tokenAmountInput.auto")}
