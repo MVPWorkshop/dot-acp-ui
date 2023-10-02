@@ -129,7 +129,6 @@ export const swapNativeForAssetExactOut = async (
         });
       } else {
         if (response.status.type === "Finalized" && response.dispatchError) {
-          console.log("success");
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;

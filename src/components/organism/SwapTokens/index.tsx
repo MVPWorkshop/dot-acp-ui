@@ -1,7 +1,7 @@
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
-import { ActionType, ButtonVariants, InputEditedType, TokenSelection } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -29,15 +29,8 @@ import {
 import { getPoolReserves } from "../../../services/poolServices";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import classNames from "classnames";
-import { InputEditedProps } from "../../../app/types";
+import { InputEditedProps, TokenProps } from "../../../app/types";
 import { lottieOptions } from "../../../assets/loader";
-
-type TokenProps = {
-  tokenSymbol: string;
-  tokenId: string | null;
-  decimals: string;
-  tokenBalance: string;
-};
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -50,6 +43,10 @@ type TokenValueProps = {
 
 type TokenValueSlippageProps = {
   tokenValue: number;
+};
+
+type TokenSelectedProps = {
+  tokenSelected: TokenPosition;
 };
 
 const SwapTokens = () => {
@@ -87,7 +84,9 @@ const SwapTokens = () => {
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number>(15);
   const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
-  const [availablePoolTokens, setAvailablePoolTokens] = useState<any[]>([]);
+  const [availablePoolTokenA, setAvailablePoolTokenA] = useState<TokenProps[]>([]);
+  const [availablePoolTokenB, setAvailablePoolTokenB] = useState<TokenProps[]>([]);
+  const [tokenSelected, setTokenSelected] = useState<TokenSelectedProps>({ tokenSelected: TokenPosition.tokenA });
 
   const nativeToken = {
     tokenId: "",
@@ -229,6 +228,7 @@ const SwapTokens = () => {
           selectedTokens.tokenA.tokenId,
           selectedTokens.tokenB.tokenId
         );
+
         if (assetTokenPrice) {
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
@@ -392,10 +392,12 @@ const SwapTokens = () => {
 
       assetTokensInPoolTokenPairsArray.push(TokenSelection.NativeToken);
 
-      const assetTokensNotInPoolTokenPairsArray = assetTokens.filter((item: any) =>
+      // todo: refactor to be sure what data we are passing - remove any
+      const assetTokensNotInPoolTokenPairsArray: any = assetTokens.filter((item: any) =>
         assetTokensInPoolTokenPairsArray.includes(item.assetTokenMetadata.symbol)
       );
-      setAvailablePoolTokens(assetTokensNotInPoolTokenPairsArray);
+
+      setAvailablePoolTokenA(assetTokensNotInPoolTokenPairsArray);
     }
   };
 
@@ -491,13 +493,16 @@ const SwapTokens = () => {
         (item: any) =>
           item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
       );
-    setAvailablePoolTokens(poolLiquidTokens);
+
+    setAvailablePoolTokenB(poolLiquidTokens);
+
     return poolLiquidTokens;
   };
 
   const fillTokenPairsAndOpenModal = (tokenInputSelected: TokenSelection) => {
     if (tokenInputSelected === "tokenA") getSwapTokenA();
     if (tokenInputSelected === "tokenB") getSwapTokenB();
+
     setTokenSelectionModal(tokenInputSelected);
   };
 
@@ -505,13 +510,24 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
   };
 
+  const onSwapSelectModal = (tokenData: any) => {
+    setSelectedTokens((prev) => {
+      return {
+        ...prev,
+        [tokenSelectionModal]: tokenData,
+      };
+    });
+  };
+
   useEffect(() => {
-    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenAValue.tokenValue > 0) {
-      tokenAValue(selectedTokenAValue.tokenValue);
-    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenBValue.tokenValue > 0) {
+    if (tokenSelected.tokenSelected === TokenPosition.tokenA && selectedTokenBValue.tokenValue > 0) {
       tokenBValue(selectedTokenBValue.tokenValue);
     }
-  }, [slippageValue]);
+
+    if (tokenSelected.tokenSelected === TokenPosition.tokenB && selectedTokenAValue.tokenValue > 0) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    }
+  }, [selectedTokens]);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
@@ -584,18 +600,24 @@ const SwapTokens = () => {
         </div>
 
         <SwapSelectTokenModal
-          open={tokenSelectionModal !== TokenSelection.None}
+          open={tokenSelectionModal === TokenSelection.TokenA}
           title={t("modal.selectToken")}
-          tokensData={availablePoolTokens}
+          tokensData={availablePoolTokenA}
           onClose={() => setTokenSelectionModal(TokenSelection.None)}
           onSelect={(tokenData) => {
-            setSelectedTokens((prev) => {
-              return {
-                ...prev,
-                [tokenSelectionModal]: tokenData,
-              };
-            });
-            setTokenSelectionModal(TokenSelection.None);
+            setTokenSelected({ tokenSelected: TokenPosition.tokenA });
+            onSwapSelectModal(tokenData);
+          }}
+        />
+
+        <SwapSelectTokenModal
+          open={tokenSelectionModal === TokenSelection.TokenB}
+          title={t("modal.selectToken")}
+          tokensData={availablePoolTokenB}
+          onClose={() => setTokenSelectionModal(TokenSelection.None)}
+          onSelect={(tokenData) => {
+            setTokenSelected({ tokenSelected: TokenPosition.tokenB });
+            onSwapSelectModal(tokenData);
           }}
         />
 
