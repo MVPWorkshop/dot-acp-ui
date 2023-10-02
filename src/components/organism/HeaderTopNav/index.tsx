@@ -15,6 +15,7 @@ import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 import { lottieOptions } from "../../../assets/loader/index.tsx";
 import Lottie from "react-lottie";
 import WalletConnectModal from "../WalletConnectModal/index.tsx";
+import LocalStorage from "../../../app/util/localStorage.ts";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -24,7 +25,7 @@ const HeaderTopNav = () => {
   const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
   const [walletConnectOpen, setWalletConnectOpen] = useState(false);
 
-  const walletConnected = localStorage.getItem("wallet-connected");
+  const walletConnected = LocalStorage.get("wallet-connected");
 
   const connectWallet = async () => {
     try {
@@ -42,9 +43,9 @@ const HeaderTopNav = () => {
 
   useEffect(() => {
     if (walletConnected) {
-      setWalletAccount(JSON.parse(walletConnected));
+      setWalletAccount(walletConnected);
     }
-  }, [walletConnected]);
+  }, [walletConnected?.address]);
 
   return (
     <>
@@ -96,7 +97,6 @@ const HeaderTopNav = () => {
       </nav>
       <WalletConnectModal
         title="Connect a Wallet"
-        walletExtensions={[{ name: "metamask" }, { name: "Fearless" }]}
         open={walletConnectOpen}
         onClose={() => setWalletConnectOpen(false)}
         onClick={connectWallet}
