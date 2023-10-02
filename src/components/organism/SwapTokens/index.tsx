@@ -18,6 +18,10 @@ import {
   swapNativeForAssetExactOut,
   swapAssetForAssetExactIn,
   swapAssetForAssetExactOut,
+  checkSwapNativeForAssetExactInGasFee,
+  checkSwapNativeForAssetExactOutGasFee,
+  checkSwapAssetForAssetExactInGasFee,
+  checkSwapAssetForAssetExactOutGasFee,
 } from "../../../services/swapServices";
 import {
   getAssetTokenFromNativeToken,
@@ -58,7 +62,16 @@ type TokenValueSlippageProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized } = state;
+  const {
+    tokenBalances,
+    poolsTokenMetadata,
+    pools,
+    api,
+    selectedAccount,
+    swapFinalized,
+    swapGasFeesMessage,
+    swapGasFee,
+  } = state;
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -104,6 +117,68 @@ const SwapTokens = () => {
     tokenAsset: {
       balance: tokenBalances?.balance,
     },
+  };
+
+  const handleSwapNativeForAssetGasFee = async () => {
+    const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
+    const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
+    if (api) {
+      if (inputEdited.inputType === InputEditedType.exactIn) {
+        await checkSwapNativeForAssetExactInGasFee(
+          api,
+          selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken
+            ? selectedTokens.tokenB.tokenId
+            : selectedTokens.tokenA.tokenId,
+          selectedAccount,
+          tokenA,
+          tokenB,
+          false,
+          dispatch
+        );
+      }
+      if (inputEdited.inputType === InputEditedType.exactOut) {
+        await checkSwapNativeForAssetExactOutGasFee(
+          api,
+          selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken
+            ? selectedTokens.tokenB.tokenId
+            : selectedTokens.tokenA.tokenId,
+          selectedAccount,
+          tokenA,
+          tokenB,
+          false,
+          dispatch
+        );
+      }
+    }
+  };
+
+  const handleSwapAssetForAssetGasFee = async () => {
+    const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
+    const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
+    if (api) {
+      if (inputEdited.inputType === InputEditedType.exactIn) {
+        await checkSwapAssetForAssetExactInGasFee(
+          api,
+          selectedTokens.tokenA.tokenId,
+          selectedTokens.tokenB.tokenId,
+          selectedAccount,
+          tokenA,
+          tokenB,
+          dispatch
+        );
+      }
+      if (inputEdited.inputType === InputEditedType.exactOut) {
+        await checkSwapAssetForAssetExactOutGasFee(
+          api,
+          selectedTokens.tokenA.tokenId,
+          selectedTokens.tokenB.tokenId,
+          selectedAccount,
+          tokenA,
+          tokenB,
+          dispatch
+        );
+      }
+    }
   };
 
   const getPriceOfAssetTokenFromNativeToken = async (value: number) => {
@@ -182,7 +257,7 @@ const SwapTokens = () => {
             : calculateSlippageAdd(nativeTokenNoDecimals, slippageValue);
 
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
 
           if (inputEdited.inputType === InputEditedType.exactIn) {
             setTokenAValueForSwap({ tokenValue: value });
@@ -267,12 +342,12 @@ const SwapTokens = () => {
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfNativeTokenFromAssetToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else {
         getPriceOfAssetTokenBFromAssetTokenA(value);
@@ -297,7 +372,7 @@ const SwapTokens = () => {
       } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
         getPriceOfAssetTokenFromNativeToken(value);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance);
+          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else {
         getPriceOfAssetTokenAFromAssetTokenB(value);
@@ -503,6 +578,24 @@ const SwapTokens = () => {
     if (swapFinalized) setIsSuccessModalOpen(true);
   }, [swapFinalized]);
 
+  useEffect(() => {
+    if (
+      selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
+      selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken
+    ) {
+      handleSwapNativeForAssetGasFee();
+    }
+    if (
+      selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
+      selectedTokens.tokenB.tokenSymbol !== TokenSelection.NativeToken
+    ) {
+      handleSwapAssetForAssetGasFee();
+    }
+  }, [
+    selectedTokens.tokenA.tokenSymbol && selectedTokens.tokenB.tokenSymbol,
+    tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
+  ]);
+
   return (
     <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
       <h3 className="heading-6 font-unbounded-variable font-normal">{t("swapPage.swap")}</h3>
@@ -525,6 +618,8 @@ const SwapTokens = () => {
         onSetTokenValue={(value) => tokenBValue(value)}
         disabled={!selectedAccount}
       />
+
+      <div className="mt-1 text-small">{swapGasFeesMessage}</div>
 
       <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
         <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
