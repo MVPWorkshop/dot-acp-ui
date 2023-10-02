@@ -12,7 +12,7 @@ interface SelectTokenPayload {
 interface SwapSelectTokenModalProps {
   open: boolean;
   title: string;
-  tokensData: any;
+  tokensData: TokenProps[];
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
