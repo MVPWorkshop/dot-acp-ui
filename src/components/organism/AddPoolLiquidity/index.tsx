@@ -18,6 +18,7 @@ import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
 import { InputEditedProps } from "../../../app/types";
+import PoolSelectTokenModal from "../PoolSelectTokenModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -33,11 +34,15 @@ type TokenValueProps = {
   tokenValue: number;
 };
 
-const AddPoolLiquidity = () => {
+type AddPoolLiquidityProps = {
+  tokenBId?: { id: string };
+};
+
+const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const { state, dispatch } = useAppContext();
 
   const navigate = useNavigate();
-  const params = useParams();
+  const params = tokenBId ? tokenBId : useParams();
 
   const {
     tokenBalances,
@@ -67,6 +72,7 @@ const AddPoolLiquidity = () => {
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const nativeTokenValue = formatInputTokenValue(
     selectedTokenNativeValue.tokenValue,
@@ -314,9 +320,9 @@ const AddPoolLiquidity = () => {
         labelText={t("tokenAmountInput.youPay")}
         tokenIcon={<DotToken />}
         tokenValue={selectedTokenAssetValue?.tokenValue}
-        onClick={() => null}
+        onClick={() => setIsModalOpen(true)}
         onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-        selectDisabled={true}
+        selectDisabled={!tokenBId?.id}
         disabled={addLiquidityLoading}
       />
       <div className="mt-1 text-small">{transferGasFeesMessage}</div>
@@ -374,6 +380,13 @@ const AddPoolLiquidity = () => {
       >
         {addLiquidityLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getButtonProperties.label}
       </Button>
+
+      <PoolSelectTokenModal
+        onSelect={setSelectedTokenB}
+        onClose={() => setIsModalOpen(false)}
+        open={isModalOpen}
+        title={t("button.selectToken")}
+      />
 
       <SwapAndPoolSuccessModal
         open={successModalOpen}
