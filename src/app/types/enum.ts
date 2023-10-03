@@ -62,3 +62,8 @@ export enum TokenPosition {
   tokenA = "A",
   tokenB = "B",
 }
+
+export enum WalletConnectSteps {
+  stepExtensions = "extensions",
+  stepAddresses = "addresses",
+}

@@ -52,6 +52,7 @@ type TokenSelectedProps = {
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
   const { tokenBalances, poolsTokenMetadata, pools, api, selectedAccount, swapFinalized, swapLoading } = state;
+
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
