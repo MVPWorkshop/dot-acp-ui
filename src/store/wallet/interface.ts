@@ -8,10 +8,12 @@ export interface WalletState {
   accounts: InjectedAccountWithMeta[];
   selectedAccount: InjectedAccountWithMeta | null;
   tokenBalances: TokenBalanceData | null;
+  walletConnectLoading: boolean;
 }
 
 export type WalletAction =
   | { type: ActionType.SET_API; payload: ApiPromise }
   | { type: ActionType.SET_ACCOUNTS; payload: InjectedAccountWithMeta[] }
   | { type: ActionType.SET_SELECTED_ACCOUNT; payload: InjectedAccountWithMeta }
-  | { type: ActionType.SET_TOKEN_BALANCES; payload: TokenBalanceData };
+  | { type: ActionType.SET_TOKEN_BALANCES; payload: TokenBalanceData }
+  | { type: ActionType.SET_WALLET_CONNECT_LOADING; payload: boolean };
