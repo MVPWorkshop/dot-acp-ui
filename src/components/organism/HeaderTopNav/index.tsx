@@ -55,7 +55,7 @@ const HeaderTopNav = () => {
 
   const finalizeConnection = async (selectedAccount: InjectedAccountWithMeta) => {
     setWalletConnectOpen(false);
-    await handleConnection(dispatch);
+    await handleConnection(dispatch, selectedAccount);
     await setTokenBalance(dispatch, api, selectedAccount);
   };
 
@@ -146,11 +146,12 @@ const HeaderTopNav = () => {
           )}
         </div>
       </nav>
+
       <WalletConnectModal
         title="Connect a Wallet"
         open={walletConnectOpen}
         onClose={() => setWalletConnectOpen(false)}
-        onBack={onBack}
+        onBack={modalStep.step === WalletConnectSteps.stepAddresses ? onBack : undefined}
         finalizeConnection={finalizeConnection}
         modalStep={modalStep}
         setModalStep={setModalStep}

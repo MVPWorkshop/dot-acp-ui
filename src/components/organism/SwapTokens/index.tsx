@@ -406,6 +406,7 @@ const SwapTokens = () => {
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
+
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         if (selectedTokens.tokenB.tokenId) {
           if (inputEdited.inputType === InputEditedType.exactIn) {
@@ -530,6 +531,14 @@ const SwapTokens = () => {
     }
   }, [selectedTokens]);
 
+  useEffect(() => {
+    if (inputEdited.inputType === InputEditedType.exactIn) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    } else if (inputEdited.inputType === InputEditedType.exactOut) {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    }
+  }, [slippageValue]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -568,6 +577,7 @@ const SwapTokens = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
+                  setSlippageValue(15);
                 }}
               >
                 {t("tokenAmountInput.auto")}

@@ -82,7 +82,7 @@ export const getExtensionsAndAccounts = async () => {
   return { extensions: extensions, accounts: allAccounts };
 };
 
-export const handleConnection = async (dispatch: Dispatch<WalletAction>) => {
+export const handleConnection = async (dispatch: Dispatch<WalletAction>, selectedAccount: InjectedAccountWithMeta) => {
   const extensionAndAccounts = await getExtensionsAndAccounts();
 
   const extensions = extensionAndAccounts.extensions;
@@ -96,7 +96,7 @@ export const handleConnection = async (dispatch: Dispatch<WalletAction>) => {
   const allAccounts = extensionAndAccounts.accounts;
 
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: allAccounts });
-  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: allAccounts?.[0] });
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: selectedAccount });
 };
 
 export const setTokenBalance = async (
@@ -105,9 +105,8 @@ export const setTokenBalance = async (
   selectedAccount: InjectedAccountWithMeta
 ) => {
   if (api) {
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
     try {
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
-
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
 
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
@@ -115,12 +114,10 @@ export const setTokenBalance = async (
       LocalStorage.set("wallet-connected", selectedAccount);
 
       dotAcpToast.success("Account balance successfully fetched!");
-
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     } catch (error) {
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
-
       dotAcpToast.error(`Wallet connection error: ${error}`);
+    } finally {
+      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     }
   }
 };
@@ -140,9 +137,9 @@ export const connectWalletAndFetchBalance = async (
   dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
   try {
     await setTokenBalance(dispatch, api, connectedWalletAddress);
-    await handleConnection(dispatch);
-    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
   } catch (error) {
     dotAcpToast.error(`Wallet connection error: ${error}`);
+  } finally {
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
   }
 };

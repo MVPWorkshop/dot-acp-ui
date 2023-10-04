@@ -16,7 +16,7 @@ interface WalletConnectModalProps {
   accounts: InjectedAccountWithMeta[];
   setModalStep: (step: ModalStepProps) => void;
   onClose: () => void;
-  onBack: () => void;
+  onBack?: () => void | undefined;
   finalizeConnection: (account: InjectedAccountWithMeta) => void;
 }
 
@@ -55,13 +55,7 @@ const WalletConnectModal = ({
   };
 
   return (
-    <Modal
-      isOpen={open}
-      onClose={onClose}
-      title={title}
-      showBackButton={modalStep.step === WalletConnectSteps.stepAddresses}
-      onBack={onBack}
-    >
+    <Modal isOpen={open} onClose={onClose} title={title} onBack={onBack}>
       <div className="flex min-w-[450px] flex-col gap-5 p-4">
         {modalStep.step === WalletConnectSteps.stepExtensions
           ? extensions.map((wallet: InjectedExtension, index: any) => {

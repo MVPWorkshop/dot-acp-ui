@@ -7,12 +7,11 @@ interface ModalProps {
   isOpen: boolean;
   title?: string;
   children: ReactNode;
-  showBackButton?: boolean;
   onClose: () => void;
-  onBack?: () => void;
+  onBack?: () => void | undefined;
 }
 
-const Modal: FC<ModalProps> = ({ isOpen, children, title, showBackButton = false, onClose, onBack }) => {
+const Modal: FC<ModalProps> = ({ isOpen, children, title, onClose, onBack }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -41,7 +40,7 @@ const Modal: FC<ModalProps> = ({ isOpen, children, title, showBackButton = false
             >
               <Dialog.Panel className="relative z-10 transform overflow-hidden rounded-2xl border border-gray-10 bg-white p-[18px] shadow-modal-box-shadow">
                 <div className="mb-[6px] flex items-center border-b border-b-gray-50 pb-[8px] pr-[24px] pt-[10px]">
-                  {showBackButton ? (
+                  {onBack ? (
                     <button className="flex justify-end" onClick={onBack}>
                       <BackArrow />
                     </button>
