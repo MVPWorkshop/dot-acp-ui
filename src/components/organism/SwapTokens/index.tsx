@@ -532,9 +532,9 @@ const SwapTokens = () => {
   }, [selectedTokens]);
 
   useEffect(() => {
-    if (inputEdited.inputType === InputEditedType.exactIn) {
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenBValue.tokenValue > 0) {
       tokenAValue(selectedTokenAValue.tokenValue);
-    } else if (inputEdited.inputType === InputEditedType.exactOut) {
+    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenAValue.tokenValue > 0) {
       tokenBValue(selectedTokenBValue.tokenValue);
     }
   }, [slippageValue]);

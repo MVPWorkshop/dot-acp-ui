@@ -300,6 +300,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                     })}
                     onClick={() => {
                       setSlippageAuto(true);
+                      setSlippageValue(15);
                     }}
                   >
                     {t("tokenAmountInput.auto")}
