@@ -3,7 +3,7 @@ import { web3FromSource } from "@polkadot/extension-dapp";
 import dotAcpToast from "../../app/util/toast";
 import { SwapAction } from "../../store/swap/interface";
 import { Dispatch } from "react";
-import { ActionType } from "../../app/types/enum";
+import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 
 export const swapNativeForAssetExactIn = async (
   api: ApiPromise,
@@ -53,7 +53,7 @@ export const swapNativeForAssetExactIn = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -66,14 +66,30 @@ export const swapNativeForAssetExactIn = async (
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
-        if (response.status.type === "Finalized" && !response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+            payload: "",
+          });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEE,
+            payload: "",
+          });
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed: ${error}`);
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+        payload: "",
+      });
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEE,
+        payload: "",
+      });
       dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
@@ -128,7 +144,7 @@ export const swapNativeForAssetExactOut = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -142,14 +158,30 @@ export const swapNativeForAssetExactOut = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
-        if (response.status.type === "Finalized" && !response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+            payload: "",
+          });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEE,
+            payload: "",
+          });
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed: ${error}`);
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+        payload: "",
+      });
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEE,
+        payload: "",
+      });
       dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
@@ -213,7 +245,7 @@ export const swapAssetForAssetExactIn = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -227,14 +259,30 @@ export const swapAssetForAssetExactIn = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
-        if (response.status.type === "Finalized" && !response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+            payload: "",
+          });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEE,
+            payload: "",
+          });
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed: ${error}`);
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+        payload: "",
+      });
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEE,
+        payload: "",
+      });
       dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
@@ -298,7 +346,7 @@ export const swapAssetForAssetExactOut = async (
           },
         });
       } else {
-        if (response.status.type === "Finalized" && response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && response.dispatchError) {
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
@@ -312,16 +360,234 @@ export const swapAssetForAssetExactOut = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
-        if (response.status.type === "Finalized" && !response.dispatchError) {
+        if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+            payload: "",
+          });
+          dispatch({
+            type: ActionType.SET_SWAP_GAS_FEE,
+            payload: "",
+          });
           dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
       }
     })
     .catch((error: any) => {
       dotAcpToast.error(`Transaction failed: ${error}`);
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+        payload: "",
+      });
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEE,
+        payload: "",
+      });
       dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
     });
 
   return result;
+};
+
+export const checkSwapNativeForAssetExactInGasFee = async (
+  api: ApiPromise,
+  assetTokenId: string | null,
+  account: any,
+  nativeTokenValue: string,
+  assetTokenValue: string,
+  reverse: boolean,
+  dispatch: Dispatch<SwapAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.swapExactTokensForTokens(
+    reverse ? [secondArg, firstArg] : [firstArg, secondArg],
+    reverse ? assetTokenValue : nativeTokenValue,
+    reverse ? nativeTokenValue : assetTokenValue,
+    account.address,
+    false
+  );
+  const { partialFee } = await result.paymentInfo(account.address);
+
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+    payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
+  });
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEE,
+    payload: partialFee.toHuman(),
+  });
+};
+
+export const checkSwapNativeForAssetExactOutGasFee = async (
+  api: ApiPromise,
+  assetTokenId: string | null,
+  account: any,
+  nativeTokenValue: string,
+  assetTokenValue: string,
+  reverse: boolean,
+  dispatch: Dispatch<SwapAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.swapTokensForExactTokens(
+    reverse ? [firstArg, secondArg] : [secondArg, firstArg],
+    reverse ? nativeTokenValue : assetTokenValue,
+    reverse ? assetTokenValue : nativeTokenValue,
+    account.address,
+    false
+  );
+  const { partialFee } = await result.paymentInfo(account.address);
+
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+    payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
+  });
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEE,
+    payload: partialFee.toHuman(),
+  });
+};
+
+export const checkSwapAssetForAssetExactInGasFee = async (
+  api: ApiPromise,
+  assetTokenAId: string | null,
+  assetTokenBId: string | null,
+  account: any,
+  assetTokenAValue: string,
+  assetTokenBValue: string,
+  dispatch: Dispatch<SwapAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenAId }],
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const thirdArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenBId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.swapExactTokensForTokens(
+    [firstArg, secondArg, thirdArg],
+    assetTokenAValue,
+    assetTokenBValue,
+    account.address,
+    false
+  );
+  const { partialFee } = await result.paymentInfo(account.address);
+
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+    payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
+  });
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEE,
+    payload: partialFee.toHuman(),
+  });
+};
+
+export const checkSwapAssetForAssetExactOutGasFee = async (
+  api: ApiPromise,
+  assetTokenAId: string | null,
+  assetTokenBId: string | null,
+  account: any,
+  assetTokenAValue: string,
+  assetTokenBValue: string,
+  dispatch: Dispatch<SwapAction>
+) => {
+  const firstArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenAId }],
+      },
+    })
+    .toU8a();
+
+  const secondArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        here: null,
+      },
+    })
+    .toU8a();
+
+  const thirdArg = api
+    .createType("MultiLocation", {
+      parents: 0,
+      interior: {
+        x2: [{ palletInstance: 50 }, { generalIndex: assetTokenBId }],
+      },
+    })
+    .toU8a();
+
+  const result = api.tx.assetConversion.swapTokensForExactTokens(
+    [firstArg, secondArg, thirdArg],
+    assetTokenAValue,
+    assetTokenBValue,
+    account.address,
+    false
+  );
+  const { partialFee } = await result.paymentInfo(account.address);
+
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+    payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
+  });
+  dispatch({
+    type: ActionType.SET_SWAP_GAS_FEE,
+    payload: partialFee.toHuman(),
+  });
 };
