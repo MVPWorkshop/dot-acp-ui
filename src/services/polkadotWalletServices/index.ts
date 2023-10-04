@@ -137,6 +137,7 @@ export const connectWalletAndFetchBalance = async (
   dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
   try {
     await setTokenBalance(dispatch, api, connectedWalletAddress);
+    await handleConnection(dispatch, connectedWalletAddress);
   } catch (error) {
     dotAcpToast.error(`Wallet connection error: ${error}`);
   } finally {
