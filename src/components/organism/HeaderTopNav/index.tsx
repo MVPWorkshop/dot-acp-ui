@@ -6,17 +6,23 @@ import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
 import { ActionType, ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
 import { reduceAddress } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast.ts";
-import { handleConnection, handleDisconnect, setTokenBalance } from "../../../services/polkadotWalletServices";
+import {
+  getExtensionsAndAccounts,
+  handleConnection,
+  handleDisconnect,
+  setTokenBalance,
+} from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state/index.tsx";
 import Button from "../../atom/Button/index.tsx";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
-import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { InjectedAccountWithMeta, InjectedExtension } from "@polkadot/extension-inject/types";
 import { lottieOptions } from "../../../assets/loader/index.tsx";
 import Lottie from "react-lottie";
 import WalletConnectModal from "../WalletConnectModal/index.tsx";
 import LocalStorage from "../../../app/util/localStorage.ts";
 import { ModalStepProps } from "../../../app/types/index.ts";
+import type { Timeout } from "react-number-format/types/types";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -26,14 +32,20 @@ const HeaderTopNav = () => {
   const [walletAccount, setWalletAccount] = useState<InjectedAccountWithMeta>({} as InjectedAccountWithMeta);
   const [modalStep, setModalStep] = useState<ModalStepProps>({ step: WalletConnectSteps.stepExtensions });
   const [walletConnectOpen, setWalletConnectOpen] = useState(false);
+  const [accounts, setAccounts] = useState<InjectedAccountWithMeta[]>([] as InjectedAccountWithMeta[]);
+  const [extensions, setExtensions] = useState<InjectedExtension[]>([] as InjectedExtension[]);
 
   const walletConnected = LocalStorage.get("wallet-connected");
 
   const connectWallet = async () => {
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
     try {
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
       setWalletConnectOpen(true);
-      await handleConnection(dispatch);
+      const { extensions, accounts } = await getExtensionsAndAccounts();
+      if (extensions && accounts) {
+        setAccounts(accounts);
+        setExtensions(extensions as InjectedExtension[]);
+      }
       dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     } catch (error) {
       dotAcpToast.error(`Error connecting: ${error}`);
@@ -43,6 +55,7 @@ const HeaderTopNav = () => {
 
   const finalizeConnection = async (selectedAccount: InjectedAccountWithMeta) => {
     setWalletConnectOpen(false);
+    await handleConnection(dispatch);
     await setTokenBalance(dispatch, api, selectedAccount);
   };
 
@@ -63,9 +76,14 @@ const HeaderTopNav = () => {
   }, [walletConnected?.address]);
 
   useEffect(() => {
+    let timeout: Timeout;
     if (!walletConnectOpen) {
-      setTimeout(() => setModalStep({ step: WalletConnectSteps.stepExtensions }), 1000);
+      timeout = setTimeout(() => setModalStep({ step: WalletConnectSteps.stepExtensions }), 1000);
     }
+
+    return () => {
+      clearTimeout(timeout);
+    };
   }, [walletConnectOpen]);
 
   return (
@@ -136,6 +154,8 @@ const HeaderTopNav = () => {
         finalizeConnection={finalizeConnection}
         modalStep={modalStep}
         setModalStep={setModalStep}
+        extensions={extensions}
+        accounts={accounts}
       />
     </>
   );

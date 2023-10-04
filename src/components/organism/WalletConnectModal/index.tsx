@@ -1,6 +1,5 @@
 import Button from "../../atom/Button";
 import Modal from "../../atom/Modal";
-import { useAppContext } from "../../../state";
 import { InjectedAccountWithMeta, InjectedExtension } from "@polkadot/extension-inject/types";
 import { ReactComponent as RandomTokenIcon } from "../../../assets/img/random-token-icon.svg";
 import { ReactComponent as PolkadotWalletLogo } from "../../../assets/img/polkadot-wallet-logo.svg";
@@ -13,6 +12,8 @@ interface WalletConnectModalProps {
   open: boolean;
   title: string;
   modalStep: ModalStepProps;
+  extensions: InjectedExtension[];
+  accounts: InjectedAccountWithMeta[];
   setModalStep: (step: ModalStepProps) => void;
   onClose: () => void;
   onBack: () => void;
@@ -23,13 +24,13 @@ const WalletConnectModal = ({
   open,
   title,
   modalStep,
+  extensions,
+  accounts,
   onClose,
   onBack,
   setModalStep,
   finalizeConnection,
 }: WalletConnectModalProps) => {
-  const { state } = useAppContext();
-  const { extensions, accounts } = state;
   const [walletAddresses, setWalletAddresses] = useState<InjectedAccountWithMeta[]>([]);
 
   const handleContinueClick = (walletName: any) => {

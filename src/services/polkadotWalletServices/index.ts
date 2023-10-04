@@ -131,3 +131,18 @@ export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as InjectedAccountWithMeta });
   dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });
 };
+
+export const connectWalletAndFetchBalance = async (
+  dispatch: Dispatch<WalletAction>,
+  api: any,
+  connectedWalletAddress: InjectedAccountWithMeta
+) => {
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
+  try {
+    await setTokenBalance(dispatch, api, connectedWalletAddress);
+    await handleConnection(dispatch);
+    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
+  } catch (error) {
+    dotAcpToast.error(`Wallet connection error: ${error}`);
+  }
+};
