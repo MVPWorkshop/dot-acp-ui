@@ -92,7 +92,7 @@ We can only create Native Coin -> Asset pools, not Asset1 -> Asset2
 
   // get input parameters as encoded SCALE Uint8Array
   const multiLocation = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -101,7 +101,7 @@ We can only create Native Coin -> Asset pools, not Asset1 -> Asset2
       }
   }).toU8a();
   const multiLocation2 = api.createType('MultiLocation', {
-    parent: 0,
+    parents: 0,
     interior: {
       here: null
     }
@@ -230,7 +230,7 @@ Get amount of token2 you should get if you swap specified amount of token1
 
   // get input parameters as encoded SCALE Uint8Array
   const multiLocation = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -239,7 +239,7 @@ Get amount of token2 you should get if you swap specified amount of token1
       }
   }).toU8a();
   const multiLocation2 = api.createType('MultiLocation', {
-    parent: 0,
+    parents: 0,
     interior: {
       here: null
     }
@@ -274,7 +274,7 @@ Get amount of token1 you should put in if you want to get specified amount of to
 
   // get input parameters as encoded SCALE Uint8Array
   const multiLocation = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -283,7 +283,7 @@ Get amount of token1 you should put in if you want to get specified amount of to
       }
   }).toU8a();
   const multiLocation2 = api.createType('MultiLocation', {
-    parent: 0,
+    parents: 0,
     interior: {
       here: null
     }
@@ -330,7 +330,7 @@ Get amount of token1 you should put in if you want to get specified amount of to
 
   // get input parameters as encoded SCALE Uint8Array
   const multiLocation1 = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -339,13 +339,13 @@ Get amount of token1 you should put in if you want to get specified amount of to
       }
   }).toU8a();
   const nativeTokenMultiLocation = api.createType('MultiLocation', {
-    parent: 0,
+    parents: 0,
     interior: {
       here: null
     }
   }).toU8a();
   const multiLocation2 = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -384,7 +384,7 @@ Get amount of token2 you should get for specified amount of token1 after the swa
 
   // get input parameters as encoded SCALE Uint8Array
   const multiLocation1 = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },
@@ -393,13 +393,13 @@ Get amount of token2 you should get for specified amount of token1 after the swa
       }
   }).toU8a();
   const nativeTokenMultiLocation = api.createType('MultiLocation', {
-    parent: 0,
+    parents: 0,
     interior: {
       here: null
     }
   }).toU8a();
   const multiLocation2 = api.createType('MultiLocation', {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [
           { PalletInstance: 50 },

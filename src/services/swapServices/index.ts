@@ -4,6 +4,7 @@ import dotAcpToast from "../../app/util/toast";
 import { SwapAction } from "../../store/swap/interface";
 import { Dispatch } from "react";
 import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import useNetwork from "../../app/hooks/useNetwork";
 
 export const swapNativeForAssetExactIn = async (
   api: ApiPromise,
@@ -16,7 +17,7 @@ export const swapNativeForAssetExactIn = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -107,7 +108,7 @@ export const swapNativeForAssetExactOut = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -208,7 +209,7 @@ export const swapAssetForAssetExactIn = async (
 
   const secondArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -309,7 +310,7 @@ export const swapAssetForAssetExactOut = async (
 
   const secondArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -401,7 +402,7 @@ export const checkSwapNativeForAssetExactInGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -447,7 +448,7 @@ export const checkSwapNativeForAssetExactOutGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -502,7 +503,7 @@ export const checkSwapAssetForAssetExactInGasFee = async (
 
   const secondArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },
@@ -557,7 +558,7 @@ export const checkSwapAssetForAssetExactOutGasFee = async (
 
   const secondArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: useNetwork().parents,
       interior: {
         here: null,
       },

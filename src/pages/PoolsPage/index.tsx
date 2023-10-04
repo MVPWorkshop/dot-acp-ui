@@ -14,6 +14,7 @@ import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import dotAcpToast from "../../app/util/toast";
 import { t } from "i18next";
 import { formatDecimalsFromToken } from "../../app/util/helper";
+import useNetwork from "../../app/hooks/useNetwork";
 
 const PoolsPage = () => {
   const { state, dispatch } = useAppContext();
@@ -60,7 +61,7 @@ const PoolsPage = () => {
               const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
               poolCardsArray.push({
-                name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
+                name: `${useNetwork().nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
                 lpTokenId: lpTokenId,
                 assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
