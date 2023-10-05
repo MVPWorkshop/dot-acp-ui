@@ -157,7 +157,6 @@ export const swapNativeForAssetExactOut = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
@@ -258,7 +257,6 @@ export const swapAssetForAssetExactIn = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
@@ -359,7 +357,6 @@ export const swapAssetForAssetExactOut = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });

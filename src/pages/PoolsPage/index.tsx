@@ -77,6 +77,22 @@ const PoolsPage = () => {
         })
       );
 
+      poolCardsArray.sort(function (a, b) {
+        if (a.name < b.name) {
+          return -1;
+        }
+        if (a.name > b.name) {
+          return 1;
+        }
+        return 0;
+      });
+
+      poolCardsArray.sort(function (a, b) {
+        if (a.lpTokenAsset === null) return 1;
+        if (b.lpTokenAsset === null) return -1;
+        return parseInt(a?.lpTokenAsset?.balance) - parseInt(b?.lpTokenAsset?.balance);
+      });
+
       dispatch({ type: ActionType.SET_POOLS_CARDS, payload: poolCardsArray });
     } catch (error) {
       dotAcpToast.error(`Error fetching pools: ${error}`);
@@ -106,7 +122,7 @@ const PoolsPage = () => {
             <div className="tracking-[.2px] text-gray-300">{t("poolsPage.earnFeesByProvidingLiquidity")}</div>
           </div>
           <div>
-            {selectedAccount ? (
+            {selectedAccount && Object.keys(selectedAccount).length > 0 ? (
               <Button
                 onClick={navigateToAddLiquidity}
                 variant={ButtonVariants.btnPrimaryPinkLg}

@@ -373,6 +373,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                   })}
                   onClick={() => {
                     setSlippageAuto(true);
+                    setSlippageValue(15);
                   }}
                 >
                   {t("tokenAmountInput.auto")}

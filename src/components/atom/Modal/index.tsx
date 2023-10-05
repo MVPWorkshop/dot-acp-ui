@@ -1,15 +1,17 @@
 import { FC, ReactNode, Fragment } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ReactComponent as ModalCloseIcon } from "../../../assets/img/modal-close-icon.svg";
+import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 
 interface ModalProps {
   isOpen: boolean;
   title?: string;
-  onClose: () => void;
   children: ReactNode;
+  onClose: () => void;
+  onBack?: () => void | undefined;
 }
 
-const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
+const Modal: FC<ModalProps> = ({ isOpen, children, title, onClose, onBack }) => {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={onClose}>
@@ -38,6 +40,12 @@ const Modal: FC<ModalProps> = ({ isOpen, onClose, children, title }) => {
             >
               <Dialog.Panel className="relative z-10 transform overflow-hidden rounded-2xl border border-gray-10 bg-white p-[18px] shadow-modal-box-shadow">
                 <div className="mb-[6px] flex items-center border-b border-b-gray-50 pb-[8px] pr-[24px] pt-[10px]">
+                  {onBack ? (
+                    <button className="flex justify-end" onClick={onBack}>
+                      <BackArrow />
+                    </button>
+                  ) : null}
+
                   <div className="flex w-full justify-center font-unbounded-variable text-heading-6 leading-[120%]">
                     {title}
                   </div>
