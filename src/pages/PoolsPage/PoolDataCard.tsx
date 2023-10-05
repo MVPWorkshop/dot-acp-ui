@@ -6,6 +6,7 @@ import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
 import { ADD_LIQUIDITY_TO_EXISTING, REMOVE_LIQUIDITY_FROM_EXISTING } from "../../app/router/routes";
 import { urlTo } from "../../app/util/helper";
+import { useAppContext } from "../../state";
 
 type PoolDataCardProps = {
   tokenPair: string;
@@ -16,7 +17,6 @@ type PoolDataCardProps = {
   lpTokenAsset: LpTokenAsset | null;
   assetTokenId: string;
   lpTokenId: string | null;
-  tokenBalances: number | undefined;
 };
 
 const PoolDataCard = ({
@@ -28,9 +28,10 @@ const PoolDataCard = ({
   assetTokenIcon,
   assetTokenId,
   lpTokenId,
-  tokenBalances,
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
+  const { state } = useAppContext();
+  const { tokenBalances } = state;
 
   const onDepositClick = () => {
     navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }), {
@@ -44,7 +45,13 @@ const PoolDataCard = ({
     });
   };
 
-  const checkIfWithdrawOrDepositDisabled = () => {
+  const checkIfDepositDisabled = () => {
+    const tokenExists = !tokenBalances?.assets?.find((token: any) => token.tokenId === assetTokenId);
+
+    return tokenExists;
+  };
+
+  const checkIfWithdrawDisabled = () => {
     if (lpTokenAsset) {
       if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances) {
         return false;
@@ -72,11 +79,11 @@ const PoolDataCard = ({
             onClick={() => onDepositClick()}
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
-            disabled={checkIfWithdrawOrDepositDisabled()}
+            disabled={checkIfDepositDisabled()}
             className="group relative"
           >
             {t("button.deposit")}
-            {checkIfWithdrawOrDepositDisabled() && (
+            {checkIfDepositDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
                 {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>
@@ -85,11 +92,11 @@ const PoolDataCard = ({
           <Button
             onClick={() => onWithdrawClick()}
             variant={ButtonVariants.btnSecondaryGray}
-            disabled={checkIfWithdrawOrDepositDisabled()}
+            disabled={checkIfWithdrawDisabled()}
             className="group relative"
           >
             {t("button.withdraw")}
-            {checkIfWithdrawOrDepositDisabled() && (
+            {checkIfWithdrawDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
                 {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>
