@@ -53,7 +53,6 @@ const PoolsPage = () => {
                     nativeTokenIcon={item.totalTokensLocked.nativeTokenIcon}
                     assetTokenId={item.assetTokenId}
                     lpTokenId={item.lpTokenId}
-                    tokenBalances={tokenBalances?.balance}
                   />
                 </div>
               );
