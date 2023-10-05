@@ -36,6 +36,7 @@ export enum ActionType {
   SET_ADD_LIQUIDITY_LOADING = "SET_ADD_LIQUIDITY_LOADING",
   SET_WITHDRAW_LIQUIDITY_LOADING = "SET_WITHDRAW_LIQUIDITY_LOADING",
   SET_WALLET_CONNECT_LOADING = "SET_WALLET_CONNECT_LOADING",
+  SET_WALLET_EXTENSIONS = "SET_WALLET_EXTENSIONS",
 }
 
 export enum TokenSelection {
@@ -62,4 +63,9 @@ export enum ServiceResponseStatus {
 export enum TokenPosition {
   tokenA = "A",
   tokenB = "B",
+}
+
+export enum WalletConnectSteps {
+  stepExtensions = "extensions",
+  stepAddresses = "addresses",
 }

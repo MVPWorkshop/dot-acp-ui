@@ -55,6 +55,7 @@ type TokenSelectedProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
+
   const {
     tokenBalances,
     poolsTokenMetadata,
@@ -66,6 +67,7 @@ const SwapTokens = () => {
     swapGasFee,
     swapLoading,
   } = state;
+
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
   const [selectedTokens, setSelectedTokens] = useState<SwapTokenProps>({
     tokenA: {
@@ -481,6 +483,7 @@ const SwapTokens = () => {
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
+
       if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
         if (selectedTokens.tokenB.tokenId) {
           if (inputEdited.inputType === InputEditedType.exactIn) {
@@ -606,6 +609,14 @@ const SwapTokens = () => {
   }, [selectedTokens]);
 
   useEffect(() => {
+    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenBValue.tokenValue > 0) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenAValue.tokenValue > 0) {
+      tokenBValue(selectedTokenBValue.tokenValue);
+    }
+  }, [slippageValue]);
+
+  useEffect(() => {
     if (
       selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
       selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken
@@ -665,6 +676,7 @@ const SwapTokens = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
+                  setSlippageValue(15);
                 }}
               >
                 {t("tokenAmountInput.auto")}

@@ -272,7 +272,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClick={() => console.log("open modal")}
               onSetTokenValue={(value) => setSelectedTokenAValue(value)}
               selectDisabled={true}
-              disabled={createPoolLoading}
+              disabled={createPoolLoading || !selectedAccount}
             />
             <TokenAmountInput
               tokenText={selectedTokenB?.tokenSymbol}
@@ -281,8 +281,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
               onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-              disabled={createPoolLoading}
-              selectDisabled={createPoolLoading}
+              disabled={createPoolLoading || !selectedAccount}
+              selectDisabled={createPoolLoading || !selectedAccount}
             />
             <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -300,6 +300,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                     })}
                     onClick={() => {
                       setSlippageAuto(true);
+                      setSlippageValue(15);
                     }}
                   >
                     {t("tokenAmountInput.auto")}

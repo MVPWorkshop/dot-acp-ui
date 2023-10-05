@@ -10,6 +10,7 @@ type TokenProps = {
   decimals: string;
   assetTokenBalance: string;
 };
+
 interface PoolSelectTokenModalProps {
   open: boolean;
   title: string;
