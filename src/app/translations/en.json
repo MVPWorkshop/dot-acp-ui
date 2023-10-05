@@ -32,6 +32,7 @@
     "withdraw": "Withdraw",
     "newPosition": "New Position",
     "insufficientTokenAmount": "Insufficient {{token}} amount",
+    "insufficientTokenLiquidity": "Insufficient {{token}} liquidity in pool",
     "minimumTokenAmountExceeded": "Minimum asset token amount exceeded",
     "enterAmount": "Enter amount",
     "selectToken": "Select token",
