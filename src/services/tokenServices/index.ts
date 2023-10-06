@@ -1,5 +1,8 @@
-import { u8aToHex } from "@polkadot/util";
 import { ApiPromise } from "@polkadot/api";
+import { u8aToHex } from "@polkadot/util";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
+
+const { parents } = useGetNetwork();
 
 export const getAssetTokenFromNativeToken = async (
   api: ApiPromise,
@@ -8,7 +11,7 @@ export const getAssetTokenFromNativeToken = async (
 ) => {
   const multiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
       },
@@ -17,7 +20,7 @@ export const getAssetTokenFromNativeToken = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -49,7 +52,7 @@ export const getNativeTokenFromAssetToken = async (
 ) => {
   const multiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
       },
@@ -58,7 +61,7 @@ export const getNativeTokenFromAssetToken = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -103,7 +106,7 @@ export const getAssetTokenAFromAssetTokenB = async (
 ) => {
   const multiLocation1 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetToken1Id }],
       },
@@ -112,7 +115,7 @@ export const getAssetTokenAFromAssetTokenB = async (
 
   const nativeTokenMultiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -121,7 +124,7 @@ export const getAssetTokenAFromAssetTokenB = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetToken2Id }],
       },
@@ -159,7 +162,7 @@ export const getAssetTokenBFromAssetTokenA = async (
 ) => {
   const multiLocation1 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetToken1Id }],
       },
@@ -168,7 +171,7 @@ export const getAssetTokenBFromAssetTokenA = async (
 
   const nativeTokenMultiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -177,7 +180,7 @@ export const getAssetTokenBFromAssetTokenA = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetToken2Id }],
       },

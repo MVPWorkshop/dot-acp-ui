@@ -2,9 +2,12 @@ import { ApiPromise } from "@polkadot/api";
 import { web3FromSource } from "@polkadot/extension-dapp";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
+
+const { parents } = useGetNetwork();
 
 export const getAllPools = async (api: ApiPromise) => {
   try {
@@ -19,7 +22,7 @@ export const getAllPools = async (api: ApiPromise) => {
 export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => {
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -28,7 +31,7 @@ export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => 
 
   const multiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
       },
@@ -60,7 +63,7 @@ export const createPool = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -142,7 +145,7 @@ export const addLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -230,7 +233,7 @@ export const removeLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -307,7 +310,7 @@ export const checkCreatePoolGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -348,7 +351,7 @@ export const checkAddPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -426,7 +429,7 @@ export const checkWithdrawPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },

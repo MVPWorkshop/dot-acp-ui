@@ -1,25 +1,28 @@
-import { useNavigate } from "react-router-dom";
-import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
-import Button from "../../components/atom/Button";
-import { ActionType, ButtonVariants } from "../../app/types/enum";
-import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
-import { useEffect } from "react";
-import { useAppContext } from "../../state";
-import { getPoolReserves } from "../../services/poolServices";
-import PoolDataCard from "./PoolDataCard";
 import { ApiPromise } from "@polkadot/api";
+import { t } from "i18next";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
+import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
+import { LpTokenAsset, PoolCardProps } from "../../app/types";
+import { ActionType, ButtonVariants } from "../../app/types/enum";
+import { formatDecimalsFromToken } from "../../app/util/helper";
+import dotAcpToast from "../../app/util/toast";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
-import { LpTokenAsset, PoolCardProps } from "../../app/types";
-import dotAcpToast from "../../app/util/toast";
-import { t } from "i18next";
-import { formatDecimalsFromToken } from "../../app/util/helper";
+import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
+import Button from "../../components/atom/Button";
+import { getPoolReserves } from "../../services/poolServices";
+import { useAppContext } from "../../state";
+import PoolDataCard from "./PoolDataCard";
 
 const PoolsPage = () => {
   const { state, dispatch } = useAppContext();
   const { api, selectedAccount, pools, poolsCards, tokenBalances } = state;
 
   const navigate = useNavigate();
+
+  const { nativeTokenSymbol } = useGetNetwork();
 
   const navigateToAddLiquidity = () => {
     navigate(POOLS_ADD_LIQUIDITY);
@@ -60,7 +63,7 @@ const PoolsPage = () => {
               const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
               poolCardsArray.push({
-                name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
+                name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
                 lpTokenAsset: lpToken ? lpToken : null,
                 lpTokenId: lpTokenId,
                 assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),

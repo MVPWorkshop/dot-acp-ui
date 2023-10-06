@@ -43,7 +43,6 @@ export enum TokenSelection {
   TokenA = "tokenA",
   TokenB = "tokenB",
   None = "none",
-  NativeToken = "WND",
 }
 
 export enum InputEditedType {
@@ -63,6 +62,11 @@ export enum ServiceResponseStatus {
 export enum TokenPosition {
   tokenA = "A",
   tokenB = "B",
+}
+
+export enum NetworkKeys {
+  Westmint = "westmint",
+  Rococo = "rococo",
 }
 
 export enum WalletConnectSteps {
