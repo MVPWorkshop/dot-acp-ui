@@ -33,6 +33,7 @@
     "@polkadot/keyring": "^12.3.2",
     "@polkadot/types": "^10.9.1",
     "@polkadot/util": "^12.3.2",
+    "@talismn/connect-wallets": "^1.2.3",
     "classnames": "^2.3.2",
     "decimal.js": "^10.4.3",
     "i18next": "^23.4.5",

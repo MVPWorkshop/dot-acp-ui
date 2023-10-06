@@ -6,12 +6,13 @@ import useStateAndDispatch from "./app/hooks/useStateAndDispatch";
 import { connectWalletAndFetchBalance } from "./services/polkadotWalletServices";
 import LocalStorage from "./app/util/localStorage";
 import { createPoolCardsArray } from "./services/poolServices";
+import type { WalletAccount } from "@talismn/connect-wallets";
 
 const App: FC = () => {
   const { dispatch, state } = useStateAndDispatch();
   const { api, pools, selectedAccount } = state;
 
-  const walletConnected = LocalStorage.get("wallet-connected");
+  const walletConnected: WalletAccount = LocalStorage.get("wallet-connected");
 
   const updatePoolsCards = async () => {
     if (api && selectedAccount && pools) {
