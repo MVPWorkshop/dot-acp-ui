@@ -1,6 +1,8 @@
-import { u8aToHex } from "@polkadot/util";
 import { ApiPromise } from "@polkadot/api";
-import useNetwork from "../../app/hooks/useNetwork";
+import { u8aToHex } from "@polkadot/util";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
+
+const { parents } = useGetNetwork();
 
 export const getAssetTokenFromNativeToken = async (
   api: ApiPromise,
@@ -18,7 +20,7 @@ export const getAssetTokenFromNativeToken = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parents: useNetwork().parents,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -59,7 +61,7 @@ export const getNativeTokenFromAssetToken = async (
 
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parents: useNetwork().parents,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -113,7 +115,7 @@ export const getAssetTokenAFromAssetTokenB = async (
 
   const nativeTokenMultiLocation = api
     .createType("MultiLocation", {
-      parents: useNetwork().parents,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -169,7 +171,7 @@ export const getAssetTokenBFromAssetTokenA = async (
 
   const nativeTokenMultiLocation = api
     .createType("MultiLocation", {
-      parents: useNetwork().parents,
+      parents: parents,
       interior: {
         here: null,
       },
