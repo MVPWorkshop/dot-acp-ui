@@ -1,11 +1,11 @@
 import { WalletState, WalletAction } from "./interface";
 import { ActionType } from "../../app/types/enum";
-import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import type { WalletAccount } from "@talismn/connect-wallets";
 
 export const initialWalletState: WalletState = {
   api: null,
   accounts: [],
-  selectedAccount: {} as InjectedAccountWithMeta,
+  selectedAccount: {} as WalletAccount,
   tokenBalances: null,
   walletConnectLoading: false,
   extensions: [],

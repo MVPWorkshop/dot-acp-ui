@@ -39,28 +39,6 @@ const HeaderTopNav = () => {
     setWalletConnectOpen(true);
   };
 
-  // const connectWallet = async () => {
-  //   dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
-  //   try {
-  //     setWalletConnectOpen(true);
-  //     // const { extensions, accounts } = await getExtensionsAndAccounts();
-  //     // if (extensions && accounts) {
-  //     //   setAccounts(accounts);
-  //     //   setExtensions(extensions as InjectedExtension[]);
-  //     // }
-  //     dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
-  //   } catch (error) {
-  //     dotAcpToast.error(`Error connecting: ${error}`);
-  //     dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
-  //   }
-  // };
-
-  // const finalizeConnection = async (selectedAccount: InjectedAccountWithMeta) => {
-  //   setWalletConnectOpen(false);
-  //   await handleConnection(dispatch, selectedAccount);
-  //   await setTokenBalance(dispatch, api, selectedAccount);
-  // };
-
   const handleConnect = async (account: WalletAccount) => {
     dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
     try {
