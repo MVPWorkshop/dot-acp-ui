@@ -1,16 +1,15 @@
 import { ApiPromise } from "@polkadot/api";
-import { web3FromSource } from "@polkadot/extension-dapp";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
-import useGetNetwork from "../../app/hooks/useGetNetwork";
 import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import { LpTokenAsset, PoolCardProps } from "../../app/types";
-import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
 import { t } from "i18next";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
@@ -60,7 +59,7 @@ export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => 
 export const createPool = async (
   api: ApiPromise,
   assetTokenId: string,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   minNativeTokenValue: string,
@@ -88,10 +87,11 @@ export const createPool = async (
   dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: true });
 
   const result = api.tx.assetConversion.createPool(firstArg, secondArg);
-  const injector = await web3FromSource(account?.meta.source);
+
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
       if (response.status.type === ServiceResponseStatus.Finalized) {
         addLiquidity(
           api,
@@ -141,7 +141,7 @@ export const createPool = async (
 export const addLiquidity = async (
   api: ApiPromise,
   assetTokenId: string,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   minNativeTokenValue: string,
@@ -185,10 +185,10 @@ export const addLiquidity = async (
     payload: `transaction will have a weight of ${partialFee.toHuman()} fees`,
   });
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, async (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, async (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -229,7 +229,7 @@ export const addLiquidity = async (
 export const removeLiquidity = async (
   api: ApiPromise,
   assetTokenId: string,
-  account: any,
+  account: WalletAccount,
   lpTokensAmountToBurn: string,
   minNativeTokenValue: string,
   minAssetTokenValue: string,
@@ -264,10 +264,10 @@ export const removeLiquidity = async (
     account.address
   );
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, async (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, async (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -473,7 +473,7 @@ export const createPoolCardsArray = async (
   api: ApiPromise,
   dispatch: Dispatch<PoolAction>,
   pools: any,
-  selectedAccount?: InjectedAccountWithMeta
+  selectedAccount?: WalletAccount
 ) => {
   const apiPool = api as ApiPromise;
 

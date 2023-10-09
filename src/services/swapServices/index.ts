@@ -1,17 +1,17 @@
 import { ApiPromise } from "@polkadot/api";
-import { web3FromSource } from "@polkadot/extension-dapp";
-import { Dispatch } from "react";
-import useGetNetwork from "../../app/hooks/useGetNetwork";
-import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import dotAcpToast from "../../app/util/toast";
 import { SwapAction } from "../../store/swap/interface";
+import { Dispatch } from "react";
+import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 
 const { parents } = useGetNetwork();
 
 export const swapNativeForAssetExactIn = async (
   api: ApiPromise,
   assetTokenId: string,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   reverse: boolean,
@@ -45,10 +45,10 @@ export const swapNativeForAssetExactIn = async (
     false
   );
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -102,7 +102,7 @@ export const swapNativeForAssetExactIn = async (
 export const swapNativeForAssetExactOut = async (
   api: ApiPromise,
   assetTokenId: string,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   reverse: boolean,
@@ -136,10 +136,10 @@ export const swapNativeForAssetExactOut = async (
     false
   );
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -194,7 +194,7 @@ export const swapAssetForAssetExactIn = async (
   api: ApiPromise,
   assetTokenAId: string,
   assetTokenBId: string,
-  account: any,
+  account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
   dispatch: Dispatch<SwapAction>
@@ -236,10 +236,10 @@ export const swapAssetForAssetExactIn = async (
     false
   );
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -294,7 +294,7 @@ export const swapAssetForAssetExactOut = async (
   api: ApiPromise,
   assetTokenAId: string,
   assetTokenBId: string,
-  account: any,
+  account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
   dispatch: Dispatch<SwapAction>
@@ -336,10 +336,10 @@ export const swapAssetForAssetExactOut = async (
     false
   );
 
-  const injector = await web3FromSource(account?.meta.source);
+  const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: injector.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -393,7 +393,7 @@ export const swapAssetForAssetExactOut = async (
 export const checkSwapNativeForAssetExactInGasFee = async (
   api: ApiPromise,
   assetTokenId: string | null,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   reverse: boolean,
@@ -439,7 +439,7 @@ export const checkSwapNativeForAssetExactInGasFee = async (
 export const checkSwapNativeForAssetExactOutGasFee = async (
   api: ApiPromise,
   assetTokenId: string | null,
-  account: any,
+  account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
   reverse: boolean,
@@ -486,7 +486,7 @@ export const checkSwapAssetForAssetExactInGasFee = async (
   api: ApiPromise,
   assetTokenAId: string | null,
   assetTokenBId: string | null,
-  account: any,
+  account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
   dispatch: Dispatch<SwapAction>
@@ -541,7 +541,7 @@ export const checkSwapAssetForAssetExactOutGasFee = async (
   api: ApiPromise,
   assetTokenAId: string | null,
   assetTokenBId: string | null,
-  account: any,
+  account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
   dispatch: Dispatch<SwapAction>

@@ -1,91 +1,82 @@
 import Button from "../../atom/Button";
 import Modal from "../../atom/Modal";
-import { InjectedAccountWithMeta, InjectedExtension } from "@polkadot/extension-inject/types";
 import { ReactComponent as RandomTokenIcon } from "../../../assets/img/random-token-icon.svg";
-import { ReactComponent as PolkadotWalletLogo } from "../../../assets/img/polkadot-wallet-logo.svg";
-import TalismanWalletLogo from "../../../assets/img/talisman-wallet-logo.jpeg";
 import { useState } from "react";
 import { WalletConnectSteps } from "../../../app/types/enum";
 import { ModalStepProps } from "../../../app/types";
-import { t } from "i18next";
+import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 
 interface WalletConnectModalProps {
   open: boolean;
   title: string;
   modalStep: ModalStepProps;
-  extensions: InjectedExtension[];
-  accounts: InjectedAccountWithMeta[];
+  supportedWallets: Wallet[];
   setModalStep: (step: ModalStepProps) => void;
+  handleConnect: (account: WalletAccount) => void;
   onClose: () => void;
+  setWalletConnectOpen: (isOpen: boolean) => void;
   onBack?: () => void | undefined;
-  finalizeConnection: (account: InjectedAccountWithMeta) => void;
 }
 
 const WalletConnectModal = ({
   open,
   title,
   modalStep,
-  extensions,
-  accounts,
+  supportedWallets,
   onClose,
   onBack,
   setModalStep,
-  finalizeConnection,
+  handleConnect,
 }: WalletConnectModalProps) => {
-  const [walletAddresses, setWalletAddresses] = useState<InjectedAccountWithMeta[]>([]);
+  const [walletAccounts, setWalletAccounts] = useState<WalletAccount[]>([]);
 
-  const handleContinueClick = (walletName: any) => {
+  const handleContinueClick = (accounts: WalletAccount[]) => {
     setModalStep({ step: WalletConnectSteps.stepAddresses });
-
-    const addresses = accounts.filter((account: InjectedAccountWithMeta) => {
-      return account.meta.source === walletName;
-    });
-
-    if (addresses) {
-      setWalletAddresses(addresses);
-    }
-  };
-
-  const getWalletIcon = (walletName: string) => {
-    if (walletName === "polkadot-js") {
-      return <PolkadotWalletLogo width={36} height={36} />;
-    }
-    if (walletName === "talisman") {
-      return <img src={TalismanWalletLogo} style={{ borderRadius: 6, width: 36, height: 36 }} alt="talisman" />;
-    }
+    setWalletAccounts(accounts);
   };
 
   return (
     <Modal isOpen={open} onClose={onClose} title={title} onBack={onBack}>
       <div className="flex min-w-[450px] flex-col gap-5 p-4">
-        {modalStep.step === WalletConnectSteps.stepExtensions ? (
-          extensions.length === 0 ? (
-            <div className="p-3">{t("wallet.noWalletFound")}</div>
-          ) : (
-            extensions.map((wallet: InjectedExtension, index: any) => {
+        {modalStep?.step === WalletConnectSteps.stepExtensions
+          ? supportedWallets?.map((wallet: Wallet) => {
               return (
-                <div key={index} className="flex cursor-pointer items-center gap-5">
-                  <div className="flex basis-16">{getWalletIcon(wallet.name)}</div>
-                  <span className="flex basis-full items-center">{wallet.name}</span>
+                <div key={wallet?.extensionName} className="flex cursor-pointer items-center gap-5">
+                  <div className="flex basis-16">
+                    <img src={wallet?.logo?.src} alt={wallet?.logo?.alt} width={36} height={36} />
+                  </div>
+                  <span className="flex basis-full items-center">{wallet?.title}</span>
                   <div className="flex basis-24 items-center">
-                    <Button className="btn-secondary-white" onClick={() => handleContinueClick(wallet.name)}>
-                      Continue
-                    </Button>
+                    {wallet?.installed ? (
+                      <Button
+                        className="btn-secondary-white"
+                        onClick={async () => {
+                          await wallet?.enable("DOT-ACP");
+                          const accounts: WalletAccount[] = await wallet?.getAccounts();
+                          handleContinueClick(accounts);
+                        }}
+                      >
+                        Continue
+                      </Button>
+                    ) : (
+                      <a href={wallet?.installUrl} target="blank">
+                        Install
+                      </a>
+                    )}
                   </div>
                 </div>
               );
             })
-          )
-        ) : null}
+          : null}
         {modalStep.step === WalletConnectSteps.stepAddresses
-          ? walletAddresses?.map((address: InjectedAccountWithMeta, index: any) => {
+          ? walletAccounts?.map((account: WalletAccount, index: any) => {
               return (
                 <div key={index} className="flex cursor-pointer flex-col rounded-lg bg-purple-100 px-4 py-3">
                   <div className="flex items-center gap-2">
                     <RandomTokenIcon />
-                    <button className="flex flex-col items-start" onClick={() => finalizeConnection(address)}>
-                      <div className="text-base font-medium text-gray-300">{address.meta.name}</div>
-                      <div className="text-xs font-normal text-gray-300">{address.address}</div>
+                    <button className="flex flex-col items-start" onClick={() => handleConnect(account)}>
+                      <div className="text-base font-medium text-gray-300">{account?.name}</div>
+                      <div className="text-xs font-normal text-gray-300">{account?.address}</div>
                     </button>
                   </div>
                 </div>
