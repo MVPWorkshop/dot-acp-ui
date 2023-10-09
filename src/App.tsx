@@ -14,10 +14,6 @@ const App: FC = () => {
 
   const walletConnected: WalletAccount = LocalStorage.get("wallet-connected");
 
-  const updatePoolsCards = async () => {
-    if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
-  };
-
   useEffect(() => {
     if (walletConnected && api) {
       connectWalletAndFetchBalance(dispatch, api, walletConnected);
@@ -25,6 +21,10 @@ const App: FC = () => {
   }, [api]);
 
   useEffect(() => {
+    const updatePoolsCards = async () => {
+      if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
+    };
+
     updatePoolsCards();
   }, [pools, selectedAccount]);
 

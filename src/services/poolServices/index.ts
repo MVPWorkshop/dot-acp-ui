@@ -10,6 +10,7 @@ import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
+import { t } from "i18next";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
 
@@ -538,6 +539,6 @@ export const createPoolCardsArray = async (
 
     dispatch({ type: ActionType.SET_POOLS_CARDS, payload: poolCardsArray });
   } catch (error) {
-    dotAcpToast.error(`Error fetching pools: ${error}`);
+    dotAcpToast.error(t("poolsPage.errorFetchingPools", { error: error }));
   }
 };
