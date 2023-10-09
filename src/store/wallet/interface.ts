@@ -7,7 +7,7 @@ export interface WalletState {
   api: ApiPromise | null;
   accounts: InjectedAccountWithMeta[];
   extensions: InjectedExtension[];
-  selectedAccount: InjectedAccountWithMeta | null;
+  selectedAccount: InjectedAccountWithMeta;
   tokenBalances: TokenBalanceData | null;
   walletConnectLoading: boolean;
 }
