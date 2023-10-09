@@ -188,8 +188,8 @@ const WithdrawPoolLiquidity = () => {
       setLpTokensAmountToBurn(lpTokenUserAssetBalance.toFixed(0));
 
       if (res && slippageValue) {
-        const wndInPool = new Decimal(res[0]?.replace(/[, ]/g, ""));
-        const wndOut = wndInPool
+        const nativeTokenInPool = new Decimal(res[0]?.replace(/[, ]/g, ""));
+        const nativeTokenOut = nativeTokenInPool
           .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
           .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
           .floor()
@@ -202,11 +202,14 @@ const WithdrawPoolLiquidity = () => {
           .floor()
           .toNumber();
 
-        const wndOutFormatted = formatDecimalsFromToken(wndOut, selectedTokenA?.nativeTokenDecimals);
+        const nativeTokenOutFormatted = formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals);
         const assetOutFormatted = formatDecimalsFromToken(assetOut, selectedTokenB?.decimals);
 
-        const wndOutSlippage = calculateSlippageReduce(wndOutFormatted, slippageValue);
-        const wndOutSlippageFormatted = formatInputTokenValue(wndOutSlippage, selectedTokenA?.nativeTokenDecimals);
+        const nativeTokenOutSlippage = calculateSlippageReduce(nativeTokenOutFormatted, slippageValue);
+        const nativeTokenOutSlippageFormatted = formatInputTokenValue(
+          nativeTokenOutSlippage,
+          selectedTokenA?.nativeTokenDecimals
+        );
 
         const assetOutSlippage = calculateSlippageReduce(assetOutFormatted, slippageValue);
         const assetOutSlippageFormatted = formatInputTokenValue(assetOutSlippage, selectedTokenB?.decimals);
@@ -214,10 +217,10 @@ const WithdrawPoolLiquidity = () => {
         setMinimumTokenAmountExceeded(assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance));
 
         setSelectedTokenNativeValue({
-          tokenValue: formatDecimalsFromToken(wndOut, selectedTokenA?.nativeTokenDecimals),
+          tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals),
         });
 
-        setNativeTokenWithSlippage({ tokenValue: parseInt(wndOutSlippageFormatted) });
+        setNativeTokenWithSlippage({ tokenValue: parseInt(nativeTokenOutSlippageFormatted) });
 
         setSelectedTokenAssetValue({ tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals) });
         setAssetTokenWithSlippage({ tokenValue: parseInt(assetOutSlippageFormatted) });

@@ -1,7 +1,8 @@
 import { ApiPromise } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
-import { ActionType, ServiceResponseStatus, TokenPlaceholder } from "../../app/types/enum";
+import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
@@ -9,6 +10,8 @@ import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
+
+const { parents, nativeTokenSymbol } = useGetNetwork();
 
 export const getAllPools = async (api: ApiPromise) => {
   try {
@@ -23,7 +26,7 @@ export const getAllPools = async (api: ApiPromise) => {
 export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => {
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -32,7 +35,7 @@ export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => 
 
   const multiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
       },
@@ -64,7 +67,7 @@ export const createPool = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -147,7 +150,7 @@ export const addLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -235,7 +238,7 @@ export const removeLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -312,7 +315,7 @@ export const checkCreatePoolGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -353,7 +356,7 @@ export const checkAddPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -431,7 +434,7 @@ export const checkWithdrawPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -507,7 +510,7 @@ export const createPoolCardsArray = async (
             const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
             poolCardsArray.push({
-              name: `${TokenPlaceholder.NativeWnd}–${assetTokenMetadata.toHuman()?.symbol}`,
+              name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
               lpTokenAsset: lpToken ? lpToken : null,
               lpTokenId: lpTokenId,
               assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
