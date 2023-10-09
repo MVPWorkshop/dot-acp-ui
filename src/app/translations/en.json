@@ -76,7 +76,8 @@
     "lpTokens": "LP tokens"
   },
   "wallet": {
-    "notConnected": "Not connected"
+    "notConnected": "Not connected",
+    "noWalletFound": "No wallet found!"
   },
   "tokenAmountInput": {
     "youPay": "You pay",

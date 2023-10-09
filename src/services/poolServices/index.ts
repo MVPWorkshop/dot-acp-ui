@@ -124,7 +124,6 @@ export const createPool = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -209,7 +208,6 @@ export const addLiquidity = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
