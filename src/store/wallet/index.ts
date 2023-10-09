@@ -1,10 +1,11 @@
 import { WalletState, WalletAction } from "./interface";
 import { ActionType } from "../../app/types/enum";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
 
 export const initialWalletState: WalletState = {
   api: null,
   accounts: [],
-  selectedAccount: null,
+  selectedAccount: {} as InjectedAccountWithMeta,
   tokenBalances: null,
   walletConnectLoading: false,
   extensions: [],

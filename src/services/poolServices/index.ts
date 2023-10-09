@@ -11,6 +11,7 @@ import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import { LpTokenAsset, PoolCardProps } from "../../app/types";
 import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { t } from "i18next";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
 
@@ -526,17 +527,11 @@ export const createPoolCardsArray = async (
       })
     );
 
-    poolCardsArray.sort(function (a, b) {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name > b.name) {
-        return 1;
-      }
-      return 0;
+    poolCardsArray.sort((a, b) => {
+      return a.name.localeCompare(b.name);
     });
 
-    poolCardsArray.sort(function (a, b) {
+    poolCardsArray.sort((a, b) => {
       if (a.lpTokenAsset === null) return 1;
       if (b.lpTokenAsset === null) return -1;
       return parseInt(a?.lpTokenAsset?.balance) - parseInt(b?.lpTokenAsset?.balance);
@@ -544,6 +539,6 @@ export const createPoolCardsArray = async (
 
     dispatch({ type: ActionType.SET_POOLS_CARDS, payload: poolCardsArray });
   } catch (error) {
-    dotAcpToast.error(`Error fetching pools: ${error}`);
+    dotAcpToast.error(t("poolsPage.errorFetchingPools", { error: error }));
   }
 };
