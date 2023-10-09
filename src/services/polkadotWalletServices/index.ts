@@ -12,7 +12,7 @@ import { TokenBalanceData } from "../../app/types";
 import LocalStorage from "../../app/util/localStorage";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
+  const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),

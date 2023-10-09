@@ -2,9 +2,18 @@ import { ApiPromise } from "@polkadot/api";
 import { web3FromSource } from "@polkadot/extension-dapp";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
+import NativeTokenIcon from "../../assets/img/dot-token.svg";
+import AssetTokenIcon from "../../assets/img/test-token.svg";
+import { formatDecimalsFromToken } from "../../app/util/helper";
+import { LpTokenAsset, PoolCardProps } from "../../app/types";
+import { InjectedAccountWithMeta } from "@polkadot/extension-inject/types";
+import { t } from "i18next";
+
+const { parents, nativeTokenSymbol } = useGetNetwork();
 
 export const getAllPools = async (api: ApiPromise) => {
   try {
@@ -19,7 +28,7 @@ export const getAllPools = async (api: ApiPromise) => {
 export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => {
   const multiLocation2 = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -28,7 +37,7 @@ export const getPoolReserves = async (api: ApiPromise, assetTokenId: string) => 
 
   const multiLocation = api
     .createType("MultiLocation", {
-      parent: 0,
+      parents: 0,
       interior: {
         X2: [{ PalletInstance: 50 }, { GeneralIndex: assetTokenId }],
       },
@@ -60,7 +69,7 @@ export const createPool = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -142,7 +151,7 @@ export const addLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -230,7 +239,7 @@ export const removeLiquidity = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -307,7 +316,7 @@ export const checkCreatePoolGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -348,7 +357,7 @@ export const checkAddPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -426,7 +435,7 @@ export const checkWithdrawPoolLiquidityGasFee = async (
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
-      parents: 0,
+      parents: parents,
       interior: {
         here: null,
       },
@@ -460,4 +469,76 @@ export const checkWithdrawPoolLiquidityGasFee = async (
     type: ActionType.SET_ADD_LIQUIDITY_GAS_FEE,
     payload: partialFee.toHuman(),
   });
+};
+
+export const createPoolCardsArray = async (
+  api: ApiPromise,
+  dispatch: Dispatch<PoolAction>,
+  pools: any,
+  selectedAccount?: InjectedAccountWithMeta
+) => {
+  const apiPool = api as ApiPromise;
+
+  try {
+    const poolCardsArray: PoolCardProps[] = [];
+
+    await Promise.all(
+      pools.map(async (pool: any) => {
+        const lpTokenId = pool?.[1]?.lpToken;
+
+        let lpToken = null;
+        if (selectedAccount?.address) {
+          const lpTokenAsset = await apiPool.query.poolAssets.account(lpTokenId, selectedAccount?.address);
+          lpToken = lpTokenAsset.toHuman() as LpTokenAsset;
+        }
+
+        if (pool?.[0]?.[1]?.interior?.X2) {
+          const poolReserve: any = await getPoolReserves(
+            apiPool,
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          if (poolReserve?.length > 0) {
+            const assetTokenMetadata: any = await apiPool.query.assets.metadata(
+              pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+            );
+
+            const assetTokenBalance = formatDecimalsFromToken(
+              poolReserve?.[1]?.replace(/[, ]/g, ""),
+              assetTokenMetadata.toHuman()?.decimals
+            );
+
+            const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+
+            poolCardsArray.push({
+              name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
+              lpTokenAsset: lpToken ? lpToken : null,
+              lpTokenId: lpTokenId,
+              assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
+              totalTokensLocked: {
+                nativeToken: nativeTokenBalance.toFixed(3),
+                nativeTokenIcon: NativeTokenIcon,
+                assetToken: assetTokenBalance.toFixed(3),
+                assetTokenIcon: AssetTokenIcon,
+              },
+            });
+          }
+        }
+      })
+    );
+
+    poolCardsArray.sort((a, b) => {
+      return a.name.localeCompare(b.name);
+    });
+
+    poolCardsArray.sort((a, b) => {
+      if (a.lpTokenAsset === null) return 1;
+      if (b.lpTokenAsset === null) return -1;
+      return parseInt(a?.lpTokenAsset?.balance) - parseInt(b?.lpTokenAsset?.balance);
+    });
+
+    dispatch({ type: ActionType.SET_POOLS_CARDS, payload: poolCardsArray });
+  } catch (error) {
+    dotAcpToast.error(t("poolsPage.errorFetchingPools", { error: error }));
+  }
 };

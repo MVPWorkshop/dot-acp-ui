@@ -1,40 +1,41 @@
+import classNames from "classnames";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
+import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
+import { InputEditedProps, TokenProps } from "../../../app/types";
 import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
+import {
+  calculateSlippageAdd,
+  calculateSlippageReduce,
+  formatDecimalsFromToken,
+  formatInputTokenValue,
+} from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { lottieOptions } from "../../../assets/loader";
+import { getPoolReserves } from "../../../services/poolServices";
+import {
+  checkSwapAssetForAssetExactInGasFee,
+  checkSwapAssetForAssetExactOutGasFee,
+  checkSwapNativeForAssetExactInGasFee,
+  checkSwapNativeForAssetExactOutGasFee,
+  swapAssetForAssetExactIn,
+  swapAssetForAssetExactOut,
+  swapNativeForAssetExactIn,
+  swapNativeForAssetExactOut,
+} from "../../../services/swapServices";
+import {
+  getAssetTokenAFromAssetTokenB,
+  getAssetTokenBFromAssetTokenA,
+  getAssetTokenFromNativeToken,
+  getNativeTokenFromAssetToken,
+} from "../../../services/tokenServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
-import SwapSelectTokenModal from "../SwapSelectTokenModal";
-import Lottie from "react-lottie";
-import {
-  swapNativeForAssetExactIn,
-  swapNativeForAssetExactOut,
-  swapAssetForAssetExactIn,
-  swapAssetForAssetExactOut,
-  checkSwapNativeForAssetExactInGasFee,
-  checkSwapNativeForAssetExactOutGasFee,
-  checkSwapAssetForAssetExactInGasFee,
-  checkSwapAssetForAssetExactOutGasFee,
-} from "../../../services/swapServices";
-import {
-  getAssetTokenFromNativeToken,
-  getNativeTokenFromAssetToken,
-  getAssetTokenAFromAssetTokenB,
-  getAssetTokenBFromAssetTokenA,
-} from "../../../services/tokenServices";
-import {
-  formatInputTokenValue,
-  formatDecimalsFromToken,
-  calculateSlippageReduce,
-  calculateSlippageAdd,
-} from "../../../app/util/helper";
-import { getPoolReserves } from "../../../services/poolServices";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import classNames from "classnames";
-import { InputEditedProps, TokenProps } from "../../../app/types";
-import { lottieOptions } from "../../../assets/loader";
+import SwapSelectTokenModal from "../SwapSelectTokenModal";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -55,6 +56,7 @@ type TokenSelectedProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
+  const { nativeTokenSymbol } = useGetNetwork();
 
   const {
     tokenBalances,
@@ -66,6 +68,7 @@ const SwapTokens = () => {
     swapGasFeesMessage,
     swapGasFee,
     swapLoading,
+    poolsCards,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -99,10 +102,12 @@ const SwapTokens = () => {
   });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number>(15);
-  const [walletHasEnoughWnd, setWalletHasEnoughWnd] = useState<boolean>(false);
+  const [walletHasEnoughNativeToken, setWalletHasEnoughNativeToken] = useState<boolean>(false);
   const [availablePoolTokenA, setAvailablePoolTokenA] = useState<TokenProps[]>([]);
   const [availablePoolTokenB, setAvailablePoolTokenB] = useState<TokenProps[]>([]);
   const [tokenSelected, setTokenSelected] = useState<TokenSelectedProps>({ tokenSelected: TokenPosition.tokenA });
+  const [assetTokensInPool, setAssetTokensInPool] = useState<string>("");
+  const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
 
   const nativeToken = {
     tokenId: "",
@@ -123,7 +128,7 @@ const SwapTokens = () => {
       if (inputEdited.inputType === InputEditedType.exactIn) {
         await checkSwapNativeForAssetExactInGasFee(
           api,
-          selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken
+          selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol
             ? selectedTokens.tokenB.tokenId
             : selectedTokens.tokenA.tokenId,
           selectedAccount,
@@ -136,7 +141,7 @@ const SwapTokens = () => {
       if (inputEdited.inputType === InputEditedType.exactOut) {
         await checkSwapNativeForAssetExactOutGasFee(
           api,
-          selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken
+          selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol
             ? selectedTokens.tokenB.tokenId
             : selectedTokens.tokenA.tokenId,
           selectedAccount,
@@ -178,18 +183,18 @@ const SwapTokens = () => {
     }
   };
 
-  const getPriceOfAssetTokenFromNativeToken = async (value: number) => {
+  const getPriceOfAssetTokenFromNativeToken = async (value: number, inputType: string) => {
     if (api) {
       const valueWithDecimals = formatInputTokenValue(
         value,
-        selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+        selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
           ? selectedTokens.tokenA.decimals
           : selectedTokens.tokenB.decimals
       );
 
       const assetTokenPrice = await getAssetTokenFromNativeToken(
         api,
-        selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+        selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
           ? selectedTokens?.tokenB?.tokenId
           : selectedTokens?.tokenA?.tokenId,
         valueWithDecimals
@@ -199,21 +204,21 @@ const SwapTokens = () => {
         const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
-          selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+          selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
             ? selectedTokens.tokenB.decimals
             : selectedTokens.tokenA.decimals
         );
 
         const assetTokenWithSlippage =
-          inputEdited.inputType === InputEditedType.exactIn
+          inputType === InputEditedType.exactIn
             ? calculateSlippageReduce(assetTokenNoDecimals, slippageValue)
             : calculateSlippageAdd(assetTokenNoDecimals, slippageValue);
 
-        if (inputEdited.inputType === InputEditedType.exactIn) {
+        if (inputType === InputEditedType.exactIn) {
           setTokenAValueForSwap({ tokenValue: value });
           setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
           setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals });
-        } else if (inputEdited.inputType === InputEditedType.exactOut) {
+        } else if (inputType === InputEditedType.exactOut) {
           setTokenAValueForSwap({ tokenValue: assetTokenWithSlippage });
           setTokenBValueForSwap({ tokenValue: value });
           setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals });
@@ -222,18 +227,18 @@ const SwapTokens = () => {
     }
   };
 
-  const getPriceOfNativeTokenFromAssetToken = async (value: number) => {
+  const getPriceOfNativeTokenFromAssetToken = async (value: number, inputType: string) => {
     if (api) {
       const valueWithDecimals = formatInputTokenValue(
         value,
-        selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+        selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
           ? selectedTokens.tokenB.decimals
           : selectedTokens.tokenA.decimals
       );
 
       const nativeTokenPrice = await getNativeTokenFromAssetToken(
         api,
-        selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+        selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
           ? selectedTokens?.tokenB?.tokenId
           : selectedTokens?.tokenA.tokenId,
         valueWithDecimals
@@ -243,24 +248,22 @@ const SwapTokens = () => {
         const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
-          selectedTokens?.tokenA?.tokenSymbol === TokenSelection.NativeToken
+          selectedTokens?.tokenA?.tokenSymbol === nativeTokenSymbol
             ? selectedTokens.tokenA.decimals
             : selectedTokens.tokenB.decimals
         );
 
         const nativeTokenWithSlippage =
-          inputEdited.inputType === InputEditedType.exactIn
+          inputType === InputEditedType.exactIn
             ? calculateSlippageReduce(nativeTokenNoDecimals, slippageValue)
             : calculateSlippageAdd(nativeTokenNoDecimals, slippageValue);
 
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
-
-          if (inputEdited.inputType === InputEditedType.exactIn) {
+          if (inputType === InputEditedType.exactIn) {
             setTokenAValueForSwap({ tokenValue: value });
             setTokenBValueForSwap({ tokenValue: nativeTokenWithSlippage });
             setSelectedTokenBValue({ tokenValue: nativeTokenNoDecimals });
-          } else if (inputEdited.inputType === InputEditedType.exactOut) {
+          } else if (inputType === InputEditedType.exactOut) {
             setTokenAValueForSwap({ tokenValue: nativeTokenWithSlippage });
             setTokenBValueForSwap({ tokenValue: value });
             setSelectedTokenAValue({ tokenValue: nativeTokenNoDecimals });
@@ -338,16 +341,10 @@ const SwapTokens = () => {
     setInputEdited({ inputType: InputEditedType.exactIn });
 
     if (selectedTokenAValue) {
-      if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfAssetTokenFromNativeToken(value);
-        if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
-        }
-      } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfNativeTokenFromAssetToken(value);
-        if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
-        }
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
+        getPriceOfAssetTokenFromNativeToken(value, InputEditedType.exactIn);
+      } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
+        getPriceOfNativeTokenFromAssetToken(value, InputEditedType.exactIn);
       } else {
         getPriceOfAssetTokenBFromAssetTokenA(value);
       }
@@ -363,16 +360,17 @@ const SwapTokens = () => {
         return;
       }
     }
+
     setSelectedTokenBValue({ tokenValue: value });
     setInputEdited({ inputType: InputEditedType.exactOut });
 
     if (selectedTokenBValue) {
-      if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfNativeTokenFromAssetToken(value);
-      } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
-        getPriceOfAssetTokenFromNativeToken(value);
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
+        getPriceOfNativeTokenFromAssetToken(value, InputEditedType.exactOut);
+      } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
+        getPriceOfAssetTokenFromNativeToken(value, InputEditedType.exactOut);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughWnd(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
+          setWalletHasEnoughNativeToken(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else {
         getPriceOfAssetTokenAFromAssetTokenB(value);
@@ -389,25 +387,47 @@ const SwapTokens = () => {
         return { label: t("button.enterAmount"), disabled: true };
       }
       if (
-        walletHasEnoughWnd === false &&
-        (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
-          selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken)
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        selectedTokenAValue.tokenValue > Number(tokenBalances?.balance)
       ) {
-        return { label: t("button.insufficientTokenAmount", { token: TokenSelection.NativeToken }), disabled: true };
+        return {
+          label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
+          disabled: true,
+        };
       }
       if (
-        (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
-          selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) &&
-        walletHasEnoughWnd
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        selectedTokenAValue.tokenValue < Number(tokenBalances?.balance)
       ) {
         return { label: t("button.swap"), disabled: false };
       }
       if (
-        selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
-        selectedTokens.tokenB.tokenSymbol !== TokenSelection.NativeToken &&
+        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol &&
+        selectedTokenBValue.tokenValue > parseFloat(nativeTokensInPool)
+      ) {
+        return {
+          label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
+          disabled: true,
+        };
+      }
+      if (
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokenBValue.tokenValue > parseFloat(assetTokensInPool)
+      ) {
+        return {
+          label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
+          disabled: true,
+        };
+      }
+      if (
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
         selectedTokenAValue.tokenValue > 0 &&
         selectedTokenBValue.tokenValue > 0
       ) {
+        return { label: t("button.swap"), disabled: false };
+      }
+      if (selectedTokenAValue.tokenValue > 0 && selectedTokenBValue.tokenValue > 0) {
         return { label: t("button.swap"), disabled: false };
       }
     } else {
@@ -422,7 +442,7 @@ const SwapTokens = () => {
     selectedTokens.tokenB.decimals,
     selectedTokenAValue.tokenValue,
     selectedTokenBValue.tokenValue,
-    walletHasEnoughWnd,
+    walletHasEnoughNativeToken,
   ]);
 
   const getSwapTokenA = async () => {
@@ -459,7 +479,7 @@ const SwapTokens = () => {
               );
 
               poolTokenPairsArray.push({
-                name: `WND–${assetTokenMetadata.toHuman().symbol}`,
+                name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman().symbol}`,
               });
             }
           }
@@ -468,7 +488,7 @@ const SwapTokens = () => {
 
       const assetTokensInPoolTokenPairsArray = poolTokenPairsArray.map((item: any) => item.name.split("–")[1]);
 
-      assetTokensInPoolTokenPairsArray.push(TokenSelection.NativeToken);
+      assetTokensInPoolTokenPairsArray.push(nativeTokenSymbol);
 
       // todo: refactor to be sure what data we are passing - remove any
       const assetTokensNotInPoolTokenPairsArray: any = assetTokens.filter((item: any) =>
@@ -483,8 +503,7 @@ const SwapTokens = () => {
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
-
-      if (selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
         if (selectedTokens.tokenB.tokenId) {
           if (inputEdited.inputType === InputEditedType.exactIn) {
             await swapNativeForAssetExactIn(
@@ -510,7 +529,7 @@ const SwapTokens = () => {
             }
           }
         }
-      } else if (selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken) {
+      } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
         if (selectedTokens.tokenA.tokenId) {
           if (inputEdited.inputType === InputEditedType.exactIn) {
             await swapNativeForAssetExactIn(
@@ -535,8 +554,8 @@ const SwapTokens = () => {
           }
         }
       } else if (
-        selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
-        selectedTokens.tokenB.tokenSymbol !== TokenSelection.NativeToken
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol
       ) {
         if (selectedTokens.tokenA.tokenId && selectedTokens.tokenB.tokenId) {
           if (inputEdited.inputType === InputEditedType.exactIn) {
@@ -598,6 +617,23 @@ const SwapTokens = () => {
     });
   };
 
+  const checkIfEnoughfTokensInPool = () => {
+    if (selectedTokens && poolsCards) {
+      if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
+        if (poolsCards) {
+          const poolNative = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenA.tokenId);
+          if (poolNative) setNativeTokensInPool(poolNative?.totalTokensLocked.nativeToken);
+        }
+      }
+      if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol) {
+        if (poolsCards) {
+          const poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
+          if (poolAsset) setAssetTokensInPool(poolAsset?.totalTokensLocked.assetToken);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (tokenSelected.tokenSelected === TokenPosition.tokenA && selectedTokenBValue.tokenValue > 0) {
       tokenBValue(selectedTokenBValue.tokenValue);
@@ -618,14 +654,14 @@ const SwapTokens = () => {
 
   useEffect(() => {
     if (
-      selectedTokens.tokenA.tokenSymbol === TokenSelection.NativeToken ||
-      selectedTokens.tokenB.tokenSymbol === TokenSelection.NativeToken
+      selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol ||
+      selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol
     ) {
       handleSwapNativeForAssetGasFee();
     }
     if (
-      selectedTokens.tokenA.tokenSymbol !== TokenSelection.NativeToken &&
-      selectedTokens.tokenB.tokenSymbol !== TokenSelection.NativeToken &&
+      selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
+      selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
       selectedTokens.tokenA.tokenSymbol !== "" &&
       selectedTokens.tokenB.tokenSymbol !== ""
     ) {
@@ -635,6 +671,10 @@ const SwapTokens = () => {
     selectedTokens.tokenA.tokenSymbol && selectedTokens.tokenB.tokenSymbol,
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
   ]);
+
+  useEffect(() => {
+    checkIfEnoughfTokensInPool();
+  }, [selectedTokens.tokenA.tokenSymbol, selectedTokens.tokenB.tokenSymbol]);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
