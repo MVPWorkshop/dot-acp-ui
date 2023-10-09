@@ -1,7 +1,6 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { formatBalance } from "@polkadot/util";
 import type { AnyJson } from "@polkadot/types/types/codec";
-import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import dotAcpToast from "../../app/util/toast";
 import { Dispatch } from "react";
 import { WalletAction } from "../../store/wallet/interface";
@@ -80,14 +79,6 @@ export const getSupportedWallets = () => {
   const supportedWallets: Wallet[] = getWallets();
 
   return supportedWallets;
-};
-
-export const getExtensionsAndAccounts = async () => {
-  // await getSupportedWallets();
-  const extensions = await web3Enable("DOT-ACP-UI");
-  const allAccounts = await web3Accounts();
-
-  return { extensions: extensions, accounts: allAccounts };
 };
 
 export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any, selectedAccount: WalletAccount) => {
