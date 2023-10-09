@@ -32,6 +32,7 @@
     "withdraw": "Withdraw",
     "newPosition": "New Position",
     "insufficientTokenAmount": "Insufficient {{token}} amount",
+    "insufficientTokenLiquidity": "Insufficient {{token}} liquidity in pool",
     "minimumTokenAmountExceeded": "Minimum asset token amount exceeded",
     "enterAmount": "Enter amount",
     "selectToken": "Select token",
@@ -106,7 +107,8 @@
     "withdrawalAmount": "Withdrawal amount",
     "newPosition": "New Position",
     "doNotHaveLiquidityPair": "You don't have tokens from this liquidity pair.",
-    "connectWallet": "Please connect your wallet"
+    "connectWallet": "Please connect your wallet",
+    "errorFetchingPools": "Error fetching pools: {{error}}"
   },
   "swapPage": {
     "addLiquidity": "Add Liquidity",
