@@ -7,6 +7,7 @@ import TalismanWalletLogo from "../../../assets/img/talisman-wallet-logo.jpeg";
 import { useState } from "react";
 import { WalletConnectSteps } from "../../../app/types/enum";
 import { ModalStepProps } from "../../../app/types";
+import { t } from "i18next";
 
 interface WalletConnectModalProps {
   open: boolean;
@@ -57,8 +58,11 @@ const WalletConnectModal = ({
   return (
     <Modal isOpen={open} onClose={onClose} title={title} onBack={onBack}>
       <div className="flex min-w-[450px] flex-col gap-5 p-4">
-        {modalStep.step === WalletConnectSteps.stepExtensions
-          ? extensions.map((wallet: InjectedExtension, index: any) => {
+        {modalStep.step === WalletConnectSteps.stepExtensions ? (
+          extensions.length === 0 ? (
+            <div className="p-3">{t("wallet.noWalletFound")}</div>
+          ) : (
+            extensions.map((wallet: InjectedExtension, index: any) => {
               return (
                 <div key={index} className="flex cursor-pointer items-center gap-5">
                   <div className="flex basis-16">{getWalletIcon(wallet.name)}</div>
@@ -71,7 +75,8 @@ const WalletConnectModal = ({
                 </div>
               );
             })
-          : null}
+          )
+        ) : null}
         {modalStep.step === WalletConnectSteps.stepAddresses
           ? walletAddresses?.map((address: InjectedAccountWithMeta, index: any) => {
               return (
