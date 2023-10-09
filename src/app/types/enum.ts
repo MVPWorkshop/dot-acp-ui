@@ -46,6 +46,11 @@ export enum TokenSelection {
   NativeToken = "WND",
 }
 
+export enum TokenPlaceholder {
+  NativeWnd = "WND",
+  NativeRococo = "ROC",
+}
+
 export enum InputEditedType {
   exactIn = "exactIn",
   exactOut = "exactOut",

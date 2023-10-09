@@ -1,7 +1,7 @@
 import { ApiPromise } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
 import { Dispatch } from "react";
-import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import { ActionType, ServiceResponseStatus, TokenPlaceholder } from "../../app/types/enum";
 import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
@@ -507,7 +507,7 @@ export const createPoolCardsArray = async (
             const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
             poolCardsArray.push({
-              name: `WND–${assetTokenMetadata.toHuman()?.symbol}`,
+              name: `${TokenPlaceholder.NativeWnd}–${assetTokenMetadata.toHuman()?.symbol}`,
               lpTokenAsset: lpToken ? lpToken : null,
               lpTokenId: lpTokenId,
               assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
@@ -523,17 +523,11 @@ export const createPoolCardsArray = async (
       })
     );
 
-    poolCardsArray.sort(function (a, b) {
-      if (a.name < b.name) {
-        return -1;
-      }
-      if (a.name > b.name) {
-        return 1;
-      }
-      return 0;
+    poolCardsArray.sort((a, b) => {
+      return a.name.localeCompare(b.name);
     });
 
-    poolCardsArray.sort(function (a, b) {
+    poolCardsArray.sort((a, b) => {
       if (a.lpTokenAsset === null) return 1;
       if (b.lpTokenAsset === null) return -1;
       return parseInt(a?.lpTokenAsset?.balance) - parseInt(b?.lpTokenAsset?.balance);

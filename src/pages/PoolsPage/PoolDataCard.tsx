@@ -46,9 +46,7 @@ const PoolDataCard = ({
   };
 
   const checkIfDepositDisabled = () => {
-    const tokenExists = !tokenBalances?.assets?.find((token: any) => token.tokenId === assetTokenId);
-
-    return tokenExists;
+    return !tokenBalances?.assets?.find((token: any) => token.tokenId === assetTokenId);
   };
 
   const checkIfWithdrawDisabled = () => {
