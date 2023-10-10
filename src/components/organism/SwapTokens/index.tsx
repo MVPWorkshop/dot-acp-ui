@@ -110,6 +110,7 @@ const SwapTokens = () => {
   const [assetTokensInPool, setAssetTokensInPool] = useState<string>("");
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
+  const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
 
   const nativeToken = {
     tokenId: "",
@@ -502,6 +503,7 @@ const SwapTokens = () => {
   };
 
   const handleSwap = async () => {
+    setSwapSuccessfulReset(false);
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -608,6 +610,7 @@ const SwapTokens = () => {
 
   const closeSuccessModal = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
+    setSwapSuccessfulReset(true);
   };
 
   const onSwapSelectModal = (tokenData: any) => {
@@ -705,6 +708,13 @@ const SwapTokens = () => {
     checkIfEnoughTokensInPool();
     checkIsEnoughNativeTokenInPool();
   }, [selectedTokens.tokenA.tokenSymbol, selectedTokens.tokenB.tokenSymbol]);
+
+  useEffect(() => {
+    if (swapSuccessfulReset) {
+      setSelectedTokenAValue({ tokenValue: 0 });
+      setSelectedTokenBValue({ tokenValue: 0 });
+    }
+  }, [swapSuccessfulReset]);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
