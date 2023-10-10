@@ -339,7 +339,6 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
           <TokenAmountInput
             tokenText={selectedTokenA?.nativeTokenSymbol}
-            labelText={t("tokenAmountInput.youPay")}
             tokenIcon={<DotToken />}
             tokenValue={selectedTokenNativeValue?.tokenValue}
             onClick={() => null}
@@ -349,7 +348,6 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           />
           <TokenAmountInput
             tokenText={selectedTokenB?.tokenSymbol}
-            labelText={t("tokenAmountInput.youPay")}
             tokenIcon={<DotToken />}
             tokenValue={selectedTokenAssetValue?.tokenValue}
             onClick={() => setIsModalOpen(true)}
