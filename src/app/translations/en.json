@@ -93,7 +93,8 @@
   "pageError": {
     "error": "Error:",
     "tryAgain": "Try again",
-    "minimalAmountRequirement": "The minimum required amount for the {{token}} token is {{value}}."
+    "minimalAmountRequirement": "The minimum required amount for the {{token}} token is {{value}}.",
+    "lowLiquidity": "Warning: This pool has low liquidity, there is a risk that transaction won't be completed."
   },
   "pageNotFound": "Page not found",
   "poolsPage": {
