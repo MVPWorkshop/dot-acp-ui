@@ -38,7 +38,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
     <div>
       <Modal isOpen={open} onClose={onClose} title={title}>
         <div className="max-h-[504px] overflow-y-auto">
-          {tokenBalances?.assets ? (
+          {tokenBalances?.assets && tokenBalances?.assets.length > 0 ? (
             tokenBalances?.assets?.map((item: any, index: number) => (
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
                 <button

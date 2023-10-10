@@ -36,6 +36,7 @@ import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
+import WarningMessage from "../../atom/WarningMessage";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -110,6 +111,8 @@ const SwapTokens = () => {
   const [tokenSelected, setTokenSelected] = useState<TokenSelectedProps>({ tokenSelected: TokenPosition.tokenA });
   const [assetTokensInPool, setAssetTokensInPool] = useState<string>("");
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
+  const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
+  const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
 
   const nativeToken = {
     tokenId: "",
@@ -502,6 +505,7 @@ const SwapTokens = () => {
   };
 
   const handleSwap = async () => {
+    setSwapSuccessfulReset(false);
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -620,6 +624,7 @@ const SwapTokens = () => {
 
   const closeSuccessModal = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
+    setSwapSuccessfulReset(true);
   };
 
   const onSwapSelectModal = (tokenData: any) => {
@@ -631,7 +636,7 @@ const SwapTokens = () => {
     });
   };
 
-  const checkIfEnoughfTokensInPool = () => {
+  const checkIfEnoughTokensInPool = () => {
     if (selectedTokens && poolsCards) {
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
         if (poolsCards) {
@@ -644,6 +649,33 @@ const SwapTokens = () => {
           const poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
           if (poolAsset) setAssetTokensInPool(poolAsset?.totalTokensLocked.assetToken);
         }
+      }
+    }
+  };
+
+  const checkIsEnoughNativeTokenInPool = () => {
+    if (selectedTokens && poolsCards) {
+      if (
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol
+      ) {
+        if (poolsCards) {
+          const poolAssetTokenB = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
+          const poolAssetTokenA = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenA.tokenId);
+
+          if (poolAssetTokenB && poolAssetTokenA) {
+            if (
+              parseFloat(poolAssetTokenB?.totalTokensLocked.nativeToken) < 1 ||
+              parseFloat(poolAssetTokenA?.totalTokensLocked.nativeToken) < 1
+            ) {
+              setLiquidityLow(true);
+            } else {
+              setLiquidityLow(false);
+            }
+          }
+        }
+      } else {
+        setLiquidityLow(false);
       }
     }
   };
@@ -687,8 +719,16 @@ const SwapTokens = () => {
   ]);
 
   useEffect(() => {
-    checkIfEnoughfTokensInPool();
+    checkIfEnoughTokensInPool();
+    checkIsEnoughNativeTokenInPool();
   }, [selectedTokens.tokenA.tokenSymbol, selectedTokens.tokenB.tokenSymbol]);
+
+  useEffect(() => {
+    if (swapSuccessfulReset) {
+      setSelectedTokenAValue({ tokenValue: 0 });
+      setSelectedTokenBValue({ tokenValue: 0 });
+    }
+  }, [swapSuccessfulReset]);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
@@ -810,6 +850,7 @@ const SwapTokens = () => {
           actionLabel="Swapped"
         />
       </div>
+      <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
     </div>
   );
 };
