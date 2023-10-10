@@ -24,6 +24,7 @@ import Decimal from "decimal.js";
 import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
+import WarningMessage from "../../atom/WarningMessage";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -264,119 +265,122 @@ const WithdrawPoolLiquidity = () => {
   }, [slippageValue]);
 
   return (
-    <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
-      <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
-        <BackArrow width={24} height={24} />
-      </button>
-      <h3 className="heading-6 font-unbounded-variable font-normal">
-        {location?.state?.pageType === LiquidityPageType.removeLiquidity
-          ? t("poolsPage.removeLiquidity")
-          : t("poolsPage.addLiquidity")}
-      </h3>
-      <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
-      <TokenAmountInput
-        tokenText={selectedTokenA?.nativeTokenSymbol}
-        labelText={t("poolsPage.withdrawalAmount")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenNativeValue?.tokenValue}
-        onClick={() => null}
-        onSetTokenValue={() => null}
-        selectDisabled={true}
-        disabled={true}
-      />
-      <TokenAmountInput
-        tokenText={selectedTokenB?.tokenSymbol}
-        labelText={t("poolsPage.withdrawalAmount")}
-        tokenIcon={<DotToken />}
-        tokenValue={selectedTokenAssetValue?.tokenValue}
-        onClick={() => setIsModalOpen(true)}
-        onSetTokenValue={() => null}
-        selectDisabled={true}
-        disabled={true}
-      />
-      <div className="mt-1 text-small">{transferGasFeesMessage}</div>
+    <div className="flex w-full max-w-[460px] flex-col gap-4">
+      <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+        <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
+          <BackArrow width={24} height={24} />
+        </button>
+        <h3 className="heading-6 font-unbounded-variable font-normal">
+          {location?.state?.pageType === LiquidityPageType.removeLiquidity
+            ? t("poolsPage.removeLiquidity")
+            : t("poolsPage.addLiquidity")}
+        </h3>
+        <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
+        <TokenAmountInput
+          tokenText={selectedTokenA?.nativeTokenSymbol}
+          labelText={t("poolsPage.withdrawalAmount")}
+          tokenIcon={<DotToken />}
+          tokenValue={selectedTokenNativeValue?.tokenValue}
+          onClick={() => null}
+          onSetTokenValue={() => null}
+          selectDisabled={true}
+          disabled={true}
+        />
+        <TokenAmountInput
+          tokenText={selectedTokenB?.tokenSymbol}
+          labelText={t("poolsPage.withdrawalAmount")}
+          tokenIcon={<DotToken />}
+          tokenValue={selectedTokenAssetValue?.tokenValue}
+          onClick={() => setIsModalOpen(true)}
+          onSetTokenValue={() => null}
+          selectDisabled={true}
+          disabled={true}
+        />
+        <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
-      <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
-        <div className="flex w-full justify-between text-medium font-normal text-gray-200">
-          <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
-          <span>{slippageValue}%</span>
-        </div>
-        <div className="flex w-full gap-2">
-          <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": !slippageAuto,
-                "bg-purple-100": slippageAuto,
-              })}
-              onClick={() => {
-                setSlippageAuto(true);
-              }}
-            >
-              {t("tokenAmountInput.auto")}
-            </button>
-            <button
-              className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
-                "bg-white": slippageAuto,
-                "bg-purple-100": !slippageAuto,
-              })}
-              onClick={() => setSlippageAuto(false)}
-            >
-              {t("tokenAmountInput.custom")}
-            </button>
+        <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+          <div className="flex w-full justify-between text-medium font-normal text-gray-200">
+            <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
+            <span>{slippageValue}%</span>
           </div>
-          <div className="flex basis-1/3">
-            <div className="relative flex">
-              <NumericFormat
-                value={slippageValue}
-                onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
-                fixedDecimalScale={true}
-                thousandSeparator={false}
-                allowNegative={false}
-                className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                placeholder="15"
-                disabled={slippageAuto || withdrawLiquidityLoading}
-              />
-              <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+          <div className="flex w-full gap-2">
+            <div className="flex w-full basis-8/12 rounded-xl bg-white p-1 text-large font-normal text-gray-400">
+              <button
+                className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                  "bg-white": !slippageAuto,
+                  "bg-purple-100": slippageAuto,
+                })}
+                onClick={() => {
+                  setSlippageAuto(true);
+                }}
+              >
+                {t("tokenAmountInput.auto")}
+              </button>
+              <button
+                className={classNames("flex basis-1/2 justify-center rounded-lg px-4 py-3", {
+                  "bg-white": slippageAuto,
+                  "bg-purple-100": !slippageAuto,
+                })}
+                onClick={() => setSlippageAuto(false)}
+              >
+                {t("tokenAmountInput.custom")}
+              </button>
+            </div>
+            <div className="flex basis-1/3">
+              <div className="relative flex">
+                <NumericFormat
+                  value={slippageValue}
+                  onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                  fixedDecimalScale={true}
+                  thousandSeparator={false}
+                  allowNegative={false}
+                  className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
+                  placeholder="15"
+                  disabled={slippageAuto || withdrawLiquidityLoading}
+                />
+                <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <Button
+          onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool())}
+          variant={ButtonVariants.btnInteractivePink}
+          disabled={getWithdrawButtonProperties.disabled || withdrawLiquidityLoading}
+        >
+          {withdrawLiquidityLoading ? (
+            <Lottie options={lottieOptions} height={30} width={30} />
+          ) : (
+            getWithdrawButtonProperties.label
+          )}
+        </Button>
+
+        <PoolSelectTokenModal
+          onSelect={setSelectedTokenB}
+          onClose={() => setIsModalOpen(false)}
+          open={isModalOpen}
+          title={t("button.selectToken")}
+        />
+
+        <SwapAndPoolSuccessModal
+          open={successModalOpen}
+          onClose={closeSuccessModal}
+          contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
+          actionLabel={t("modal.removeFromPool.withdrawal")}
+          tokenA={{
+            value: selectedTokenNativeValue.tokenValue,
+            symbol: selectedTokenA.nativeTokenSymbol,
+            icon: <DotToken />,
+          }}
+          tokenB={{
+            value: selectedTokenAssetValue.tokenValue,
+            symbol: selectedTokenB.tokenSymbol,
+            icon: <DotToken />,
+          }}
+        />
       </div>
-
-      <Button
-        onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool())}
-        variant={ButtonVariants.btnInteractivePink}
-        disabled={getWithdrawButtonProperties.disabled || withdrawLiquidityLoading}
-      >
-        {withdrawLiquidityLoading ? (
-          <Lottie options={lottieOptions} height={30} width={30} />
-        ) : (
-          getWithdrawButtonProperties.label
-        )}
-      </Button>
-
-      <PoolSelectTokenModal
-        onSelect={setSelectedTokenB}
-        onClose={() => setIsModalOpen(false)}
-        open={isModalOpen}
-        title={t("button.selectToken")}
-      />
-
-      <SwapAndPoolSuccessModal
-        open={successModalOpen}
-        onClose={closeSuccessModal}
-        contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
-        actionLabel={t("modal.removeFromPool.withdrawal")}
-        tokenA={{
-          value: selectedTokenNativeValue.tokenValue,
-          symbol: selectedTokenA.nativeTokenSymbol,
-          icon: <DotToken />,
-        }}
-        tokenB={{
-          value: selectedTokenAssetValue.tokenValue,
-          symbol: selectedTokenB.tokenSymbol,
-          icon: <DotToken />,
-        }}
-      />
+      <WarningMessage show={minimumTokenAmountExceeded} message={t("poolsPage.minimumAmountExceeded")} />
     </div>
   );
 };
