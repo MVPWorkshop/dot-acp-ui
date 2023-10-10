@@ -13,7 +13,6 @@ class LocalStorage {
     return null;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static set(key: string, value: any): void {
     localStorage.setItem(key, JSON.stringify(value));
   }
