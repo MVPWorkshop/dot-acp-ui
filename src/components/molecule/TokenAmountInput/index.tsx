@@ -11,11 +11,11 @@ type TokenAmountInputProps = {
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
-  tokenValue?: number | null;
+  tokenValue?: string;
   labelText?: string;
   selectDisabled?: boolean;
   onClick: () => void;
-  onSetTokenValue: (value: number) => void;
+  onSetTokenValue: (value: string) => void;
 };
 
 const TokenAmountInput = ({
@@ -58,11 +58,11 @@ const TokenAmountInput = ({
         displayType={"input"}
         disabled={disabled}
         placeholder={"0"}
-        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none"
+        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
         onValueChange={({ floatValue }) => {
-          onSetTokenValue(floatValue || 0);
+          onSetTokenValue(floatValue?.toString() || "");
         }}
       />
 

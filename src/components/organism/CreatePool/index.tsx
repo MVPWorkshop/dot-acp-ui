@@ -38,7 +38,7 @@ type NativeTokenProps = {
 };
 
 type TokenValueProps = {
-  tokenValue: number;
+  tokenValue: string;
 };
 
 type CreatePoolProps = {
@@ -72,33 +72,34 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     decimals: "",
     assetTokenBalance: "",
   });
-  const [selectedTokenNativeValue, setSelectedTokenNativeValue] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [selectedTokenAssetValue, setSelectedTokenAssetValue] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [nativeTokenWithSlippage, setNativeTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
+  const [selectedTokenNativeValue, setSelectedTokenNativeValue] = useState<TokenValueProps>();
+  const [selectedTokenAssetValue, setSelectedTokenAssetValue] = useState<TokenValueProps>();
+  const [nativeTokenWithSlippage, setNativeTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: "" });
+  const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: "" });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [poolExists, setPoolExists] = useState<boolean>(false);
   const [assetTokenMinValueExceeded, setAssetTokenMinValueExceeded] = useState<boolean>(false);
   const [assetTokenMinValue, setAssetTokenMinValue] = useState<string>("");
 
-  const nativeTokenValue = formatInputTokenValue(
-    selectedTokenNativeValue.tokenValue,
-    selectedTokenA?.nativeTokenDecimals
-  )
-    .toLocaleString()
-    ?.replace(/[, ]/g, "");
-  const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
-    .toLocaleString()
-    ?.replace(/[, ]/g, "");
-
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
   };
 
   const handlePool = async () => {
-    try {
-      if (api) {
+    if (api && selectedTokenAssetValue && selectedTokenNativeValue) {
+      const nativeTokenValue = formatInputTokenValue(
+        Number(selectedTokenNativeValue.tokenValue),
+        selectedTokenA?.nativeTokenDecimals
+      )
+        .toLocaleString()
+        ?.replace(/[, ]/g, "");
+
+      const assetTokenValue = formatInputTokenValue(Number(selectedTokenAssetValue.tokenValue), selectedTokenB.decimals)
+        .toLocaleString()
+        ?.replace(/[, ]/g, "");
+
+      try {
         await createPool(
           api,
           selectedTokenB.assetTokenId,
@@ -109,9 +110,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           assetTokenWithSlippage.tokenValue.toString(),
           dispatch
         );
+      } catch (error) {
+        dotAcpToast.error(`Error: ${error}`);
       }
-    } catch (error) {
-      dotAcpToast.error(`Error: ${error}`);
     }
   };
 
@@ -126,20 +127,20 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   };
 
   const setSelectedTokenAValue = (value: number) => {
-    if (selectedTokenNativeValue && slippageValue) {
+    if (slippageValue) {
       const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
-      setSelectedTokenNativeValue({ tokenValue: value });
-      setNativeTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      setSelectedTokenNativeValue({ tokenValue: value.toString() });
+      setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
     }
   };
 
   const setSelectedTokenBValue = (value: number) => {
-    if (selectedTokenAssetValue && slippageValue) {
+    if (slippageValue) {
       const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
-      setSelectedTokenAssetValue({ tokenValue: value });
-      setAssetTokenWithSlippage({ tokenValue: parseInt(tokenWithSlippageFormatted) });
+      setSelectedTokenAssetValue({ tokenValue: value.toString() });
+      setAssetTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
     }
   };
 
@@ -157,23 +158,23 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   };
 
   const getButtonProperties = useMemo(() => {
+    console.log("enter");
     if (tokenBalances?.assets) {
-      if (!selectedTokenA.nativeTokenSymbol || !selectedTokenB.assetTokenId) {
+      // console.log(selectedTokenB);
+      if (selectedTokenB.tokenSymbol === "" || selectedTokenB.assetTokenId === "") {
+        console.log("selectedTokenB");
         return { label: t("button.selectToken"), disabled: true };
       }
-
-      if (selectedTokenNativeValue?.tokenValue <= 0 || selectedTokenAssetValue?.tokenValue <= 0) {
+      if (
+        Number(selectedTokenNativeValue?.tokenValue) <= 0 ||
+        Number(selectedTokenAssetValue?.tokenValue) <= 0 ||
+        selectedTokenNativeValue?.tokenValue === "" ||
+        selectedTokenAssetValue?.tokenValue === ""
+      ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
 
-      if (selectedTokenNativeValue?.tokenValue > Number(tokenBalances?.balance)) {
-        return {
-          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-          disabled: true,
-        };
-      }
-
-      if (selectedTokenNativeValue?.tokenValue + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
+      if (Number(selectedTokenNativeValue?.tokenValue) > Number(tokenBalances?.balance)) {
         return {
           label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
           disabled: true,
@@ -181,7 +182,17 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       }
 
       if (
-        selectedTokenAssetValue?.tokenValue >
+        Number(selectedTokenNativeValue?.tokenValue) + parseFloat(poolGasFee) / 1000 >
+        Number(tokenBalances?.balance)
+      ) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
+
+      if (
+        Number(selectedTokenAssetValue?.tokenValue) >
         formatDecimalsFromToken(
           parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")),
           selectedTokenB.decimals
@@ -190,32 +201,42 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
         return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
       }
 
-      if (selectedTokenA && selectedTokenB && assetTokenMinValueExceeded) {
+      if (
+        Number(selectedTokenNativeValue?.tokenValue) > 0 &&
+        Number(selectedTokenAssetValue?.tokenValue) > 0 &&
+        assetTokenMinValueExceeded
+      ) {
         return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
       }
 
-      if (selectedTokenA && selectedTokenB && !assetTokenMinValueExceeded) {
+      if (
+        Number(selectedTokenNativeValue?.tokenValue) > 0 &&
+        Number(selectedTokenAssetValue?.tokenValue) > 0 &&
+        !assetTokenMinValueExceeded
+      ) {
         return { label: t("button.deposit"), disabled: false };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
     }
-
-    return { label: "", disabled: true };
+    console.log("selectToken");
+    return { label: t("button.selectToken"), disabled: true };
   }, [
+    selectedTokenB.assetTokenId,
+    selectedTokenB.tokenSymbol,
     selectedTokenA.nativeTokenDecimals,
     selectedTokenB.decimals,
     selectedTokenB.assetTokenBalance,
-    selectedTokenNativeValue.tokenValue,
-    selectedTokenAssetValue.tokenValue,
+    selectedTokenNativeValue?.tokenValue,
+    selectedTokenAssetValue?.tokenValue,
     assetTokenMinValueExceeded,
   ]);
 
   useEffect(() => {
     if (tokenBalances) {
       setSelectedTokenA({
-        nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
-        nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
+        nativeTokenSymbol: tokenBalances?.tokenSymbol,
+        nativeTokenDecimals: tokenBalances?.tokenDecimals,
       });
     }
   }, [tokenBalances]);
@@ -237,12 +258,17 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
 
   useEffect(() => {
     checkAssetTokenMinAmount();
-  }, [selectedTokenAssetValue.tokenValue]);
+  }, [selectedTokenAssetValue?.tokenValue]);
 
   useEffect(() => {
-    if (selectedTokenAssetValue.tokenValue > 0 && selectedTokenNativeValue.tokenValue > 0) {
-      setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
-      setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
+    if (
+      selectedTokenNativeValue &&
+      selectedTokenAssetValue &&
+      Number(selectedTokenAssetValue.tokenValue) > 0 &&
+      Number(selectedTokenNativeValue.tokenValue) > 0
+    ) {
+      setSelectedTokenAValue(Number(selectedTokenNativeValue.tokenValue));
+      setSelectedTokenBValue(Number(selectedTokenAssetValue.tokenValue));
     }
   }, [slippageValue]);
 
@@ -270,7 +296,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenIcon={<DotToken />}
               tokenValue={selectedTokenNativeValue?.tokenValue}
               onClick={() => console.log("open modal")}
-              onSetTokenValue={(value) => setSelectedTokenAValue(value)}
+              onSetTokenValue={(value) => setSelectedTokenAValue(Number(value))}
               selectDisabled={true}
               disabled={createPoolLoading || !selectedAccount}
             />
@@ -280,7 +306,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenIcon={<DotToken />}
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
-              onSetTokenValue={(value) => setSelectedTokenBValue(value)}
+              onSetTokenValue={(value) => setSelectedTokenBValue(Number(value))}
               disabled={createPoolLoading || !selectedAccount}
               selectDisabled={createPoolLoading || !selectedAccount}
             />
@@ -357,12 +383,12 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClose={closeSuccessModal}
               contentTitle={t("modal.createPool.poolSuccessfullyCreated")}
               tokenA={{
-                value: selectedTokenNativeValue.tokenValue,
+                value: selectedTokenNativeValue?.tokenValue,
                 symbol: selectedTokenA.nativeTokenSymbol,
                 icon: <DotToken />,
               }}
               tokenB={{
-                value: selectedTokenAssetValue.tokenValue,
+                value: selectedTokenAssetValue?.tokenValue,
                 symbol: selectedTokenB.tokenSymbol,
                 icon: <DotToken />,
               }}

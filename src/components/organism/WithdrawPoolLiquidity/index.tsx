@@ -37,7 +37,7 @@ type NativeTokenProps = {
   nativeTokenDecimals: any; //to do
 };
 type TokenValueProps = {
-  tokenValue: number;
+  tokenValue: string;
 };
 
 const WithdrawPoolLiquidity = () => {
@@ -68,24 +68,14 @@ const WithdrawPoolLiquidity = () => {
     decimals: "",
     assetTokenBalance: "",
   });
-  const [selectedTokenNativeValue, setSelectedTokenNativeValue] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [selectedTokenAssetValue, setSelectedTokenAssetValue] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [nativeTokenWithSlippage, setNativeTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
-  const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: 0 });
+  const [selectedTokenNativeValue, setSelectedTokenNativeValue] = useState<TokenValueProps>();
+  const [selectedTokenAssetValue, setSelectedTokenAssetValue] = useState<TokenValueProps>();
+  const [nativeTokenWithSlippage, setNativeTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: "" });
+  const [assetTokenWithSlippage, setAssetTokenWithSlippage] = useState<TokenValueProps>({ tokenValue: "" });
   const [slippageAuto, setSlippageAuto] = useState<boolean>(true);
   const [slippageValue, setSlippageValue] = useState<number | undefined>(15);
   const [lpTokensAmountToBurn, setLpTokensAmountToBurn] = useState<string>("");
   const [minimumTokenAmountExceeded, setMinimumTokenAmountExceeded] = useState<boolean>(false);
-
-  const nativeTokenValue = formatInputTokenValue(
-    selectedTokenNativeValue.tokenValue,
-    selectedTokenA?.nativeTokenDecimals
-  )
-    .toLocaleString()
-    ?.replace(/[, ]/g, "");
-  const assetTokenValue = formatInputTokenValue(selectedTokenAssetValue.tokenValue, selectedTokenB.decimals)
-    .toLocaleString()
-    ?.replace(/[, ]/g, "");
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -218,13 +208,15 @@ const WithdrawPoolLiquidity = () => {
         setMinimumTokenAmountExceeded(assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance));
 
         setSelectedTokenNativeValue({
-          tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals),
+          tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals).toString(),
         });
 
-        setNativeTokenWithSlippage({ tokenValue: parseInt(nativeTokenOutSlippageFormatted) });
+        setNativeTokenWithSlippage({ tokenValue: nativeTokenOutSlippageFormatted });
 
-        setSelectedTokenAssetValue({ tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals) });
-        setAssetTokenWithSlippage({ tokenValue: parseInt(assetOutSlippageFormatted) });
+        setSelectedTokenAssetValue({
+          tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals).toString(),
+        });
+        setAssetTokenWithSlippage({ tokenValue: assetOutSlippageFormatted });
       }
     }
   };
@@ -232,17 +224,30 @@ const WithdrawPoolLiquidity = () => {
   useEffect(() => {
     if (tokenBalances) {
       setSelectedTokenA({
-        nativeTokenSymbol: tokenBalances?.tokenSymbol as NativeTokenProps,
-        nativeTokenDecimals: tokenBalances?.tokenDecimals as NativeTokenProps,
+        nativeTokenSymbol: tokenBalances?.tokenSymbol,
+        nativeTokenDecimals: tokenBalances?.tokenDecimals,
       });
     }
   }, [tokenBalances]);
 
   useEffect(() => {
-    if (nativeTokenValue && assetTokenValue) {
-      handleWithdrawPoolLiquidityGasFee();
+    if (selectedTokenNativeValue && selectedTokenAssetValue) {
+      const nativeTokenValue = formatInputTokenValue(
+        Number(selectedTokenNativeValue.tokenValue),
+        selectedTokenA?.nativeTokenDecimals
+      )
+        .toLocaleString()
+        ?.replace(/[, ]/g, "");
+
+      const assetTokenValue = formatInputTokenValue(Number(selectedTokenAssetValue.tokenValue), selectedTokenB.decimals)
+        .toLocaleString()
+        ?.replace(/[, ]/g, "");
+
+      if (nativeTokenValue && assetTokenValue) {
+        handleWithdrawPoolLiquidityGasFee();
+      }
     }
-  }, [nativeTokenValue, assetTokenValue]);
+  }, [selectedTokenNativeValue, selectedTokenAssetValue]);
 
   useEffect(() => {
     dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
@@ -369,12 +374,12 @@ const WithdrawPoolLiquidity = () => {
           contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
           actionLabel={t("modal.removeFromPool.withdrawal")}
           tokenA={{
-            value: selectedTokenNativeValue.tokenValue,
+            value: selectedTokenNativeValue?.tokenValue,
             symbol: selectedTokenA.nativeTokenSymbol,
             icon: <DotToken />,
           }}
           tokenB={{
-            value: selectedTokenAssetValue.tokenValue,
+            value: selectedTokenAssetValue?.tokenValue,
             symbol: selectedTokenB.tokenSymbol,
             icon: <DotToken />,
           }}
