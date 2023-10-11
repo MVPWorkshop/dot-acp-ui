@@ -70,6 +70,8 @@ const SwapTokens = () => {
     swapGasFee,
     swapLoading,
     poolsCards,
+    swapExactInTokenAmount,
+    swapExactOutTokenAmount,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -516,6 +518,8 @@ const SwapTokens = () => {
               selectedAccount,
               tokenA,
               tokenB,
+              selectedTokens.tokenA.decimals,
+              selectedTokens.tokenB.decimals,
               false,
               dispatch
             );
@@ -527,6 +531,8 @@ const SwapTokens = () => {
                 selectedAccount,
                 tokenA,
                 tokenB,
+                selectedTokens.tokenA.decimals,
+                selectedTokens.tokenB.decimals,
                 false,
                 dispatch
               );
@@ -542,6 +548,8 @@ const SwapTokens = () => {
               selectedAccount,
               tokenB,
               tokenA,
+              selectedTokens.tokenA.decimals,
+              selectedTokens.tokenB.decimals,
               true,
               dispatch
             );
@@ -552,6 +560,8 @@ const SwapTokens = () => {
               selectedAccount,
               tokenB,
               tokenA,
+              selectedTokens.tokenA.decimals,
+              selectedTokens.tokenB.decimals,
               true,
               dispatch
             );
@@ -570,6 +580,8 @@ const SwapTokens = () => {
               selectedAccount,
               tokenA,
               tokenB,
+              selectedTokens.tokenA.decimals,
+              selectedTokens.tokenB.decimals,
               dispatch
             );
           } else if (inputEdited.inputType === InputEditedType.exactOut) {
@@ -580,6 +592,8 @@ const SwapTokens = () => {
               selectedAccount,
               tokenA,
               tokenB,
+              selectedTokens.tokenA.decimals,
+              selectedTokens.tokenB.decimals,
               dispatch
             );
           }
@@ -825,12 +839,12 @@ const SwapTokens = () => {
           contentTitle={"Successfully swapped"}
           tokenA={{
             symbol: selectedTokens.tokenA.tokenSymbol,
-            value: selectedTokenAValue.tokenValue,
+            value: swapExactInTokenAmount,
             icon: <DotToken />,
           }}
           tokenB={{
             symbol: selectedTokens.tokenB.tokenSymbol,
-            value: selectedTokenBValue.tokenValue,
+            value: swapExactOutTokenAmount,
             icon: <DotToken />,
           }}
           actionLabel="Swapped"

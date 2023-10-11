@@ -16,6 +16,10 @@ export interface PoolsState {
   createPoolLoading: boolean;
   addLiquidityLoading: boolean;
   withdrawLiquidityLoading: boolean;
+  exactNativeTokenAddLiquidity: number;
+  exactAssetTokenAddLiquidity: number;
+  exactNativeTokenWithdraw: number;
+  exactAssetTokenWithdraw: number;
 }
 
 export type PoolAction =
@@ -34,4 +38,8 @@ export type PoolAction =
   | { type: ActionType.SET_POOLS_TOKEN_METADATA; payload: PoolsTokenMetadata[] }
   | { type: ActionType.SET_CREATE_POOL_LOADING; payload: boolean }
   | { type: ActionType.SET_ADD_LIQUIDITY_LOADING; payload: boolean }
-  | { type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING; payload: boolean };
+  | { type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING; payload: boolean }
+  | { type: ActionType.SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY; payload: number }
+  | { type: ActionType.SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY; payload: number }
+  | { type: ActionType.SET_EXACT_NATIVE_TOKEN_WITHDRAW; payload: number }
+  | { type: ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW; payload: number };

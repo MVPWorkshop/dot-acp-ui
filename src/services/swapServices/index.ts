@@ -6,6 +6,7 @@ import { Dispatch } from "react";
 import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
 import useGetNetwork from "../../app/hooks/useGetNetwork";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 const { parents } = useGetNetwork();
 
@@ -14,12 +15,37 @@ const checkIfExactError = (errorValue: string) => {
   return false;
 };
 
+const exactSwapAmounts = (
+  itemEvents: any,
+  tokenADecimals: string,
+  tokenBDecimals: string,
+  dispatch: Dispatch<SwapAction>
+) => {
+  const swapExecutedEvent = itemEvents.events.filter((item: any) => item.event.method === "SwapExecuted");
+
+  const amountIn = formatDecimalsFromToken(
+    parseFloat(swapExecutedEvent[0].event.data.amountIn.replace(/[, ]/g, "")),
+    tokenADecimals
+  );
+  const amountOut = formatDecimalsFromToken(
+    parseFloat(swapExecutedEvent[0].event.data.amountOut.replace(/[, ]/g, "")),
+    tokenBDecimals
+  );
+
+  dispatch({ type: ActionType.SET_SWAP_EXACT_IN_TOKEN_AMOUNT, payload: amountIn });
+  dispatch({ type: ActionType.SET_SWAP_EXACT_OUT_TOKEN_AMOUNT, payload: amountOut });
+
+  return swapExecutedEvent;
+};
+
 export const swapNativeForAssetExactIn = async (
   api: ApiPromise,
   assetTokenId: string,
   account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
+  tokenADecimals: string,
+  tokenBDecimals: string,
   reverse: boolean,
   dispatch: Dispatch<SwapAction>
 ) => {
@@ -66,7 +92,6 @@ export const swapNativeForAssetExactIn = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            console.log("moj");
             if (checkIfExactError(docs.join(" "))) {
               dotAcpToast.error(t("swapPage.slippageError"));
             } else {
@@ -81,6 +106,8 @@ export const swapNativeForAssetExactIn = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
@@ -116,6 +143,8 @@ export const swapNativeForAssetExactOut = async (
   account: WalletAccount,
   nativeTokenValue: string,
   assetTokenValue: string,
+  tokenADecimals: string,
+  tokenBDecimals: string,
   reverse: boolean,
   dispatch: Dispatch<SwapAction>
 ) => {
@@ -176,6 +205,8 @@ export const swapNativeForAssetExactOut = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
@@ -212,6 +243,8 @@ export const swapAssetForAssetExactIn = async (
   account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
+  tokenADecimals: string,
+  tokenBDecimals: string,
   dispatch: Dispatch<SwapAction>
 ) => {
   const firstArg = api
@@ -280,6 +313,8 @@ export const swapAssetForAssetExactIn = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
@@ -316,6 +351,8 @@ export const swapAssetForAssetExactOut = async (
   account: WalletAccount,
   assetTokenAValue: string,
   assetTokenBValue: string,
+  tokenADecimals: string,
+  tokenBDecimals: string,
   dispatch: Dispatch<SwapAction>
 ) => {
   const firstArg = api
@@ -384,6 +421,8 @@ export const swapAssetForAssetExactOut = async (
           dotAcpToast.success(`Current status: ${response.status.type}`);
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,

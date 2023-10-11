@@ -107,6 +107,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           assetTokenValue,
           nativeTokenWithSlippage.tokenValue.toString(),
           assetTokenWithSlippage.tokenValue.toString(),
+          selectedTokenA.nativeTokenDecimals,
+          selectedTokenB.decimals,
           dispatch
         );
       }

@@ -14,6 +14,52 @@ import { t } from "i18next";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
 
+const exactAddedLiquidityInPool = (
+  itemEvents: any,
+  nativeTokenDecimals: string,
+  assetTokenDecimals: string,
+  dispatch: Dispatch<PoolAction>
+) => {
+  const liquidityAddedEvent = itemEvents.events.filter((item: any) => item.event.method === "LiquidityAdded");
+
+  const nativeTokenIn = formatDecimalsFromToken(
+    parseFloat(liquidityAddedEvent[0].event.data.amount1Provided.replace(/[, ]/g, "")),
+    nativeTokenDecimals
+  );
+  const assetTokenIn = formatDecimalsFromToken(
+    parseFloat(liquidityAddedEvent[0].event.data.amount2Provided.replace(/[, ]/g, "")),
+    assetTokenDecimals
+  );
+
+  dispatch({ type: ActionType.SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY, payload: nativeTokenIn });
+  dispatch({ type: ActionType.SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY, payload: assetTokenIn });
+
+  return liquidityAddedEvent;
+};
+
+const exactWithdrawnLiquidityFromPool = (
+  itemEvents: any,
+  nativeTokenDecimals: string,
+  assetTokenDecimals: string,
+  dispatch: Dispatch<PoolAction>
+) => {
+  const liquidityRemovedEvent = itemEvents.events.filter((item: any) => item.event.method === "LiquidityRemoved");
+
+  const nativeTokenOut = formatDecimalsFromToken(
+    parseFloat(liquidityRemovedEvent[0].event.data.amount1.replace(/[, ]/g, "")),
+    nativeTokenDecimals
+  );
+  const assetTokenOut = formatDecimalsFromToken(
+    parseFloat(liquidityRemovedEvent[0].event.data.amount2.replace(/[, ]/g, "")),
+    assetTokenDecimals
+  );
+
+  dispatch({ type: ActionType.SET_EXACT_NATIVE_TOKEN_WITHDRAW, payload: nativeTokenOut });
+  dispatch({ type: ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW, payload: assetTokenOut });
+
+  return liquidityRemovedEvent;
+};
+
 export const getAllPools = async (api: ApiPromise) => {
   try {
     const pools = await api.query.assetConversion.pools.entries();
@@ -64,6 +110,8 @@ export const createPool = async (
   assetTokenValue: string,
   minNativeTokenValue: string,
   minAssetTokenValue: string,
+  nativeTokenDecimals: string,
+  assetTokenDecimals: string,
   dispatch: Dispatch<PoolAction>
 ) => {
   const firstArg = api
@@ -101,6 +149,8 @@ export const createPool = async (
           assetTokenValue,
           minNativeTokenValue,
           minAssetTokenValue,
+          nativeTokenDecimals,
+          assetTokenDecimals,
           dispatch
         );
       }
@@ -146,6 +196,8 @@ export const addLiquidity = async (
   assetTokenValue: string,
   minNativeTokenValue: string,
   minAssetTokenValue: string,
+  nativeTokenDecimals: string,
+  assetTokenDecimals: string,
   dispatch: Dispatch<PoolAction>
 ) => {
   const firstArg = api
@@ -213,6 +265,8 @@ export const addLiquidity = async (
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactAddedLiquidityInPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           await getAllPools(api);
@@ -233,6 +287,8 @@ export const removeLiquidity = async (
   lpTokensAmountToBurn: string,
   minNativeTokenValue: string,
   minAssetTokenValue: string,
+  nativeTokenDecimals: string,
+  assetTokenDecimals: string,
   dispatch: Dispatch<PoolAction>
 ) => {
   const firstArg = api
@@ -287,12 +343,13 @@ export const removeLiquidity = async (
           }
         } else {
           dotAcpToast.success(`Current status: ${response.status.type}`);
-          dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
         }
         if (response.status.type === ServiceResponseStatus.Finalized) {
           dispatch({ type: ActionType.SET_TRANSFER_GAS_FEES_MESSAGE, payload: "" });
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
+          exactWithdrawnLiquidityFromPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
+
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           await getAllPools(api);
