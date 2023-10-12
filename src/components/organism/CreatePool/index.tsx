@@ -275,6 +275,12 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     }
   }, [tokenBSelected]);
 
+  useEffect(() => {
+    if (Object.keys(selectedAccount).length === 0) {
+      navigateToPools();
+    }
+  }, [selectedAccount]);
+
   return (
     <>
       {poolExists ? (

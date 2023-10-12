@@ -146,6 +146,12 @@ const WithdrawPoolLiquidity = () => {
     navigateToPools();
   };
 
+  useEffect(() => {
+    if (Object.keys(selectedAccount).length === 0) {
+      navigateToPools();
+    }
+  }, [selectedAccount]);
+
   const getWithdrawButtonProperties = useMemo(() => {
     if (tokenBalances?.assets) {
       if (selectedTokenA && selectedTokenB) {
