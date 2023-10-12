@@ -120,6 +120,9 @@ const SwapTokens = () => {
     },
   };
 
+  const tokenANumber = Number(selectedTokenAValue?.tokenValue);
+  const tokenBNumber = Number(selectedTokenBValue?.tokenValue);
+
   const handleSwapNativeForAssetGasFee = async () => {
     const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
     const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -327,24 +330,25 @@ const SwapTokens = () => {
 
   const tokenAValue = async (value?: string) => {
     if (value) {
-      const baseString = value.toString();
-      if (baseString.includes(".")) {
-        if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
+      const valueAsNumber = Number(value);
+
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
           console.log("too many decimals");
           // todo: write error message
           return;
         }
       }
 
-      setSelectedTokenAValue({ tokenValue: value.toString() });
+      setSelectedTokenAValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactIn });
 
       if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfAssetTokenFromNativeToken(Number(value), InputEditedType.exactIn);
+        getPriceOfAssetTokenFromNativeToken(valueAsNumber, InputEditedType.exactIn);
       } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfNativeTokenFromAssetToken(Number(value), InputEditedType.exactIn);
+        getPriceOfNativeTokenFromAssetToken(valueAsNumber, InputEditedType.exactIn);
       } else {
-        getPriceOfAssetTokenBFromAssetTokenA(Number(value));
+        getPriceOfAssetTokenBFromAssetTokenA(valueAsNumber);
       }
     } else {
       setSelectedTokenAValue({ tokenValue: "" });
@@ -354,27 +358,28 @@ const SwapTokens = () => {
 
   const tokenBValue = async (value?: string) => {
     if (value) {
-      const baseString = value.toString();
-      if (baseString.includes(".")) {
-        if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
+      const valueAsNumber = Number(value);
+
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
           console.log("too many decimals");
           // todo: write error message
           return;
         }
       }
 
-      setSelectedTokenBValue({ tokenValue: value.toString() });
+      setSelectedTokenBValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactOut });
 
       if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfNativeTokenFromAssetToken(Number(value), InputEditedType.exactOut);
+        getPriceOfNativeTokenFromAssetToken(valueAsNumber, InputEditedType.exactOut);
       } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfAssetTokenFromNativeToken(Number(value), InputEditedType.exactOut);
+        getPriceOfAssetTokenFromNativeToken(valueAsNumber, InputEditedType.exactOut);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughNativeToken(Number(value) <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
+          setWalletHasEnoughNativeToken(valueAsNumber <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else {
-        getPriceOfAssetTokenAFromAssetTokenB(Number(value));
+        getPriceOfAssetTokenAFromAssetTokenB(valueAsNumber);
       }
     } else {
       setSelectedTokenAValue({ tokenValue: "" });
@@ -383,47 +388,35 @@ const SwapTokens = () => {
   };
 
   const getSwapButtonProperties = useMemo(() => {
-    console.log(selectedTokenAValue?.tokenValue);
+    const tokenBalanceNumber = Number(tokenBalances?.balance);
     if (tokenBalances?.assets) {
       if (selectedTokens.tokenA.tokenSymbol === "" || selectedTokens.tokenB.tokenSymbol === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
       if (
-        parseFloat(selectedTokenAValue?.tokenValue) <= 0 ||
-        parseFloat(selectedTokenBValue?.tokenValue) <= 0 ||
+        tokenANumber <= 0 ||
+        tokenBNumber <= 0 ||
         selectedTokenAValue?.tokenValue === "" ||
         selectedTokenBValue?.tokenValue === ""
       ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        parseFloat(selectedTokenAValue.tokenValue) > Number(tokenBalances?.balance)
-      ) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber > tokenBalanceNumber) {
         return {
           label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        parseFloat(selectedTokenAValue.tokenValue) < Number(tokenBalances?.balance)
-      ) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber < tokenBalanceNumber) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (
-        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol &&
-        parseFloat(selectedTokenBValue.tokenValue) > parseFloat(nativeTokensInPool)
-      ) {
+      if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
-        parseFloat(selectedTokenBValue.tokenValue) > parseFloat(assetTokensInPool)
-      ) {
+      if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol && tokenBNumber > Number(assetTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
@@ -432,12 +425,12 @@ const SwapTokens = () => {
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
-        parseFloat(selectedTokenAValue.tokenValue) > 0 &&
-        parseFloat(selectedTokenBValue.tokenValue) > 0
+        tokenANumber > 0 &&
+        tokenBNumber > 0
       ) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (parseFloat(selectedTokenAValue.tokenValue) > 0 && parseFloat(selectedTokenBValue.tokenValue) > 0) {
+      if (tokenANumber > 0 && tokenBNumber > 0) {
         return { label: t("button.swap"), disabled: false };
       }
     } else {
@@ -679,16 +672,10 @@ const SwapTokens = () => {
       tokenSelected.tokenSelected === TokenPosition.tokenA &&
       parseFloat(selectedTokenBValue?.tokenValue) > 0
     ) {
-      console.log("enter 1");
       tokenBValue(selectedTokenBValue.tokenValue);
     }
 
-    if (
-      selectedTokenAValue?.tokenValue &&
-      tokenSelected.tokenSelected === TokenPosition.tokenB &&
-      parseFloat(selectedTokenAValue?.tokenValue) > 0
-    ) {
-      console.log("enter 2");
+    if (selectedTokenAValue?.tokenValue && tokenSelected.tokenSelected === TokenPosition.tokenB && tokenANumber > 0) {
       tokenAValue(selectedTokenAValue.tokenValue);
     }
   }, [selectedTokens]);

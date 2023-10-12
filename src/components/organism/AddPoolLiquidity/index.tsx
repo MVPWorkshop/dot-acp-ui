@@ -81,6 +81,9 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [poolExists, setPoolExists] = useState<boolean>(false);
 
+  const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
+  const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
+
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
   };
@@ -111,14 +114,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const handlePool = async () => {
     if (api && selectedTokenNativeValue && selectedTokenAssetValue) {
-      const nativeTokenValue = formatInputTokenValue(
-        Number(selectedTokenNativeValue.tokenValue),
-        selectedTokenA?.nativeTokenDecimals
-      )
+      const nativeTokenValue = formatInputTokenValue(selectedNativeTokenNumber, selectedTokenA?.nativeTokenDecimals)
         .toLocaleString()
         ?.replace(/[, ]/g, "");
 
-      const assetTokenValue = formatInputTokenValue(Number(selectedTokenAssetValue.tokenValue), selectedTokenB.decimals)
+      const assetTokenValue = formatInputTokenValue(selectedAssetTokenNumber, selectedTokenB.decimals)
         .toLocaleString()
         ?.replace(/[, ]/g, "");
 
@@ -141,14 +141,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const handleAddPoolLiquidityGasFee = async () => {
     if (api && selectedTokenNativeValue && selectedTokenAssetValue) {
-      const nativeTokenValue = formatInputTokenValue(
-        Number(selectedTokenNativeValue.tokenValue),
-        selectedTokenA?.nativeTokenDecimals
-      )
+      const nativeTokenValue = formatInputTokenValue(selectedNativeTokenNumber, selectedTokenA?.nativeTokenDecimals)
         .toLocaleString()
         ?.replace(/[, ]/g, "");
 
-      const assetTokenValue = formatInputTokenValue(Number(selectedTokenAssetValue.tokenValue), selectedTokenB.decimals)
+      const assetTokenValue = formatInputTokenValue(selectedAssetTokenNumber, selectedTokenB.decimals)
         .toLocaleString()
         ?.replace(/[, ]/g, "");
 
@@ -244,22 +241,28 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   };
 
   const getButtonProperties = useMemo(() => {
-    console.log("enter");
     if (tokenBalances?.assets) {
       if (selectedTokenA.nativeTokenSymbol === "" || selectedTokenB.assetTokenId === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
 
       if (
-        Number(selectedTokenNativeValue?.tokenValue) <= 0 ||
-        Number(selectedTokenAssetValue?.tokenValue) <= 0 ||
+        selectedNativeTokenNumber <= 0 ||
+        selectedAssetTokenNumber <= 0 ||
         selectedTokenNativeValue?.tokenValue === "" ||
         selectedTokenAssetValue?.tokenValue === ""
       ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
 
-      if (Number(selectedTokenNativeValue?.tokenValue) > Number(tokenBalances?.balance)) {
+      if (selectedNativeTokenNumber > Number(tokenBalances?.balance)) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
+          disabled: true,
+        };
+      }
+
+      if (selectedNativeTokenNumber + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
         return {
           label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
           disabled: true,
@@ -267,17 +270,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
       }
 
       if (
-        Number(selectedTokenNativeValue?.tokenValue) + parseFloat(poolGasFee) / 1000 >
-        Number(tokenBalances?.balance)
-      ) {
-        return {
-          label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
-          disabled: true,
-        };
-      }
-
-      if (
-        Number(selectedTokenAssetValue?.tokenValue) >
+        selectedAssetTokenNumber >
         formatDecimalsFromToken(
           parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")),
           selectedTokenB.decimals
@@ -286,7 +279,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
       }
 
-      if (Number(selectedTokenNativeValue?.tokenValue) > 0 && Number(selectedTokenAssetValue?.tokenValue) > 0) {
+      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0) {
         return { label: t("button.deposit"), disabled: false };
       }
     } else {
@@ -334,13 +327,13 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     if (
       selectedTokenNativeValue &&
       inputEdited.inputType === InputEditedType.exactIn &&
-      Number(selectedTokenNativeValue.tokenValue) > 0
+      selectedNativeTokenNumber > 0
     ) {
       setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
     } else if (
       selectedTokenAssetValue &&
       inputEdited.inputType === InputEditedType.exactOut &&
-      Number(selectedTokenAssetValue.tokenValue) > 0
+      selectedAssetTokenNumber > 0
     ) {
       setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
     }
