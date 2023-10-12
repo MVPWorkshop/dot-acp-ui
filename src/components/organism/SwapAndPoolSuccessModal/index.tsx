@@ -8,12 +8,12 @@ interface SwapAndPoolSuccessModalProps {
   open: boolean;
   contentTitle: string;
   tokenA: {
-    value: number;
+    value?: string | null;
     symbol: string;
     icon: React.ReactNode;
   };
   tokenB: {
-    value: number;
+    value?: string | null;
     symbol: string;
     icon: React.ReactNode;
   };
