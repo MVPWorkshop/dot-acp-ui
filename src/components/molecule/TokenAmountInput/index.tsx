@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../app/types/enum";
@@ -36,10 +36,6 @@ const TokenAmountInput = ({
     setIsFocused(false);
   });
 
-  useEffect(() => {
-    console.log("tokenValue:", tokenValue);
-  }, []);
-
   return (
     <div
       ref={wrapperRef}
@@ -73,7 +69,6 @@ const TokenAmountInput = ({
           }
         }}
         onValueChange={({ floatValue }) => {
-          console.log("floatValue:", floatValue);
           onSetTokenValue(floatValue?.toString() || "");
         }}
       />
