@@ -1,5 +1,5 @@
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../app/types/enum";
@@ -36,6 +36,10 @@ const TokenAmountInput = ({
     setIsFocused(false);
   });
 
+  useEffect(() => {
+    console.log("tokenValue:", tokenValue);
+  }, []);
+
   return (
     <div
       ref={wrapperRef}
@@ -61,7 +65,15 @@ const TokenAmountInput = ({
         className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
+        isAllowed={({ floatValue }) => {
+          if (floatValue) {
+            return floatValue?.toString()?.length <= 15;
+          } else {
+            return true;
+          }
+        }}
         onValueChange={({ floatValue }) => {
+          console.log("floatValue:", floatValue);
           onSetTokenValue(floatValue?.toString() || "");
         }}
       />
