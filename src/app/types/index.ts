@@ -35,8 +35,8 @@ export type TokenProps = {
 export type TokenBalanceData = {
   balance: number;
   ss58Format: AnyJson;
-  tokenDecimals: AnyJson;
-  tokenSymbol: AnyJson;
+  tokenDecimals: string;
+  tokenSymbol: string;
   assets: any;
 };
 
