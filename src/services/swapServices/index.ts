@@ -11,8 +11,7 @@ import { formatDecimalsFromToken } from "../../app/util/helper";
 const { parents } = useGetNetwork();
 
 const checkIfExactError = (errorValue: string) => {
-  if (errorValue === t("swapPage.palletSlippageError")) return true;
-  return false;
+  return errorValue === t("swapPage.palletSlippageError");
 };
 
 const exactSwapAmounts = (
@@ -92,11 +91,7 @@ export const swapNativeForAssetExactIn = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            if (checkIfExactError(docs.join(" "))) {
-              dotAcpToast.error(t("swapPage.slippageError"));
-            } else {
-              dotAcpToast.error(`${docs.join(" ")}`);
-            }
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -191,11 +186,7 @@ export const swapNativeForAssetExactOut = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            if (checkIfExactError(docs.join(" "))) {
-              dotAcpToast.error(t("swapPage.slippageError"));
-            } else {
-              dotAcpToast.error(`${docs.join(" ")}`);
-            }
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -299,11 +290,7 @@ export const swapAssetForAssetExactIn = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            if (checkIfExactError(docs.join(" "))) {
-              dotAcpToast.error(t("swapPage.slippageError"));
-            } else {
-              dotAcpToast.error(`${docs.join(" ")}`);
-            }
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -407,11 +394,7 @@ export const swapAssetForAssetExactOut = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            if (checkIfExactError(docs.join(" "))) {
-              dotAcpToast.error(t("swapPage.slippageError"));
-            } else {
-              dotAcpToast.error(`${docs.join(" ")}`);
-            }
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
