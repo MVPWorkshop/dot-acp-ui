@@ -13,7 +13,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -168,8 +169,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const getPriceOfAssetTokenFromNativeToken = async (value: number) => {

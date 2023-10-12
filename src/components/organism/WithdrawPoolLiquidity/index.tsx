@@ -8,12 +8,8 @@ import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import {
-  checkWithdrawPoolLiquidityGasFee,
-  getAllPools,
-  getPoolReserves,
-  removeLiquidity,
-} from "../../../services/poolServices";
+import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -142,8 +138,11 @@ const WithdrawPoolLiquidity = () => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const getWithdrawButtonProperties = useMemo(() => {

@@ -269,7 +269,8 @@ export const addLiquidity = async (
 
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
-          await getAllPools(api);
+          const allPools = await getAllPools(api);
+          await createPoolCardsArray(api, dispatch, allPools, account);
         }
       }
     })
@@ -352,7 +353,8 @@ export const removeLiquidity = async (
 
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
-          await getAllPools(api);
+          const allPools = await getAllPools(api);
+          await createPoolCardsArray(api, dispatch, allPools, account);
         }
       }
     })
