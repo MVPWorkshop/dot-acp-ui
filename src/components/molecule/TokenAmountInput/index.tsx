@@ -5,6 +5,8 @@ import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../app/types/enum";
 import { t } from "i18next";
 import useClickOutside from "../../../app/hooks/useClickOutside";
+import Lottie from "react-lottie";
+import { lottieOptions } from "../../../assets/loader";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -14,6 +16,7 @@ type TokenAmountInputProps = {
   tokenValue?: string;
   labelText?: string;
   selectDisabled?: boolean;
+  assetLoading?: boolean;
   onClick: () => void;
   onSetTokenValue: (value: string) => void;
 };
@@ -25,6 +28,7 @@ const TokenAmountInput = ({
   tokenValue,
   labelText,
   selectDisabled,
+  assetLoading,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -85,7 +89,11 @@ const TokenAmountInput = ({
           className="basis-[57%]"
           disabled={disabled}
         >
-          {t("button.selectToken")}
+          {disabled && assetLoading ? (
+            <Lottie options={lottieOptions} height={20} width={20} />
+          ) : (
+            t("button.selectToken")
+          )}
         </Button>
       )}
     </div>

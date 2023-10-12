@@ -62,6 +62,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     addLiquidityLoading,
     exactNativeTokenAddLiquidity,
     exactAssetTokenAddLiquidity,
+    assetLoading,
   } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -380,6 +381,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenAValue(value)}
             selectDisabled={true}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <TokenAmountInput
             tokenText={selectedTokenB?.tokenSymbol}
@@ -389,6 +391,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenBValue(value)}
             selectDisabled={!tokenBId?.id}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
