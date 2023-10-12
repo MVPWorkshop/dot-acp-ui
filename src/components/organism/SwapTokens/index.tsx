@@ -44,7 +44,7 @@ type SwapTokenProps = {
 };
 
 type TokenValueProps = {
-  tokenValue: number;
+  tokenValue: string;
 };
 
 type TokenValueSlippageProps = {
@@ -91,12 +91,8 @@ const SwapTokens = () => {
   });
 
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
-  const [selectedTokenAValue, setSelectedTokenAValue] = useState<TokenValueProps>({
-    tokenValue: 0,
-  });
-  const [selectedTokenBValue, setSelectedTokenBValue] = useState<TokenValueProps>({
-    tokenValue: 0,
-  });
+  const [selectedTokenAValue, setSelectedTokenAValue] = useState<TokenValueProps>({ tokenValue: "" });
+  const [selectedTokenBValue, setSelectedTokenBValue] = useState<TokenValueProps>({ tokenValue: "" });
   const [tokenAValueForSwap, setTokenAValueForSwap] = useState<TokenValueSlippageProps>({
     tokenValue: 0,
   });
@@ -125,6 +121,9 @@ const SwapTokens = () => {
       balance: tokenBalances?.balance,
     },
   };
+
+  const tokenANumber = Number(selectedTokenAValue?.tokenValue);
+  const tokenBNumber = Number(selectedTokenBValue?.tokenValue);
 
   const handleSwapNativeForAssetGasFee = async () => {
     const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
@@ -218,15 +217,14 @@ const SwapTokens = () => {
           inputType === InputEditedType.exactIn
             ? calculateSlippageReduce(assetTokenNoDecimals, slippageValue)
             : calculateSlippageAdd(assetTokenNoDecimals, slippageValue);
-
         if (inputType === InputEditedType.exactIn) {
           setTokenAValueForSwap({ tokenValue: value });
           setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
-          setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals });
+          setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals.toString() });
         } else if (inputType === InputEditedType.exactOut) {
           setTokenAValueForSwap({ tokenValue: assetTokenWithSlippage });
           setTokenBValueForSwap({ tokenValue: value });
-          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals });
+          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals.toString() });
         }
       }
     }
@@ -267,11 +265,11 @@ const SwapTokens = () => {
           if (inputType === InputEditedType.exactIn) {
             setTokenAValueForSwap({ tokenValue: value });
             setTokenBValueForSwap({ tokenValue: nativeTokenWithSlippage });
-            setSelectedTokenBValue({ tokenValue: nativeTokenNoDecimals });
+            setSelectedTokenBValue({ tokenValue: nativeTokenNoDecimals.toString() });
           } else if (inputType === InputEditedType.exactOut) {
             setTokenAValueForSwap({ tokenValue: nativeTokenWithSlippage });
             setTokenBValueForSwap({ tokenValue: value });
-            setSelectedTokenAValue({ tokenValue: nativeTokenNoDecimals });
+            setSelectedTokenAValue({ tokenValue: nativeTokenNoDecimals.toString() });
           }
         }
       }
@@ -298,7 +296,7 @@ const SwapTokens = () => {
 
           setTokenAValueForSwap({ tokenValue: assetTokenWithSlippage });
           setTokenBValueForSwap({ tokenValue: value });
-          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals });
+          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals.toString() });
         }
       }
     }
@@ -326,99 +324,101 @@ const SwapTokens = () => {
 
           setTokenAValueForSwap({ tokenValue: value });
           setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
-          setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals });
+          setSelectedTokenBValue({ tokenValue: assetTokenNoDecimals.toString() });
         }
       }
     }
   };
 
-  const tokenAValue = async (value: number) => {
-    const baseString = value.toString();
-    if (baseString.includes(".")) {
-      if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
-        console.log("too many decimals");
-        // todo: write error message
-        return;
+  const tokenAValue = async (value?: string) => {
+    if (value) {
+      const valueAsNumber = Number(value);
+
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
+          console.log("too many decimals");
+          // todo: write error message
+          return;
+        }
       }
-    }
 
-    setSelectedTokenAValue({ tokenValue: value });
-    setInputEdited({ inputType: InputEditedType.exactIn });
+      setSelectedTokenAValue({ tokenValue: value });
+      setInputEdited({ inputType: InputEditedType.exactIn });
 
-    if (selectedTokenAValue) {
       if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfAssetTokenFromNativeToken(value, InputEditedType.exactIn);
+        getPriceOfAssetTokenFromNativeToken(valueAsNumber, InputEditedType.exactIn);
       } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfNativeTokenFromAssetToken(value, InputEditedType.exactIn);
+        getPriceOfNativeTokenFromAssetToken(valueAsNumber, InputEditedType.exactIn);
       } else {
-        getPriceOfAssetTokenBFromAssetTokenA(value);
+        getPriceOfAssetTokenBFromAssetTokenA(valueAsNumber);
       }
+    } else {
+      setSelectedTokenAValue({ tokenValue: "" });
+      setSelectedTokenBValue({ tokenValue: "" });
     }
   };
 
-  const tokenBValue = async (value: number) => {
-    const baseString = value.toString();
-    if (baseString.includes(".")) {
-      if (baseString.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
-        console.log("too many decimals");
-        // todo: write error message
-        return;
+  const tokenBValue = async (value?: string) => {
+    if (value) {
+      const valueAsNumber = Number(value);
+
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
+          console.log("too many decimals");
+          // todo: write error message
+          return;
+        }
       }
-    }
 
-    setSelectedTokenBValue({ tokenValue: value });
-    setInputEdited({ inputType: InputEditedType.exactOut });
+      setSelectedTokenBValue({ tokenValue: value });
+      setInputEdited({ inputType: InputEditedType.exactOut });
 
-    if (selectedTokenBValue) {
       if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfNativeTokenFromAssetToken(value, InputEditedType.exactOut);
+        getPriceOfNativeTokenFromAssetToken(valueAsNumber, InputEditedType.exactOut);
       } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
-        getPriceOfAssetTokenFromNativeToken(value, InputEditedType.exactOut);
+        getPriceOfAssetTokenFromNativeToken(valueAsNumber, InputEditedType.exactOut);
         if (tokenBalances?.balance) {
-          setWalletHasEnoughNativeToken(value <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
+          setWalletHasEnoughNativeToken(valueAsNumber <= tokenBalances?.balance - parseFloat(swapGasFee) / 1000);
         }
       } else {
-        getPriceOfAssetTokenAFromAssetTokenB(value);
+        getPriceOfAssetTokenAFromAssetTokenB(valueAsNumber);
       }
+    } else {
+      setSelectedTokenAValue({ tokenValue: "" });
+      setSelectedTokenBValue({ tokenValue: "" });
     }
   };
 
   const getSwapButtonProperties = useMemo(() => {
+    const tokenBalanceNumber = Number(tokenBalances?.balance);
     if (tokenBalances?.assets) {
-      if (!selectedTokens.tokenA || !selectedTokens.tokenB) {
+      if (selectedTokens.tokenA.tokenSymbol === "" || selectedTokens.tokenB.tokenSymbol === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
-      if (selectedTokenAValue?.tokenValue <= 0 || selectedTokenBValue?.tokenValue <= 0) {
+      if (
+        tokenANumber <= 0 ||
+        tokenBNumber <= 0 ||
+        selectedTokenAValue?.tokenValue === "" ||
+        selectedTokenBValue?.tokenValue === ""
+      ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        selectedTokenAValue.tokenValue > Number(tokenBalances?.balance)
-      ) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber > tokenBalanceNumber) {
         return {
           label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        selectedTokenAValue.tokenValue < Number(tokenBalances?.balance)
-      ) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber < tokenBalanceNumber) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (
-        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol &&
-        selectedTokenBValue.tokenValue > parseFloat(nativeTokensInPool)
-      ) {
+      if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
-        selectedTokenBValue.tokenValue > parseFloat(assetTokensInPool)
-      ) {
+      if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol && tokenBNumber > Number(assetTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
@@ -427,26 +427,26 @@ const SwapTokens = () => {
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
-        selectedTokenAValue.tokenValue > 0 &&
-        selectedTokenBValue.tokenValue > 0
+        tokenANumber > 0 &&
+        tokenBNumber > 0
       ) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (selectedTokenAValue.tokenValue > 0 && selectedTokenBValue.tokenValue > 0) {
+      if (tokenANumber > 0 && tokenBNumber > 0) {
         return { label: t("button.swap"), disabled: false };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
     }
 
-    return { label: "", disabled: true };
+    return { label: t("button.selectToken"), disabled: true };
   }, [
     selectedAccount?.address,
     tokenBalances?.balance,
     selectedTokens.tokenA.decimals,
     selectedTokens.tokenB.decimals,
-    selectedTokenAValue.tokenValue,
-    selectedTokenBValue.tokenValue,
+    selectedTokenAValue?.tokenValue,
+    selectedTokenBValue?.tokenValue,
     walletHasEnoughNativeToken,
   ]);
 
@@ -682,20 +682,34 @@ const SwapTokens = () => {
   };
 
   useEffect(() => {
-    if (tokenSelected.tokenSelected === TokenPosition.tokenA && selectedTokenBValue.tokenValue > 0) {
+    if (
+      selectedTokenBValue?.tokenValue &&
+      tokenSelected.tokenSelected === TokenPosition.tokenA &&
+      parseFloat(selectedTokenBValue?.tokenValue) > 0
+    ) {
       tokenBValue(selectedTokenBValue.tokenValue);
     }
 
-    if (tokenSelected.tokenSelected === TokenPosition.tokenB && selectedTokenAValue.tokenValue > 0) {
+    if (selectedTokenAValue?.tokenValue && tokenSelected.tokenSelected === TokenPosition.tokenB && tokenANumber > 0) {
       tokenAValue(selectedTokenAValue.tokenValue);
     }
   }, [selectedTokens]);
 
   useEffect(() => {
-    if (inputEdited.inputType === InputEditedType.exactIn && selectedTokenBValue.tokenValue > 0) {
-      tokenAValue(selectedTokenAValue.tokenValue);
-    } else if (inputEdited.inputType === InputEditedType.exactOut && selectedTokenAValue.tokenValue > 0) {
-      tokenBValue(selectedTokenBValue.tokenValue);
+    if (
+      selectedTokenAValue?.tokenValue &&
+      selectedTokenBValue?.tokenValue &&
+      inputEdited.inputType === InputEditedType.exactIn &&
+      parseFloat(selectedTokenBValue.tokenValue) > 0
+    ) {
+      tokenAValue(selectedTokenAValue?.tokenValue);
+    } else if (
+      selectedTokenAValue?.tokenValue &&
+      selectedTokenBValue?.tokenValue &&
+      inputEdited.inputType === InputEditedType.exactOut &&
+      parseFloat(selectedTokenAValue.tokenValue) > 0
+    ) {
+      tokenBValue(selectedTokenBValue?.tokenValue);
     }
   }, [slippageValue]);
 
@@ -726,8 +740,8 @@ const SwapTokens = () => {
 
   useEffect(() => {
     if (swapSuccessfulReset) {
-      setSelectedTokenAValue({ tokenValue: 0 });
-      setSelectedTokenBValue({ tokenValue: 0 });
+      setSelectedTokenAValue({ tokenValue: "" });
+      setSelectedTokenBValue({ tokenValue: "" });
     }
   }, [swapSuccessfulReset]);
 
@@ -740,18 +754,19 @@ const SwapTokens = () => {
           tokenText={selectedTokens.tokenA?.tokenSymbol}
           labelText={t("tokenAmountInput.youPay")}
           tokenIcon={<DotToken />}
-          tokenValue={selectedTokenAValue.tokenValue}
+          tokenValue={selectedTokenAValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
-          onSetTokenValue={(value) => tokenAValue(value)}
+          onSetTokenValue={(value) => tokenAValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
         />
+
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
           labelText={t("tokenAmountInput.youReceive")}
           tokenIcon={<DotToken />}
-          tokenValue={selectedTokenBValue.tokenValue}
+          tokenValue={selectedTokenBValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
-          onSetTokenValue={(value) => tokenBValue(value)}
+          onSetTokenValue={(value) => tokenBValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
         />
 
@@ -840,12 +855,12 @@ const SwapTokens = () => {
           contentTitle={"Successfully swapped"}
           tokenA={{
             symbol: selectedTokens.tokenA.tokenSymbol,
-            value: swapExactInTokenAmount,
+            value: swapExactInTokenAmount.toString(),
             icon: <DotToken />,
           }}
           tokenB={{
             symbol: selectedTokens.tokenB.tokenSymbol,
-            value: swapExactOutTokenAmount,
+            value: swapExactOutTokenAmount.toString(),
             icon: <DotToken />,
           }}
           actionLabel="Swapped"
