@@ -14,7 +14,7 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { lottieOptions } from "../../../assets/loader";
-import { getPoolReserves } from "../../../services/poolServices";
+import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
@@ -622,9 +622,10 @@ const SwapTokens = () => {
     setTokenSelectionModal(tokenInputSelected);
   };
 
-  const closeSuccessModal = () => {
+  const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     setSwapSuccessfulReset(true);
+    if (api) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
   };
 
   const onSwapSelectModal = (tokenData: any) => {
