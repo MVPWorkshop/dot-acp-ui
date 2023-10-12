@@ -59,6 +59,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     poolGasFee,
     successModalOpen,
     createPoolLoading,
+    assetLoading,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -295,7 +296,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClick={() => null}
               onSetTokenValue={(value) => setSelectedTokenAValue(value)}
               selectDisabled={true}
-              disabled={createPoolLoading || !selectedAccount}
+              disabled={createPoolLoading || !selectedAccount || !tokenBalances?.assets}
+              assetLoading={assetLoading}
             />
             <TokenAmountInput
               tokenText={selectedTokenB?.tokenSymbol}
@@ -304,8 +306,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
               onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-              disabled={createPoolLoading || !selectedAccount}
+              disabled={createPoolLoading || !selectedAccount || !tokenBalances?.assets}
               selectDisabled={createPoolLoading || !selectedAccount}
+              assetLoading={assetLoading}
             />
             <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
