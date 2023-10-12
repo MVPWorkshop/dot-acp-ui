@@ -14,7 +14,7 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { lottieOptions } from "../../../assets/loader";
-import { getPoolReserves } from "../../../services/poolServices";
+import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
@@ -628,6 +628,7 @@ const SwapTokens = () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     setSwapSuccessfulReset(true);
     if (api) {
+      await createPoolCardsArray(api, dispatch, pools, selectedAccount);
       const assets: any = await getWalletTokensBalance(api, selectedAccount.address);
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
     }

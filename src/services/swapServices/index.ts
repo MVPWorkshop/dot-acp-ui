@@ -1,3 +1,4 @@
+import { t } from "i18next";
 import { ApiPromise } from "@polkadot/api";
 import dotAcpToast from "../../app/util/toast";
 import { SwapAction } from "../../store/swap/interface";
@@ -8,6 +9,10 @@ import useGetNetwork from "../../app/hooks/useGetNetwork";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 
 const { parents } = useGetNetwork();
+
+const checkIfExactError = (errorValue: string) => {
+  return errorValue === t("swapPage.palletSlippageError");
+};
 
 const exactSwapAmounts = (
   itemEvents: any,
@@ -86,7 +91,7 @@ export const swapNativeForAssetExactIn = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            dotAcpToast.error(`${docs.join(" ")}`);
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -181,7 +186,7 @@ export const swapNativeForAssetExactOut = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            dotAcpToast.error(`${docs.join(" ")}`);
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -285,7 +290,7 @@ export const swapAssetForAssetExactIn = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            dotAcpToast.error(`${docs.join(" ")}`);
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
@@ -389,7 +394,7 @@ export const swapAssetForAssetExactOut = async (
           if (response.dispatchError.isModule) {
             const decoded = api.registry.findMetaError(response.dispatchError.asModule);
             const { docs } = decoded;
-            dotAcpToast.error(`${docs.join(" ")}`);
+            dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
             dotAcpToast.error(response.dispatchError.toString());
