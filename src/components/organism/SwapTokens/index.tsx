@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
-import { InputEditedProps, TokenProps } from "../../../app/types";
+import { InputEditedProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
 import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
 import {
   calculateSlippageAdd,
@@ -109,6 +109,11 @@ const SwapTokens = () => {
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
+  const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
+    tokenSymbol: "",
+    isError: false,
+    decimalsAllowed: 0,
+  });
 
   const nativeToken = {
     tokenId: "",
@@ -336,11 +341,20 @@ const SwapTokens = () => {
 
       if (value.includes(".")) {
         if (value.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
-          console.log("too many decimals");
-          // todo: write error message
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokens.tokenA.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokens.tokenA.decimals),
+          });
           return;
         }
       }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
 
       setSelectedTokenAValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactIn });
@@ -364,11 +378,20 @@ const SwapTokens = () => {
 
       if (value.includes(".")) {
         if (value.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
-          console.log("too many decimals");
-          // todo: write error message
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokens.tokenB.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokens.tokenB.decimals),
+          });
           return;
         }
       }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
 
       setSelectedTokenBValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactOut });
@@ -409,7 +432,11 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber < tokenBalanceNumber) {
+      if (
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        tokenANumber < tokenBalanceNumber &&
+        !tooManyDecimalsError.isError
+      ) {
         return { label: t("button.swap"), disabled: false };
       }
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
@@ -428,12 +455,16 @@ const SwapTokens = () => {
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
         tokenANumber > 0 &&
-        tokenBNumber > 0
+        tokenBNumber > 0 &&
+        !tooManyDecimalsError.isError
       ) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (tokenANumber > 0 && tokenBNumber > 0) {
+      if (tokenANumber > 0 && tokenBNumber > 0 && !tooManyDecimalsError.isError) {
         return { label: t("button.swap"), disabled: false };
+      }
+      if (tokenANumber > 0 && tokenBNumber > 0 && tooManyDecimalsError.isError) {
+        return { label: t("button.swap"), disabled: true };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
@@ -442,6 +473,7 @@ const SwapTokens = () => {
     return { label: t("button.selectToken"), disabled: true };
   }, [
     selectedAccount?.address,
+    tooManyDecimalsError.isError,
     tokenBalances?.balance,
     selectedTokens.tokenA.decimals,
     selectedTokens.tokenB.decimals,
@@ -866,6 +898,13 @@ const SwapTokens = () => {
         />
       </div>
       <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
+      <WarningMessage
+        show={tooManyDecimalsError.isError}
+        message={t("pageError.tooManyDecimals", {
+          token: tooManyDecimalsError.tokenSymbol,
+          decimals: tooManyDecimalsError.decimalsAllowed,
+        })}
+      />
     </div>
   );
 };
