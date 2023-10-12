@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
-import { ActionType, ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
+import { ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
 import { reduceAddress } from "../../../app/util/helper";
 import {
   connectWalletAndFetchBalance,
@@ -40,14 +40,11 @@ const HeaderTopNav = () => {
   };
 
   const handleConnect = async (account: WalletAccount) => {
-    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
     try {
       setWalletConnectOpen(false);
       await connectWalletAndFetchBalance(dispatch, api, account);
     } catch (error) {
       dotAcpToast.error(`Error connecting: ${error}`);
-    } finally {
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
     }
   };
 

@@ -57,6 +57,7 @@ const WithdrawPoolLiquidity = () => {
     withdrawLiquidityLoading,
     exactNativeTokenWithdraw,
     exactAssetTokenWithdraw,
+    assetLoading,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -289,6 +290,7 @@ const WithdrawPoolLiquidity = () => {
           onSetTokenValue={() => null}
           selectDisabled={true}
           disabled={true}
+          assetLoading={assetLoading}
         />
         <TokenAmountInput
           tokenText={selectedTokenB?.tokenSymbol}
@@ -299,6 +301,7 @@ const WithdrawPoolLiquidity = () => {
           onSetTokenValue={() => null}
           selectDisabled={true}
           disabled={true}
+          assetLoading={assetLoading}
         />
         <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 

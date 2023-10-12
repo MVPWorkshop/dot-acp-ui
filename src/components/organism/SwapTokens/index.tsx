@@ -31,6 +31,7 @@ import {
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
 } from "../../../services/tokenServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -72,6 +73,7 @@ const SwapTokens = () => {
     poolsCards,
     swapExactInTokenAmount,
     swapExactOutTokenAmount,
+    assetLoading,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -622,9 +624,13 @@ const SwapTokens = () => {
     setTokenSelectionModal(tokenInputSelected);
   };
 
-  const closeSuccessModal = () => {
+  const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     setSwapSuccessfulReset(true);
+    if (api) {
+      const assets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+    }
   };
 
   const onSwapSelectModal = (tokenData: any) => {
@@ -743,6 +749,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value)}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
@@ -752,6 +759,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value)}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
 
         <div className="mt-1 text-small">{swapGasFeesMessage}</div>
