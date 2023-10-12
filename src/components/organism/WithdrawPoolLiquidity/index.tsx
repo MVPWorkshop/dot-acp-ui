@@ -55,6 +55,8 @@ const WithdrawPoolLiquidity = () => {
     transferGasFeesMessage,
     successModalOpen,
     withdrawLiquidityLoading,
+    exactNativeTokenWithdraw,
+    exactAssetTokenWithdraw,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -115,6 +117,8 @@ const WithdrawPoolLiquidity = () => {
           lpTokensAmountToBurn,
           nativeTokenWithSlippage.tokenValue.toString(),
           assetTokenWithSlippage.tokenValue.toString(),
+          selectedTokenA.nativeTokenDecimals,
+          selectedTokenB.decimals,
           dispatch
         );
       }
@@ -374,12 +378,12 @@ const WithdrawPoolLiquidity = () => {
           contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
           actionLabel={t("modal.removeFromPool.withdrawal")}
           tokenA={{
-            value: selectedTokenNativeValue?.tokenValue,
+            value: exactNativeTokenWithdraw.toString(),
             symbol: selectedTokenA.nativeTokenSymbol,
             icon: <DotToken />,
           }}
           tokenB={{
-            value: selectedTokenAssetValue?.tokenValue,
+            value: exactAssetTokenWithdraw.toString(),
             symbol: selectedTokenB.tokenSymbol,
             icon: <DotToken />,
           }}

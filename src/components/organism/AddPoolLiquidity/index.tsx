@@ -59,6 +59,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     poolGasFee,
     successModalOpen,
     addLiquidityLoading,
+    exactNativeTokenAddLiquidity,
+    exactAssetTokenAddLiquidity,
   } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -131,6 +133,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           assetTokenValue,
           nativeTokenWithSlippage.tokenValue.toString(),
           assetTokenWithSlippage.tokenValue.toString(),
+          selectedTokenA.nativeTokenDecimals,
+          selectedTokenB.decimals,
           dispatch
         );
       } catch (error) {
@@ -460,12 +464,12 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onClose={closeSuccessModal}
             contentTitle={t("modal.addTooExistingPool.successfullyAddedLiquidity")}
             tokenA={{
-              value: selectedTokenNativeValue?.tokenValue,
+              value: exactNativeTokenAddLiquidity.toString(),
               symbol: selectedTokenA.nativeTokenSymbol,
               icon: <DotToken />,
             }}
             tokenB={{
-              value: selectedTokenAssetValue?.tokenValue,
+              value: exactAssetTokenAddLiquidity.toString(),
               symbol: selectedTokenB.tokenSymbol,
               icon: <DotToken />,
             }}
