@@ -31,6 +31,7 @@ export const formatInputTokenValue = (base: number, decimals: string) => {
   return new Decimal(base)
     .times(Math.pow(10, parseFloat(decimals)))
     .floor()
+    .toFixed()
     .toString();
 };
 

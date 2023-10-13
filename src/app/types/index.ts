@@ -55,3 +55,9 @@ export type PoolsTokenMetadata = {
 export type ModalStepProps = {
   step: WalletConnectSteps;
 };
+
+export type TokenDecimalsErrorProps = {
+  tokenSymbol: string;
+  decimalsAllowed: number;
+  isError: boolean;
+};

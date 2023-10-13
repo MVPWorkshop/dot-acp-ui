@@ -65,6 +65,13 @@ const TokenAmountInput = ({
         className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
+        isAllowed={({ floatValue }) => {
+          if (floatValue) {
+            return floatValue?.toString()?.length <= 15;
+          } else {
+            return true;
+          }
+        }}
         onValueChange={({ floatValue }) => {
           onSetTokenValue(floatValue?.toString() || "");
         }}

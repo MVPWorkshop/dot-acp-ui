@@ -23,9 +23,10 @@ import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../.
 import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
-import { InputEditedProps } from "../../../app/types";
+import { InputEditedProps, TokenDecimalsErrorProps } from "../../../app/types";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import CreatePool from "../CreatePool";
+import WarningMessage from "../../atom/WarningMessage";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -84,6 +85,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [poolExists, setPoolExists] = useState<boolean>(false);
+  const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
+    tokenSymbol: "",
+    isError: false,
+    decimalsAllowed: 0,
+  });
 
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
@@ -226,6 +232,23 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const setSelectedTokenAValue = (value: string) => {
     setInputEdited({ inputType: InputEditedType.exactIn });
     if (slippageValue && value !== "") {
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokenA.nativeTokenDecimals)) {
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokenA.nativeTokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokenA.nativeTokenDecimals),
+          });
+          return;
+        }
+      }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
+
       const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenNativeValue({ tokenValue: value.toString() });
@@ -239,6 +262,23 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const setSelectedTokenBValue = (value: string) => {
     setInputEdited({ inputType: InputEditedType.exactOut });
     if (slippageValue && value !== "") {
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokenB.decimals)) {
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokenB.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokenB.decimals),
+          });
+          return;
+        }
+      }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
+
       const assetTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenAssetValue({ tokenValue: value.toString() });
@@ -288,8 +328,12 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
       }
 
-      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0) {
+      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && !tooManyDecimalsError.isError) {
         return { label: t("button.deposit"), disabled: false };
+      }
+
+      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && tooManyDecimalsError.isError) {
+        return { label: t("button.deposit"), disabled: true };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
@@ -304,6 +348,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     selectedTokenB.decimals,
     selectedTokenNativeValue?.tokenValue,
     selectedTokenAssetValue?.tokenValue,
+    tooManyDecimalsError.isError,
     tokenBalances,
   ]);
 
@@ -363,11 +408,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   }, [selectedTokenB.assetTokenId]);
 
   return (
-    <>
+    <div className="flex max-w-[460px] flex-col gap-4">
       {tokenBId?.id && poolExists === false ? (
         <CreatePool tokenBSelected={selectedTokenB} />
       ) : (
-        <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+        <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
           <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
             <BackArrow width={24} height={24} />
           </button>
@@ -489,7 +534,14 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           />
         </div>
       )}
-    </>
+      <WarningMessage
+        show={tooManyDecimalsError.isError}
+        message={t("pageError.tooManyDecimals", {
+          token: tooManyDecimalsError.tokenSymbol,
+          decimals: tooManyDecimalsError.decimalsAllowed,
+        })}
+      />
+    </div>
   );
 };
 
