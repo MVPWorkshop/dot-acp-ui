@@ -1,5 +1,5 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
-import { InputEditedType } from "./enum";
+import { InputEditedType, WalletConnectSteps } from "./enum";
 
 export type LpTokenAsset = {
   balance: string;
@@ -35,8 +35,8 @@ export type TokenProps = {
 export type TokenBalanceData = {
   balance: number;
   ss58Format: AnyJson;
-  tokenDecimals: AnyJson;
-  tokenSymbol: AnyJson;
+  tokenDecimals: string;
+  tokenSymbol: string;
   assets: any;
 };
 
@@ -50,4 +50,14 @@ export type PoolsTokenMetadata = {
   tokenAsset: {
     balance: number | undefined;
   };
+};
+
+export type ModalStepProps = {
+  step: WalletConnectSteps;
+};
+
+export type TokenDecimalsErrorProps = {
+  tokenSymbol: string;
+  decimalsAllowed: number;
+  isError: boolean;
 };

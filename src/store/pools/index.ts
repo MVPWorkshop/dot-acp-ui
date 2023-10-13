@@ -12,6 +12,13 @@ export const initialPoolsState: PoolsState = {
   addLiquidityGasFee: "",
   poolCardSelected: null,
   poolsTokenMetadata: [],
+  createPoolLoading: false,
+  addLiquidityLoading: false,
+  withdrawLiquidityLoading: false,
+  exactNativeTokenAddLiquidity: 0,
+  exactAssetTokenAddLiquidity: 0,
+  exactNativeTokenWithdraw: 0,
+  exactAssetTokenWithdraw: 0,
 };
 
 export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState => {
@@ -36,6 +43,20 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
       return { ...state, poolCardSelected: action.payload };
     case ActionType.SET_POOLS_TOKEN_METADATA:
       return { ...state, poolsTokenMetadata: action.payload };
+    case ActionType.SET_CREATE_POOL_LOADING:
+      return { ...state, createPoolLoading: action.payload };
+    case ActionType.SET_ADD_LIQUIDITY_LOADING:
+      return { ...state, addLiquidityLoading: action.payload };
+    case ActionType.SET_WITHDRAW_LIQUIDITY_LOADING:
+      return { ...state, withdrawLiquidityLoading: action.payload };
+    case ActionType.SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY:
+      return { ...state, exactNativeTokenAddLiquidity: action.payload };
+    case ActionType.SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY:
+      return { ...state, exactAssetTokenAddLiquidity: action.payload };
+    case ActionType.SET_EXACT_NATIVE_TOKEN_WITHDRAW:
+      return { ...state, exactNativeTokenWithdraw: action.payload };
+    case ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW:
+      return { ...state, exactAssetTokenWithdraw: action.payload };
     default:
       return state;
   }

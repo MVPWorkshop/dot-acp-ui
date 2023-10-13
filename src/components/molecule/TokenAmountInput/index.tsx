@@ -5,17 +5,20 @@ import Button from "../../atom/Button";
 import { ButtonVariants } from "../../../app/types/enum";
 import { t } from "i18next";
 import useClickOutside from "../../../app/hooks/useClickOutside";
+import Lottie from "react-lottie";
+import { lottieOptions } from "../../../assets/loader";
 
 type TokenAmountInputProps = {
   tokenText: string;
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
-  tokenValue?: number | null;
+  tokenValue?: string;
   labelText?: string;
   selectDisabled?: boolean;
+  assetLoading?: boolean;
   onClick: () => void;
-  onSetTokenValue: (value: number) => void;
+  onSetTokenValue: (value: string) => void;
 };
 
 const TokenAmountInput = ({
@@ -25,6 +28,7 @@ const TokenAmountInput = ({
   tokenValue,
   labelText,
   selectDisabled,
+  assetLoading,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -58,11 +62,18 @@ const TokenAmountInput = ({
         displayType={"input"}
         disabled={disabled}
         placeholder={"0"}
-        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none"
+        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
         onFocus={() => setIsFocused(true)}
         value={tokenValue}
+        isAllowed={({ floatValue }) => {
+          if (floatValue) {
+            return floatValue?.toString()?.length <= 15;
+          } else {
+            return true;
+          }
+        }}
         onValueChange={({ floatValue }) => {
-          onSetTokenValue(floatValue || 0);
+          onSetTokenValue(floatValue?.toString() || "");
         }}
       />
 
@@ -85,7 +96,11 @@ const TokenAmountInput = ({
           className="basis-[57%]"
           disabled={disabled}
         >
-          {t("button.selectToken")}
+          {disabled && assetLoading ? (
+            <Lottie options={lottieOptions} height={20} width={20} />
+          ) : (
+            t("button.selectToken")
+          )}
         </Button>
       )}
     </div>

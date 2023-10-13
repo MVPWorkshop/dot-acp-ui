@@ -29,13 +29,32 @@ export enum ActionType {
   SET_SWAP_FINALIZED = "SET_SWAP_FINALIZED",
   SET_POOL_CARD_SELECTED = "SET_POOL_CARD_SELECTED",
   SET_POOLS_TOKEN_METADATA = "SET_POOLS_TOKEN_METADATA",
+  SET_SWAP_GAS_FEES_MESSAGE = "SET_SWAP_GAS_FEES_MESSAGE",
+  SET_SWAP_GAS_FEE = "SET_SWAP_GAS_FEE",
+  SET_CREATE_POOL_LOADING = "SET_CREATE_POOL_LOADING",
+  SET_SWAP_LOADING = "SET_SWAP_LOADING",
+  SET_ADD_LIQUIDITY_LOADING = "SET_ADD_LIQUIDITY_LOADING",
+  SET_WITHDRAW_LIQUIDITY_LOADING = "SET_WITHDRAW_LIQUIDITY_LOADING",
+  SET_WALLET_CONNECT_LOADING = "SET_WALLET_CONNECT_LOADING",
+  SET_WALLET_EXTENSIONS = "SET_WALLET_EXTENSIONS",
+  SET_SWAP_EXACT_IN_TOKEN_AMOUNT = "SET_SWAP_EXACT_IN_TOKEN_AMOUNT",
+  SET_SWAP_EXACT_OUT_TOKEN_AMOUNT = "SET_SWAP_EXACT_OUT_TOKEN_AMOUNT",
+  SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY = "SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY",
+  SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY = "SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY",
+  SET_EXACT_NATIVE_TOKEN_WITHDRAW = "SET_EXACT_NATIVE_TOKEN_WITHDRAW",
+  SET_EXACT_ASSET_TOKEN_WITHDRAW = "SET_EXACT_ASSET_TOKEN_WITHDRAW",
+  SET_ASSET_LOADING = "SET_ASSET_LOADING",
 }
 
 export enum TokenSelection {
   TokenA = "tokenA",
   TokenB = "tokenB",
   None = "none",
-  NativeToken = "WND",
+}
+
+export enum TokenPlaceholder {
+  NativeWnd = "WND",
+  NativeRococo = "ROC",
 }
 
 export enum InputEditedType {
@@ -52,8 +71,17 @@ export enum ServiceResponseStatus {
   Finalized = "Finalized",
 }
 
-export enum SwapAndPoolStatus {
-  Swap = "Swap",
-  Withdraw = "Withdraw",
-  Deposit = "Deposit",
+export enum TokenPosition {
+  tokenA = "A",
+  tokenB = "B",
+}
+
+export enum NetworkKeys {
+  Westmint = "westmint",
+  Rococo = "rococo",
+}
+
+export enum WalletConnectSteps {
+  stepExtensions = "extensions",
+  stepAddresses = "addresses",
 }

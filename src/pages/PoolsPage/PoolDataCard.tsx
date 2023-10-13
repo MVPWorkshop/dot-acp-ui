@@ -6,6 +6,7 @@ import { t } from "i18next";
 import { useNavigate } from "react-router-dom";
 import { ADD_LIQUIDITY_TO_EXISTING, REMOVE_LIQUIDITY_FROM_EXISTING } from "../../app/router/routes";
 import { urlTo } from "../../app/util/helper";
+import { useAppContext } from "../../state";
 
 type PoolDataCardProps = {
   tokenPair: string;
@@ -29,6 +30,8 @@ const PoolDataCard = ({
   lpTokenId,
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
+  const { state } = useAppContext();
+  const { tokenBalances } = state;
 
   const onDepositClick = () => {
     navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }), {
@@ -42,7 +45,18 @@ const PoolDataCard = ({
     });
   };
 
-  const checkIfWithdrawDisabled = (balance: number) => !(balance > 0);
+  const checkIfDepositDisabled = () => {
+    return !tokenBalances?.assets?.find((token: any) => token.tokenId === assetTokenId);
+  };
+
+  const checkIfWithdrawDisabled = () => {
+    if (lpTokenAsset) {
+      if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances?.balance) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   return (
     <div className="flex flex-col gap-3 rounded-2xl bg-white p-6">
@@ -63,15 +77,28 @@ const PoolDataCard = ({
             onClick={() => onDepositClick()}
             variant={ButtonVariants.btnPrimaryGhostSm}
             icon={<AddIconPink width={14} height={14} />}
+            disabled={checkIfDepositDisabled()}
+            className="group relative"
           >
             {t("button.deposit")}
+            {checkIfDepositDisabled() && (
+              <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+              </div>
+            )}
           </Button>
           <Button
             onClick={() => onWithdrawClick()}
             variant={ButtonVariants.btnSecondaryGray}
-            disabled={checkIfWithdrawDisabled(lpTokenAsset ? parseInt(lpTokenAsset?.balance) : 0)}
+            disabled={checkIfWithdrawDisabled()}
+            className="group relative"
           >
             {t("button.withdraw")}
+            {checkIfWithdrawDisabled() && (
+              <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
+                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+              </div>
+            )}
           </Button>
         </div>
       </div>

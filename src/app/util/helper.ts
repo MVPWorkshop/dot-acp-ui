@@ -1,6 +1,7 @@
 import { t } from "i18next";
 import { Decimal } from "decimal.js";
 import { UrlParamType } from "../types";
+import type { AnyJson } from "@polkadot/types/types/codec";
 
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {
@@ -30,9 +31,25 @@ export const formatInputTokenValue = (base: number, decimals: string) => {
   return new Decimal(base)
     .times(Math.pow(10, parseFloat(decimals)))
     .floor()
+    .toFixed()
     .toString();
 };
 
 export const formatDecimalsFromToken = (base: number, decimals: string) => {
   return new Decimal(base).dividedBy(Math.pow(10, parseFloat(decimals))).toNumber();
+};
+
+export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
+  let exists = false;
+
+  if (id && poolArray) {
+    exists = !!poolArray?.find((pool: any) => {
+      return (
+        pool?.[0]?.[1]?.interior?.X2 &&
+        pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === id
+      );
+    });
+  }
+
+  return exists;
 };

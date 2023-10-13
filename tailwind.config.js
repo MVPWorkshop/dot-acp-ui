@@ -44,6 +44,9 @@ export default {
           600: "#BEE52E",
           700: "#A9CC29",
         },
+        yellow: {
+          100: "#FFF9E9",
+        },
         gray: {
           10: "#FFFFFF4D",
           50: "#0000000F",
@@ -52,6 +55,11 @@ export default {
           300: "#000000B2",
           400: "#000000E5",
         },
+        warning: "#FFF9E9",
+        
+      },
+      backgroundImage: {
+        "placeholder-tokens": "linear-gradient(90deg, #F1EFEF -24.18%, #F9F8F8 50.26%, #E7E5E5 114.84%)",
       },
       boxShadow: {
         "modal-box-shadow":

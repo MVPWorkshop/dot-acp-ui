@@ -12,7 +12,7 @@ interface SelectTokenPayload {
 interface SwapSelectTokenModalProps {
   open: boolean;
   title: string;
-  tokensData: any;
+  tokensData: TokenProps[];
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
@@ -32,7 +32,7 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({ open, title, toke
   return (
     <Modal isOpen={open} onClose={onClose} title={title}>
       <div className="max-h-[504px] overflow-y-auto">
-        {tokensData ? (
+        {tokensData.length > 0 ? (
           <>
             {tokensData?.map((item: any, index: number) => (
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">

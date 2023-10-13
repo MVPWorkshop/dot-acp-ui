@@ -1,15 +1,18 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
 import { formatBalance } from "@polkadot/util";
 import type { AnyJson } from "@polkadot/types/types/codec";
-import { web3Accounts, web3Enable } from "@polkadot/extension-dapp";
 import dotAcpToast from "../../app/util/toast";
 import { Dispatch } from "react";
 import { WalletAction } from "../../store/wallet/interface";
 import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
+import { TokenBalanceData } from "../../app/types";
+import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
+import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
+import LocalStorage from "../../app/util/localStorage";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider(import.meta.env.VITE_WEST_MINT_RPC_URL);
+  const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
@@ -18,6 +21,7 @@ export const setupPolkadotApi = async () => {
   ]);
 
   console.log(`You are connected to chain ${chain} using ${nodeName} v${nodeVersion}`);
+
   return api;
 };
 
@@ -71,24 +75,52 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   return tokensInfo;
 };
 
-export const handleConnection = async (dispatch: Dispatch<WalletAction>, api: any) => {
-  const extensions = await web3Enable("DOT-ACP-UI");
-  if (!extensions) {
-    throw Error("No Extension");
-  }
+export const getSupportedWallets = () => {
+  const supportedWallets: Wallet[] = getWallets();
 
-  const allAccounts = await web3Accounts();
+  return supportedWallets;
+};
 
-  dispatch({ type: ActionType.SET_ACCOUNTS, payload: allAccounts });
-  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: allAccounts?.[0] });
-
+export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any, selectedAccount: WalletAccount) => {
   if (api) {
+    dispatch({ type: ActionType.SET_ASSET_LOADING, payload: true });
     try {
-      const walletTokens: any = await getWalletTokensBalance(api, allAccounts?.[0]?.address);
+      const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
+
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
-      dotAcpToast.success("Success");
+
+      LocalStorage.set("wallet-connected", selectedAccount);
+
+      dotAcpToast.success("Account balance successfully fetched!");
     } catch (error) {
       dotAcpToast.error(`Wallet connection error: ${error}`);
+    } finally {
+      dispatch({ type: ActionType.SET_ASSET_LOADING, payload: false });
     }
+  }
+};
+
+export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
+  LocalStorage.remove("wallet-connected");
+  dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as WalletAccount });
+  dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });
+};
+
+export const connectWalletAndFetchBalance = async (
+  dispatch: Dispatch<WalletAction>,
+  api: any,
+  account: WalletAccount
+) => {
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
+  const wallet = getWalletBySource(account.wallet?.extensionName);
+  wallet?.enable("DOT-ACP");
+  dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: account });
+  LocalStorage.set("wallet-connected", account);
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
+  try {
+    await setTokenBalance(dispatch, api, account);
+  } catch (error) {
+    dotAcpToast.error(`Wallet connection error: ${error}`);
   }
 };
