@@ -428,12 +428,17 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                 <div className="relative flex">
                   <NumericFormat
                     value={slippageValue}
-                    onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                    isAllowed={(values) => {
+                      const { formattedValue, floatValue } = values;
+                      return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                    }}
+                    onValueChange={({ value }) => {
+                      setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                    }}
                     fixedDecimalScale={true}
                     thousandSeparator={false}
                     allowNegative={false}
                     className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                    placeholder="15"
                     disabled={slippageAuto || addLiquidityLoading}
                   />
                   <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>

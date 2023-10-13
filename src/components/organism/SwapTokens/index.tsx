@@ -814,7 +814,13 @@ const SwapTokens = () => {
               <div className="relative flex">
                 <NumericFormat
                   value={slippageValue}
-                  onValueChange={({ value }) => setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0)}
+                  isAllowed={(values) => {
+                    const { formattedValue, floatValue } = values;
+                    return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                  }}
+                  onValueChange={({ value }) => {
+                    setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                  }}
                   fixedDecimalScale={true}
                   thousandSeparator={false}
                   allowNegative={false}
