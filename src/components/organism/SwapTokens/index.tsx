@@ -13,6 +13,7 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { lottieOptions } from "../../../assets/loader";
 import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
@@ -923,12 +924,22 @@ const SwapTokens = () => {
           tokenA={{
             symbol: selectedTokens.tokenA.tokenSymbol,
             value: swapExactInTokenAmount.toString(),
-            icon: <DotToken />,
+            icon:
+              selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol ? (
+                <DotToken />
+              ) : (
+                <AssetTokenIcon width={24} height={24} />
+              ),
           }}
           tokenB={{
             symbol: selectedTokens.tokenB.tokenSymbol,
             value: swapExactOutTokenAmount.toString(),
-            icon: <DotToken />,
+            icon:
+              selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol ? (
+                <DotToken />
+              ) : (
+                <AssetTokenIcon width={24} height={24} />
+              ),
           }}
           actionLabel="Swapped"
         />
