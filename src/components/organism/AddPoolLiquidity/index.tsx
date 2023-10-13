@@ -13,7 +13,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -22,9 +23,10 @@ import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../.
 import classNames from "classnames";
 import { lottieOptions } from "../../../assets/loader";
 import Lottie from "react-lottie";
-import { InputEditedProps } from "../../../app/types";
+import { InputEditedProps, TokenDecimalsErrorProps } from "../../../app/types";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import CreatePool from "../CreatePool";
+import WarningMessage from "../../atom/WarningMessage";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -61,6 +63,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     addLiquidityLoading,
     exactNativeTokenAddLiquidity,
     exactAssetTokenAddLiquidity,
+    assetLoading,
   } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -82,6 +85,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [poolExists, setPoolExists] = useState<boolean>(false);
+  const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
+    tokenSymbol: "",
+    isError: false,
+    decimalsAllowed: 0,
+  });
 
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
@@ -168,8 +176,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const getPriceOfAssetTokenFromNativeToken = async (value: number) => {
@@ -221,6 +232,23 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const setSelectedTokenAValue = (value: string) => {
     setInputEdited({ inputType: InputEditedType.exactIn });
     if (slippageValue && value !== "") {
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokenA.nativeTokenDecimals)) {
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokenA.nativeTokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokenA.nativeTokenDecimals),
+          });
+          return;
+        }
+      }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
+
       const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenNativeValue({ tokenValue: value.toString() });
@@ -234,6 +262,23 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const setSelectedTokenBValue = (value: string) => {
     setInputEdited({ inputType: InputEditedType.exactOut });
     if (slippageValue && value !== "") {
+      if (value.includes(".")) {
+        if (value.split(".")[1].length > parseInt(selectedTokenB.decimals)) {
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokenB.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokenB.decimals),
+          });
+          return;
+        }
+      }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
+
       const assetTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
       const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
       setSelectedTokenAssetValue({ tokenValue: value.toString() });
@@ -283,8 +328,12 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
       }
 
-      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0) {
+      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && !tooManyDecimalsError.isError) {
         return { label: t("button.deposit"), disabled: false };
+      }
+
+      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && tooManyDecimalsError.isError) {
+        return { label: t("button.deposit"), disabled: true };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
@@ -299,6 +348,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     selectedTokenB.decimals,
     selectedTokenNativeValue?.tokenValue,
     selectedTokenAssetValue?.tokenValue,
+    tooManyDecimalsError.isError,
     tokenBalances,
   ]);
 
@@ -364,11 +414,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   }, [selectedAccount]);
 
   return (
-    <>
+    <div className="flex max-w-[460px] flex-col gap-4">
       {tokenBId?.id && poolExists === false ? (
         <CreatePool tokenBSelected={selectedTokenB} />
       ) : (
-        <div className="relative flex w-full max-w-[460px] flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
+        <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
           <button className="absolute left-[18px] top-[18px]" onClick={navigateToPools}>
             <BackArrow width={24} height={24} />
           </button>
@@ -382,6 +432,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenAValue(value)}
             selectDisabled={true}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <TokenAmountInput
             tokenText={selectedTokenB?.tokenSymbol}
@@ -391,6 +442,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenBValue(value)}
             selectDisabled={!tokenBId?.id}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -427,12 +479,17 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                 <div className="relative flex">
                   <NumericFormat
                     value={slippageValue}
-                    onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                    isAllowed={(values) => {
+                      const { formattedValue, floatValue } = values;
+                      return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                    }}
+                    onValueChange={({ value }) => {
+                      setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                    }}
                     fixedDecimalScale={true}
                     thousandSeparator={false}
                     allowNegative={false}
                     className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                    placeholder="15"
                     disabled={slippageAuto || addLiquidityLoading}
                   />
                   <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
@@ -483,7 +540,14 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           />
         </div>
       )}
-    </>
+      <WarningMessage
+        show={tooManyDecimalsError.isError}
+        message={t("pageError.tooManyDecimals", {
+          token: tooManyDecimalsError.tokenSymbol,
+          decimals: tooManyDecimalsError.decimalsAllowed,
+        })}
+      />
+    </div>
   );
 };
 

@@ -13,7 +13,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { checkCreatePoolGasFee, createPool, getAllPools } from "../../../services/poolServices";
+import { checkCreatePoolGasFee, createPool } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -24,6 +25,7 @@ import WarningMessage from "../../atom/WarningMessage";
 import Lottie from "react-lottie";
 import { lottieOptions } from "../../../assets/loader";
 import AddPoolLiquidity from "../AddPoolLiquidity";
+import { TokenDecimalsErrorProps } from "../../../app/types";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -59,6 +61,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     poolGasFee,
     successModalOpen,
     createPoolLoading,
+    assetLoading,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -81,6 +84,11 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const [poolExists, setPoolExists] = useState<boolean>(false);
   const [assetTokenMinValueExceeded, setAssetTokenMinValueExceeded] = useState<boolean>(false);
   const [assetTokenMinValue, setAssetTokenMinValue] = useState<string>("");
+  const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
+    tokenSymbol: "",
+    isError: false,
+    decimalsAllowed: 0,
+  });
 
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
@@ -124,13 +132,33 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const setSelectedTokenAValue = (value: string) => {
     if (value) {
       if (slippageValue) {
+        if (value.includes(".")) {
+          if (value.split(".")[1].length > parseInt(selectedTokenA.nativeTokenDecimals)) {
+            setTooManyDecimalsError({
+              tokenSymbol: selectedTokenA.nativeTokenSymbol,
+              isError: true,
+              decimalsAllowed: parseInt(selectedTokenA.nativeTokenDecimals),
+            });
+            return;
+          }
+        }
+
+        setTooManyDecimalsError({
+          tokenSymbol: "",
+          isError: false,
+          decimalsAllowed: 0,
+        });
+
         const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
 
@@ -145,6 +173,23 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const setSelectedTokenBValue = (value: string) => {
     if (value) {
       if (slippageValue) {
+        if (value.includes(".")) {
+          if (value.split(".")[1].length > parseInt(selectedTokenB.decimals)) {
+            setTooManyDecimalsError({
+              tokenSymbol: selectedTokenB.tokenSymbol,
+              isError: true,
+              decimalsAllowed: parseInt(selectedTokenB.decimals),
+            });
+            return;
+          }
+        }
+
+        setTooManyDecimalsError({
+          tokenSymbol: "",
+          isError: false,
+          decimalsAllowed: 0,
+        });
+
         const assetTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
         setSelectedTokenAssetValue({ tokenValue: value.toString() });
@@ -210,8 +255,22 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
         return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
       }
 
-      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && !assetTokenMinValueExceeded) {
+      if (
+        selectedNativeTokenNumber > 0 &&
+        selectedAssetTokenNumber > 0 &&
+        !assetTokenMinValueExceeded &&
+        !tooManyDecimalsError.isError
+      ) {
         return { label: t("button.deposit"), disabled: false };
+      }
+
+      if (
+        selectedNativeTokenNumber > 0 &&
+        selectedAssetTokenNumber > 0 &&
+        !assetTokenMinValueExceeded &&
+        tooManyDecimalsError.isError
+      ) {
+        return { label: t("button.deposit"), disabled: true };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
@@ -227,6 +286,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     selectedTokenNativeValue?.tokenValue,
     selectedTokenAssetValue?.tokenValue,
     assetTokenMinValueExceeded,
+    tooManyDecimalsError.isError,
   ]);
 
   useEffect(() => {
@@ -301,7 +361,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClick={() => null}
               onSetTokenValue={(value) => setSelectedTokenAValue(value)}
               selectDisabled={true}
-              disabled={createPoolLoading || !selectedAccount}
+              disabled={createPoolLoading || !selectedAccount || !tokenBalances?.assets}
+              assetLoading={assetLoading}
             />
             <TokenAmountInput
               tokenText={selectedTokenB?.tokenSymbol}
@@ -310,8 +371,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
               onSetTokenValue={(value) => setSelectedTokenBValue(value)}
-              disabled={createPoolLoading || !selectedAccount}
+              disabled={createPoolLoading || !selectedAccount || !tokenBalances?.assets}
               selectDisabled={createPoolLoading || !selectedAccount}
+              assetLoading={assetLoading}
             />
             <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -348,12 +410,17 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                   <div className="relative flex">
                     <NumericFormat
                       value={slippageValue}
-                      onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                      isAllowed={(values) => {
+                        const { formattedValue, floatValue } = values;
+                        return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                      }}
+                      onValueChange={({ value }) => {
+                        setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                      }}
                       fixedDecimalScale={true}
                       thousandSeparator={false}
                       allowNegative={false}
                       className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                      placeholder="15"
                       disabled={slippageAuto || createPoolLoading}
                     />
                     <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
@@ -403,6 +470,13 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
             message={t("pageError.minimalAmountRequirement", {
               token: selectedTokenB.tokenSymbol,
               value: assetTokenMinValue,
+            })}
+          />
+          <WarningMessage
+            show={tooManyDecimalsError.isError}
+            message={t("pageError.tooManyDecimals", {
+              token: tooManyDecimalsError.tokenSymbol,
+              decimals: tooManyDecimalsError.decimalsAllowed,
             })}
           />
         </div>

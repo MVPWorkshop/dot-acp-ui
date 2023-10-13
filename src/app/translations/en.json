@@ -94,7 +94,8 @@
     "error": "Error:",
     "tryAgain": "Try again",
     "minimalAmountRequirement": "The minimum required amount for the {{token}} token is {{value}}.",
-    "lowLiquidity": "Warning: This pool has low liquidity, there is a risk that transaction won't be completed."
+    "lowLiquidity": "Warning: This pool has low liquidity, there is a risk that transaction won't be completed.",
+    "tooManyDecimals": "Too many {{token}} token decimals, please reduce, maximum allowed for this token is {{decimals}} decimals."
   },
   "pageNotFound": "Page not found",
   "poolsPage": {
@@ -117,6 +118,8 @@
     "addLiquidity": "Add Liquidity",
     "removeLiquidity": "Remove Liquidity",
     "swap": "Swap",
-    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one."
+    "poolExists": "No need to create a new pool. Liquidity can be added to the existing one.",
+    "palletSlippageError": "Calculated amount out is less than provided minimum amount.",
+    "slippageError": "The transaction could not be completed due to the set slippage."
   }
 }

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
-import { InputEditedProps, TokenProps } from "../../../app/types";
+import { InputEditedProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
 import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
 import {
   calculateSlippageAdd,
@@ -14,7 +14,7 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { lottieOptions } from "../../../assets/loader";
-import { getPoolReserves } from "../../../services/poolServices";
+import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
@@ -31,6 +31,7 @@ import {
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
 } from "../../../services/tokenServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -72,6 +73,7 @@ const SwapTokens = () => {
     poolsCards,
     swapExactInTokenAmount,
     swapExactOutTokenAmount,
+    assetLoading,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -109,6 +111,11 @@ const SwapTokens = () => {
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
+  const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
+    tokenSymbol: "",
+    isError: false,
+    decimalsAllowed: 0,
+  });
 
   const nativeToken = {
     tokenId: "",
@@ -336,11 +343,20 @@ const SwapTokens = () => {
 
       if (value.includes(".")) {
         if (value.split(".")[1].length > parseInt(selectedTokens.tokenA.decimals)) {
-          console.log("too many decimals");
-          // todo: write error message
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokens.tokenA.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokens.tokenA.decimals),
+          });
           return;
         }
       }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
 
       setSelectedTokenAValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactIn });
@@ -364,11 +380,20 @@ const SwapTokens = () => {
 
       if (value.includes(".")) {
         if (value.split(".")[1].length > parseInt(selectedTokens.tokenB.decimals)) {
-          console.log("too many decimals");
-          // todo: write error message
+          setTooManyDecimalsError({
+            tokenSymbol: selectedTokens.tokenB.tokenSymbol,
+            isError: true,
+            decimalsAllowed: parseInt(selectedTokens.tokenB.decimals),
+          });
           return;
         }
       }
+
+      setTooManyDecimalsError({
+        tokenSymbol: "",
+        isError: false,
+        decimalsAllowed: 0,
+      });
 
       setSelectedTokenBValue({ tokenValue: value });
       setInputEdited({ inputType: InputEditedType.exactOut });
@@ -409,7 +434,11 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber < tokenBalanceNumber) {
+      if (
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        tokenANumber < tokenBalanceNumber &&
+        !tooManyDecimalsError.isError
+      ) {
         return { label: t("button.swap"), disabled: false };
       }
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
@@ -428,12 +457,16 @@ const SwapTokens = () => {
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
         tokenANumber > 0 &&
-        tokenBNumber > 0
+        tokenBNumber > 0 &&
+        !tooManyDecimalsError.isError
       ) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (tokenANumber > 0 && tokenBNumber > 0) {
+      if (tokenANumber > 0 && tokenBNumber > 0 && !tooManyDecimalsError.isError) {
         return { label: t("button.swap"), disabled: false };
+      }
+      if (tokenANumber > 0 && tokenBNumber > 0 && tooManyDecimalsError.isError) {
+        return { label: t("button.swap"), disabled: true };
       }
     } else {
       return { label: t("button.connectWallet"), disabled: true };
@@ -442,6 +475,7 @@ const SwapTokens = () => {
     return { label: t("button.selectToken"), disabled: true };
   }, [
     selectedAccount?.address,
+    tooManyDecimalsError.isError,
     tokenBalances?.balance,
     selectedTokens.tokenA.decimals,
     selectedTokens.tokenB.decimals,
@@ -622,9 +656,14 @@ const SwapTokens = () => {
     setTokenSelectionModal(tokenInputSelected);
   };
 
-  const closeSuccessModal = () => {
+  const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     setSwapSuccessfulReset(true);
+    if (api) {
+      await createPoolCardsArray(api, dispatch, pools, selectedAccount);
+      const assets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+    }
   };
 
   const onSwapSelectModal = (tokenData: any) => {
@@ -778,6 +817,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
 
         <TokenAmountInput
@@ -788,6 +828,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
 
         <div className="mt-1 text-small">{swapGasFeesMessage}</div>
@@ -826,7 +867,13 @@ const SwapTokens = () => {
               <div className="relative flex">
                 <NumericFormat
                   value={slippageValue}
-                  onValueChange={({ value }) => setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0)}
+                  isAllowed={(values) => {
+                    const { formattedValue, floatValue } = values;
+                    return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                  }}
+                  onValueChange={({ value }) => {
+                    setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                  }}
                   fixedDecimalScale={true}
                   thousandSeparator={false}
                   allowNegative={false}
@@ -887,6 +934,13 @@ const SwapTokens = () => {
         />
       </div>
       <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
+      <WarningMessage
+        show={tooManyDecimalsError.isError}
+        message={t("pageError.tooManyDecimals", {
+          token: tooManyDecimalsError.tokenSymbol,
+          decimals: tooManyDecimalsError.decimalsAllowed,
+        })}
+      />
     </div>
   );
 };

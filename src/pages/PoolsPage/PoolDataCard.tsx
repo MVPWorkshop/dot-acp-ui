@@ -51,7 +51,7 @@ const PoolDataCard = ({
 
   const checkIfWithdrawDisabled = () => {
     if (lpTokenAsset) {
-      if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances) {
+      if (parseInt(lpTokenAsset?.balance) > 0 && tokenBalances?.balance) {
         return false;
       }
     }
@@ -83,7 +83,7 @@ const PoolDataCard = ({
             {t("button.deposit")}
             {checkIfDepositDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
-                {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>
             )}
           </Button>
@@ -96,7 +96,7 @@ const PoolDataCard = ({
             {t("button.withdraw")}
             {checkIfWithdrawDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
-                {tokenBalances ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
               </div>
             )}
           </Button>
