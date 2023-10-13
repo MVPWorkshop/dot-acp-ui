@@ -110,6 +110,7 @@ const SwapTokens = () => {
   const [assetTokensInPool, setAssetTokensInPool] = useState<string>("");
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
+  const [lowTradingMinimum, setLowTradingMinimum] = useState<boolean>(false);
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
@@ -212,6 +213,7 @@ const SwapTokens = () => {
       );
 
       if (assetTokenPrice) {
+        assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
         const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
@@ -255,6 +257,7 @@ const SwapTokens = () => {
       );
 
       if (nativeTokenPrice) {
+        nativeTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
         const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
@@ -294,6 +297,7 @@ const SwapTokens = () => {
           selectedTokens.tokenB.tokenId
         );
         if (assetTokenPrice) {
+          assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
@@ -321,6 +325,7 @@ const SwapTokens = () => {
         );
 
         if (assetTokenPrice) {
+          assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
@@ -933,7 +938,7 @@ const SwapTokens = () => {
           actionLabel="Swapped"
         />
       </div>
-      <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
+      <WarningMessage show={lowTradingMinimum} message={t("pageError.tradingMinimum")} />
       <WarningMessage
         show={tooManyDecimalsError.isError}
         message={t("pageError.tooManyDecimals", {
@@ -941,6 +946,7 @@ const SwapTokens = () => {
           decimals: tooManyDecimalsError.decimalsAllowed,
         })}
       />
+      <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
     </div>
   );
 };
