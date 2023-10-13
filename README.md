@@ -11,6 +11,7 @@
             <li><a href='#run-project'>Basic usage</a></li>
         </ul>
     </li>
+    <li href='#how-to-manually-test-the-app'>How to manually test the app</li>
     <li><a href='#ui-kit'>Contributors</a>
         <ul>
             <li><a href='#customizing-styles-with-tailwindcss'>Customizing Styles with Tailwind.css</a></li>
@@ -55,6 +56,12 @@ pnpm run dev
 ```sh
 pnpm run test
 ```
+
+## How to manually test the app
+
+If you wish to help us out and manually test the app on one of the two test networks(Westend/Rococo) please follow this [guide](./MANUAL_TESTING_GUIDE.md).
+
+To report any bugs or security vulnerability found please follow the instructions under the issues section [here](./CONTRIBUTING.md).
 
 ## UI Kit
 

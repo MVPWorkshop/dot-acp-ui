@@ -6,6 +6,7 @@ We can use polkadot js library (specifically @polkadot/api) to communicate with 
 
 Rust [docs](https://paritytech.github.io/substrate/master/pallet_asset_conversion/index.html) of the pallet
 Try it out in [UI](https://polkadot.js.org/apps/?rpc=wss%3A%2F%2Fwestend-asset-hub-rpc.polkadot.io#/extrinsics)
+Asset Conversion Pallet [repo](https://github.com/paritytech/polkadot-sdk/tree/6b27dad359793a873c91d09cd3f6267d66ff543e/substrate/frame/asset-conversion)
 
 ## Polkadot.js installation and initialisation
 
