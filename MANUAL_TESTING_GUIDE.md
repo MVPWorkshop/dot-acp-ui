@@ -1,4 +1,4 @@
-# dotACP: How to manually test?
+# dotACP: Manual testing guide
 
 dotACP is supported on Westend and Rococo. Below, you'll find instructions for testing, which are similar for both test nets. Staging for [Westend](https://dot-acp-westmint.mvpworkshop.co/), staging for [Rococo](https://dot-acp-rococo.mvpworkshop.co/).
 
