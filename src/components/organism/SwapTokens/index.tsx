@@ -14,7 +14,7 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { lottieOptions } from "../../../assets/loader";
-import { getPoolReserves } from "../../../services/poolServices";
+import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
@@ -31,6 +31,7 @@ import {
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
 } from "../../../services/tokenServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -72,6 +73,7 @@ const SwapTokens = () => {
     poolsCards,
     swapExactInTokenAmount,
     swapExactOutTokenAmount,
+    assetLoading,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -654,9 +656,14 @@ const SwapTokens = () => {
     setTokenSelectionModal(tokenInputSelected);
   };
 
-  const closeSuccessModal = () => {
+  const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: false });
     setSwapSuccessfulReset(true);
+    if (api) {
+      await createPoolCardsArray(api, dispatch, pools, selectedAccount);
+      const assets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+    }
   };
 
   const onSwapSelectModal = (tokenData: any) => {
@@ -789,6 +796,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
 
         <TokenAmountInput
@@ -799,6 +807,7 @@ const SwapTokens = () => {
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value.toString())}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          assetLoading={assetLoading}
         />
 
         <div className="mt-1 text-small">{swapGasFeesMessage}</div>
@@ -837,7 +846,13 @@ const SwapTokens = () => {
               <div className="relative flex">
                 <NumericFormat
                   value={slippageValue}
-                  onValueChange={({ value }) => setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0)}
+                  isAllowed={(values) => {
+                    const { formattedValue, floatValue } = values;
+                    return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                  }}
+                  onValueChange={({ value }) => {
+                    setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                  }}
                   fixedDecimalScale={true}
                   thousandSeparator={false}
                   allowNegative={false}

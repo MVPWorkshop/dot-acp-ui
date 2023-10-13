@@ -13,7 +13,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { addLiquidity, checkAddPoolLiquidityGasFee, getAllPools } from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -62,6 +63,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     addLiquidityLoading,
     exactNativeTokenAddLiquidity,
     exactAssetTokenAddLiquidity,
+    assetLoading,
   } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -174,8 +176,11 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const getPriceOfAssetTokenFromNativeToken = async (value: number) => {
@@ -421,6 +426,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenAValue(value)}
             selectDisabled={true}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <TokenAmountInput
             tokenText={selectedTokenB?.tokenSymbol}
@@ -430,6 +436,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onSetTokenValue={(value) => setSelectedTokenBValue(value)}
             selectDisabled={!tokenBId?.id}
             disabled={addLiquidityLoading}
+            assetLoading={assetLoading}
           />
           <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -466,12 +473,17 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                 <div className="relative flex">
                   <NumericFormat
                     value={slippageValue}
-                    onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                    isAllowed={(values) => {
+                      const { formattedValue, floatValue } = values;
+                      return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                    }}
+                    onValueChange={({ value }) => {
+                      setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                    }}
                     fixedDecimalScale={true}
                     thousandSeparator={false}
                     allowNegative={false}
                     className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                    placeholder="15"
                     disabled={slippageAuto || addLiquidityLoading}
                   />
                   <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>

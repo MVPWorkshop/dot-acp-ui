@@ -83,7 +83,7 @@ export const getSupportedWallets = () => {
 
 export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any, selectedAccount: WalletAccount) => {
   if (api) {
-    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
+    dispatch({ type: ActionType.SET_ASSET_LOADING, payload: true });
     try {
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
 
@@ -95,7 +95,7 @@ export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any
     } catch (error) {
       dotAcpToast.error(`Wallet connection error: ${error}`);
     } finally {
-      dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
+      dispatch({ type: ActionType.SET_ASSET_LOADING, payload: false });
     }
   }
 };
@@ -112,15 +112,15 @@ export const connectWalletAndFetchBalance = async (
   api: any,
   account: WalletAccount
 ) => {
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
   const wallet = getWalletBySource(account.wallet?.extensionName);
   wallet?.enable("DOT-ACP");
-  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: true });
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: account });
+  LocalStorage.set("wallet-connected", account);
+  dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
   try {
     await setTokenBalance(dispatch, api, account);
   } catch (error) {
     dotAcpToast.error(`Wallet connection error: ${error}`);
-  } finally {
-    dispatch({ type: ActionType.SET_WALLET_CONNECT_LOADING, payload: false });
   }
 };

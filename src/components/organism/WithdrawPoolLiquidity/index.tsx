@@ -8,12 +8,8 @@ import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import {
-  checkWithdrawPoolLiquidityGasFee,
-  getAllPools,
-  getPoolReserves,
-  removeLiquidity,
-} from "../../../services/poolServices";
+import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
+import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -57,6 +53,7 @@ const WithdrawPoolLiquidity = () => {
     withdrawLiquidityLoading,
     exactNativeTokenWithdraw,
     exactAssetTokenWithdraw,
+    assetLoading,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -142,8 +139,11 @@ const WithdrawPoolLiquidity = () => {
 
   const closeSuccessModal = async () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
-    if (api) await getAllPools(api);
     navigateToPools();
+    if (api) {
+      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+    }
   };
 
   const getWithdrawButtonProperties = useMemo(() => {
@@ -294,6 +294,7 @@ const WithdrawPoolLiquidity = () => {
           onSetTokenValue={() => null}
           selectDisabled={true}
           disabled={true}
+          assetLoading={assetLoading}
         />
         <TokenAmountInput
           tokenText={selectedTokenB?.tokenSymbol}
@@ -304,6 +305,7 @@ const WithdrawPoolLiquidity = () => {
           onSetTokenValue={() => null}
           selectDisabled={true}
           disabled={true}
+          assetLoading={assetLoading}
         />
         <div className="mt-1 text-small">{transferGasFeesMessage}</div>
 
@@ -339,12 +341,17 @@ const WithdrawPoolLiquidity = () => {
               <div className="relative flex">
                 <NumericFormat
                   value={slippageValue}
-                  onValueChange={({ floatValue }) => setSlippageValue(floatValue)}
+                  isAllowed={(values) => {
+                    const { formattedValue, floatValue } = values;
+                    return formattedValue === "" || (floatValue !== undefined && floatValue <= 99);
+                  }}
+                  onValueChange={({ value }) => {
+                    setSlippageValue(parseInt(value) >= 0 ? parseInt(value) : 0);
+                  }}
                   fixedDecimalScale={true}
                   thousandSeparator={false}
                   allowNegative={false}
                   className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                  placeholder="15"
                   disabled={slippageAuto || withdrawLiquidityLoading}
                 />
                 <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
