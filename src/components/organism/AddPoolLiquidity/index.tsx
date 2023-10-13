@@ -407,6 +407,12 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     }
   }, [selectedTokenB.assetTokenId]);
 
+  useEffect(() => {
+    if (Object.keys(selectedAccount).length === 0) {
+      navigateToPools();
+    }
+  }, [selectedAccount]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       {tokenBId?.id && poolExists === false ? (

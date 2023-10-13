@@ -783,6 +783,27 @@ const SwapTokens = () => {
     }
   }, [swapSuccessfulReset]);
 
+  useEffect(() => {
+    if (Object.keys(selectedAccount).length === 0) {
+      setSelectedTokenAValue({ tokenValue: "" });
+      setSelectedTokenBValue({ tokenValue: "" });
+      setSelectedTokens({
+        tokenA: {
+          tokenSymbol: "",
+          tokenId: "0",
+          decimals: "",
+          tokenBalance: "",
+        },
+        tokenB: {
+          tokenSymbol: "",
+          tokenId: "0",
+          decimals: "",
+          tokenBalance: "",
+        },
+      });
+    }
+  }, [selectedAccount]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
