@@ -1,7 +1,6 @@
 import { FC } from "react";
 import { ReactComponent as ArrowLeft } from "../../../assets/img/arrow-left.svg";
 import { ReactComponent as ArrowRight } from "../../../assets/img/arrow-right.svg";
-import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import Modal from "../../atom/Modal";
 
 interface SwapAndPoolSuccessModalProps {
@@ -45,7 +44,7 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
               <div>{actionLabel}</div>
             </div>
             <div className="flex items-center justify-center gap-2 font-unbounded-variable text-medium">
-              <DotToken /> {tokenA.value} {tokenA.symbol} <ArrowRight /> <DotToken /> {tokenB.value} {tokenB.symbol}
+              {tokenA.icon} {tokenA.value} {tokenA.symbol} <ArrowRight /> {tokenB.icon} {tokenB.value} {tokenB.symbol}
             </div>
           </div>
         </div>
