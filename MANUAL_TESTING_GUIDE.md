@@ -1,6 +1,8 @@
 # dotACP: Manual testing guide
 
-dotACP is supported on Westend and Rococo. Below, you'll find instructions for testing, which are similar for both test nets. Staging for [Westend](https://dot-acp-westmint.mvpworkshop.co/), staging for [Rococo](https://dot-acp-rococo.mvpworkshop.co/).
+dotACP is supported on Westend and Rococo. Below, you'll find instructions for testing, which are similar for both test nets. 
+- [Westend staging](https://dot-acp-westmint.mvpworkshop.co/)
+- [Rococo staging](https://dot-acp-rococo.mvpworkshop.co/)
 
 ## Install some Polkadot browser extension wallet
 
@@ -8,9 +10,10 @@ To test the staging environment, you'll need to have the Polkadot wallet browser
 
 ## Get Faucet tokens
 
-For testing on Westend(WND Token) or Rococo(ROC Token) testnet you will need some test tokens. There is a daily limit of 10 WNDs and 100 ROCs that can be issued to one wallet.
+For testing on Westend (WND Token) or Rococo (ROC Token) testnet you will need some test tokens. There is a daily limit of 10 WNDs and 100 ROCs that can be issued to one wallet.
 
-You can grab some test tokens from this [faucet](https://paritytech.github.io/polkadot-testnet-faucet/westend).
+- [Westend faucet](https://paritytech.github.io/polkadot-testnet-faucet/westend)
+- [Rococo faucet](https://paritytech.github.io/polkadot-testnet-faucet/)
 
 ## Swap your WNDs/ROCs for other tokens
 
