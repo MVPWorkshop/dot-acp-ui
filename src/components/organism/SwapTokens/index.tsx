@@ -13,6 +13,7 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { lottieOptions } from "../../../assets/loader";
 import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
 import {
@@ -110,6 +111,7 @@ const SwapTokens = () => {
   const [assetTokensInPool, setAssetTokensInPool] = useState<string>("");
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
+  const [lowTradingMinimum, setLowTradingMinimum] = useState<boolean>(false);
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
@@ -212,6 +214,7 @@ const SwapTokens = () => {
       );
 
       if (assetTokenPrice) {
+        assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
         const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
         const assetTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(assetTokenNoSemicolons),
@@ -255,6 +258,7 @@ const SwapTokens = () => {
       );
 
       if (nativeTokenPrice) {
+        nativeTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
         const nativeTokenNoSemicolons = nativeTokenPrice.toString()?.replace(/[, ]/g, "");
         const nativeTokenNoDecimals = formatDecimalsFromToken(
           parseFloat(nativeTokenNoSemicolons),
@@ -294,6 +298,7 @@ const SwapTokens = () => {
           selectedTokens.tokenB.tokenId
         );
         if (assetTokenPrice) {
+          assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
@@ -321,6 +326,7 @@ const SwapTokens = () => {
         );
 
         if (assetTokenPrice) {
+          assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
           const assetTokenNoDecimals = formatDecimalsFromToken(
             parseFloat(assetTokenNoSemicolons),
@@ -843,6 +849,7 @@ const SwapTokens = () => {
                   setSlippageAuto(true);
                   setSlippageValue(15);
                 }}
+                disabled={assetLoading || !selectedAccount.address}
               >
                 {t("tokenAmountInput.auto")}
               </button>
@@ -853,6 +860,7 @@ const SwapTokens = () => {
                   "bg-purple-100": !slippageAuto,
                 })}
                 onClick={() => setSlippageAuto(false)}
+                disabled={assetLoading || !selectedAccount.address}
               >
                 {t("tokenAmountInput.custom")}
               </button>
@@ -872,7 +880,7 @@ const SwapTokens = () => {
                   thousandSeparator={false}
                   allowNegative={false}
                   className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                  disabled={slippageAuto || swapLoading}
+                  disabled={slippageAuto || swapLoading || assetLoading || !selectedAccount.address}
                 />
                 <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
               </div>
@@ -919,17 +927,27 @@ const SwapTokens = () => {
           tokenA={{
             symbol: selectedTokens.tokenA.tokenSymbol,
             value: swapExactInTokenAmount.toString(),
-            icon: <DotToken />,
+            icon:
+              selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol ? (
+                <DotToken />
+              ) : (
+                <AssetTokenIcon width={24} height={24} />
+              ),
           }}
           tokenB={{
             symbol: selectedTokens.tokenB.tokenSymbol,
             value: swapExactOutTokenAmount.toString(),
-            icon: <DotToken />,
+            icon:
+              selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol ? (
+                <DotToken />
+              ) : (
+                <AssetTokenIcon width={24} height={24} />
+              ),
           }}
           actionLabel="Swapped"
         />
       </div>
-      <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
+      <WarningMessage show={lowTradingMinimum} message={t("pageError.tradingMinimum")} />
       <WarningMessage
         show={tooManyDecimalsError.isError}
         message={t("pageError.tooManyDecimals", {
@@ -937,6 +955,7 @@ const SwapTokens = () => {
           decimals: tooManyDecimalsError.decimalsAllowed,
         })}
       />
+      <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
@@ -393,6 +394,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       setSlippageAuto(true);
                       setSlippageValue(15);
                     }}
+                    disabled={assetLoading || !selectedAccount.address}
                   >
                     {t("tokenAmountInput.auto")}
                   </button>
@@ -402,6 +404,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       "bg-purple-100": !slippageAuto,
                     })}
                     onClick={() => setSlippageAuto(false)}
+                    disabled={assetLoading || !selectedAccount.address}
                   >
                     {t("tokenAmountInput.custom")}
                   </button>
@@ -421,7 +424,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       thousandSeparator={false}
                       allowNegative={false}
                       className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                      disabled={slippageAuto || createPoolLoading}
+                      disabled={slippageAuto || createPoolLoading || assetLoading || !selectedAccount.address}
                     />
                     <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
                   </div>
@@ -461,7 +464,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenB={{
                 value: selectedTokenAssetValue?.tokenValue,
                 symbol: selectedTokenB.tokenSymbol,
-                icon: <DotToken />,
+                icon: <AssetTokenIcon width={24} height={24} />,
               }}
               actionLabel={t("modal.added")}
             />
