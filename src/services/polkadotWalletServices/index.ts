@@ -91,7 +91,7 @@ export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any
 
       LocalStorage.set("wallet-connected", selectedAccount);
 
-      dotAcpToast.success("Account balance successfully fetched!");
+      dotAcpToast.success("Wallet successfully connected!");
     } catch (error) {
       dotAcpToast.error(`Wallet connection error: ${error}`);
     } finally {
