@@ -1,6 +1,6 @@
 # dotACP: Manual testing guide
 
-dotACP is supported on Westend and Rococo. Below, you'll find instructions for testing, which are similar for both test nets. 
+Want to test and break dotACP? Awesome! Follow the instructions below to manually test this feature. dotACP is supported on Westend and Rococo, and the steps are identical unless explicitely stated otherwise. 
 - [Westend staging](https://dot-acp-westmint.mvpworkshop.co/)
 - [Rococo staging](https://dot-acp-rococo.mvpworkshop.co/)
 
@@ -8,12 +8,19 @@ dotACP is supported on Westend and Rococo. Below, you'll find instructions for t
 
 To test the staging environment, you'll need to have the Polkadot wallet browser extension installed. We've successfully tested it with three wallet options: polkadot.js, Subwallet, and Talisman. These wallets are fully supported.
 
-## Get Faucet tokens
+## Get tokens
 
 For testing on Westend (WND Token) or Rococo (ROC Token) testnet you will need some test tokens. There is a daily limit of 10 WNDs and 100 ROCs that can be issued to one wallet.
 
 - [Westend faucet](https://paritytech.github.io/polkadot-testnet-faucet/westend)
 - [Rococo faucet](https://paritytech.github.io/polkadot-testnet-faucet/)
+
+Once you have tokens on the Westend/Rococo parachains, teleport them to the Asset Hub parachain
+- Sign in / Create your [polkadot.js account](https://polkadot.js.org/)
+- Open the Polkadot substrate portal [account page](https://polkadot.js.org/apps/#/accounts).
+- In the top bar select Accounts / Teleport
+- Transfer your WND/ROC tokens to Asset Hub. Teleport requires some gas fees.
+- In the top left dropdown select TEST WESTEND/ROCOCO & PARACHAINS > AssetHub > Switch to confirm that the tokens are transferred and ready for testing
 
 ## Swap your WNDs/ROCs for other tokens
 
