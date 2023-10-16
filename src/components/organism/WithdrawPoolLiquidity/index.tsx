@@ -5,6 +5,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
@@ -398,7 +399,7 @@ const WithdrawPoolLiquidity = () => {
           tokenB={{
             value: exactAssetTokenWithdraw.toString(),
             symbol: selectedTokenB.tokenSymbol,
-            icon: <DotToken />,
+            icon: <AssetTokenIcon width={24} height={24} />,
           }}
         />
       </div>

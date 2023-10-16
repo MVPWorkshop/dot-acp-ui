@@ -95,7 +95,8 @@
     "tryAgain": "Try again",
     "minimalAmountRequirement": "The minimum required amount for the {{token}} token is {{value}}.",
     "lowLiquidity": "Warning: This pool has low liquidity, there is a risk that transaction won't be completed.",
-    "tooManyDecimals": "Too many {{token}} token decimals, please reduce, maximum allowed for this token is {{decimals}} decimals."
+    "tooManyDecimals": "Too many {{token}} token decimals, please reduce, maximum allowed for this token is {{decimals}} decimals.",
+    "tradingMinimum": "Your order trade is lower than the trading minimum."
   },
   "pageNotFound": "Page not found",
   "poolsPage": {
