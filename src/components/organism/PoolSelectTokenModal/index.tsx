@@ -1,4 +1,5 @@
 import { FC } from "react";
+import classNames from "classnames";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType } from "../../../app/types/enum";
 import { useAppContext } from "../../../state";
@@ -14,11 +15,12 @@ type TokenProps = {
 interface PoolSelectTokenModalProps {
   open: boolean;
   title: string;
+  selected?: TokenProps;
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
 
-const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onClose, onSelect }) => {
+const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, selected, onClose, onSelect }) => {
   const { state, dispatch } = useAppContext();
   const { tokenBalances } = state;
 
@@ -42,7 +44,9 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, onCl
             tokenBalances?.assets?.map((item: any, index: number) => (
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
                 <button
-                  className="flex items-center gap-3 px-4 py-3"
+                  className={classNames("flex items-center gap-3 px-4 py-3", {
+                    "rounded-md bg-gray-100": item.tokenId === selected?.assetTokenId,
+                  })}
                   onClick={() =>
                     handlePoolAssetTokeData(
                       item.tokenId,
