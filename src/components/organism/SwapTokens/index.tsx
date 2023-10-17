@@ -32,7 +32,7 @@ import {
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
 } from "../../../services/tokenServices";
-import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
+import { setTokenBalanceUpdate, setTokenBalanceAfterAssetsSwapUpdate } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -667,8 +667,38 @@ const SwapTokens = () => {
     setSwapSuccessfulReset(true);
     if (api) {
       await createPoolCardsArray(api, dispatch, pools, selectedAccount);
-      const assets: any = await getWalletTokensBalance(api, selectedAccount.address);
-      dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
+        const assets: any = await setTokenBalanceUpdate(
+          api,
+          selectedAccount.address,
+          selectedTokens.tokenB.tokenId,
+          tokenBalances
+        );
+        dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+      }
+      if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
+        const assets: any = await setTokenBalanceUpdate(
+          api,
+          selectedAccount.address,
+          selectedTokens.tokenA.tokenId,
+          tokenBalances
+        );
+        dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+      }
+      if (
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol
+      ) {
+        const assets: any = await setTokenBalanceAfterAssetsSwapUpdate(
+          api,
+          selectedAccount.address,
+          selectedTokens.tokenA.tokenId,
+          selectedTokens.tokenB.tokenId,
+          tokenBalances
+        );
+        dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: assets });
+      }
     }
   };
 
