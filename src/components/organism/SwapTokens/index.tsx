@@ -503,10 +503,7 @@ const SwapTokens = () => {
 
       const assetTokens = [nativeToken]
         .concat(tokens)
-        ?.filter(
-          (item: any) =>
-            item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
-        );
+        ?.filter((item: any) => item.tokenId !== selectedTokens.tokenB?.tokenId);
 
       const poolTokenPairsArray: any[] = [];
 
@@ -645,10 +642,7 @@ const SwapTokens = () => {
   const getSwapTokenB = () => {
     const poolLiquidTokens: any = [nativeToken]
       .concat(poolsTokenMetadata)
-      ?.filter(
-        (item: any) =>
-          item.tokenId !== selectedTokens.tokenA?.tokenId && item.tokenId !== selectedTokens.tokenB?.tokenId
-      );
+      ?.filter((item: any) => item.tokenId !== selectedTokens.tokenA?.tokenId);
 
     setAvailablePoolTokenB(poolLiquidTokens);
 
@@ -903,6 +897,7 @@ const SwapTokens = () => {
             setTokenSelected({ tokenSelected: TokenPosition.tokenA });
             onSwapSelectModal(tokenData);
           }}
+          selected={selectedTokens.tokenA}
         />
 
         <SwapSelectTokenModal
@@ -914,6 +909,7 @@ const SwapTokens = () => {
             setTokenSelected({ tokenSelected: TokenPosition.tokenB });
             onSwapSelectModal(tokenData);
           }}
+          selected={selectedTokens.tokenB}
         />
 
         <Button
