@@ -528,6 +528,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onClose={() => setIsModalOpen(false)}
             open={isModalOpen}
             title={t("button.selectToken")}
+            selected={selectedTokenB}
           />
 
           <SwapAndPoolSuccessModal

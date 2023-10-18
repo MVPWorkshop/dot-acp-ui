@@ -456,6 +456,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClose={() => setIsModalOpen(false)}
               open={isModalOpen}
               title={t("button.selectToken")}
+              selected={selectedTokenB}
             />
 
             <SwapAndPoolSuccessModal

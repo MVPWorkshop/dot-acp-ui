@@ -1,4 +1,5 @@
 import { FC } from "react";
+import classNames from "classnames";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import Modal from "../../atom/Modal";
 import { TokenProps } from "../../../app/types";
@@ -13,11 +14,19 @@ interface SwapSelectTokenModalProps {
   open: boolean;
   title: string;
   tokensData: TokenProps[];
+  selected: TokenProps;
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
 
-const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({ open, title, tokensData, onClose, onSelect }) => {
+const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
+  open,
+  title,
+  tokensData,
+  selected,
+  onClose,
+  onSelect,
+}) => {
   const handleSelectToken = (payload: SelectTokenPayload) => {
     const assetTokenData: TokenProps = {
       tokenSymbol: payload.assetSymbol,
@@ -37,7 +46,9 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({ open, title, toke
             {tokensData?.map((item: any, index: number) => (
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
                 <button
-                  className="flex items-center gap-3 px-4 py-3"
+                  className={classNames("flex items-center gap-3 px-4 py-3", {
+                    "rounded-md bg-gray-100": item.tokenId === selected.tokenId,
+                  })}
                   onClick={() =>
                     handleSelectToken({
                       id: item.tokenId,
@@ -51,8 +62,18 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({ open, title, toke
                     <DotToken width={36} height={36} />
                   </div>
                   <div className="flex flex-col items-start">
-                    <div className="text-gray-400 group-hover:text-white">{item.assetTokenMetadata.name}</div>
-                    <div className="text-small text-gray-300 group-hover:text-white">
+                    <div
+                      className={classNames("text-gray-400 group-hover:text-white", {
+                        "text-white": item.tokenId === selected.tokenId,
+                      })}
+                    >
+                      {item.assetTokenMetadata.name}
+                    </div>
+                    <div
+                      className={classNames("text-small text-gray-300 group-hover:text-white", {
+                        "text-white": item.tokenId === selected.tokenId,
+                      })}
+                    >
                       {item.assetTokenMetadata.symbol}
                     </div>
                   </div>
