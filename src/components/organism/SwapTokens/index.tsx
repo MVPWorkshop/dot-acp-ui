@@ -112,6 +112,8 @@ const SwapTokens = () => {
   const [nativeTokensInPool, setNativeTokensInPool] = useState<string>("");
   const [liquidityLow, setLiquidityLow] = useState<boolean>(false);
   const [lowTradingMinimum, setLowTradingMinimum] = useState<boolean>(false);
+  const [lowMinimalAmountAssetToken, setLowMinimalAmountAssetToken] = useState<boolean>(false);
+  const [minimumBalanceAssetToken, setMinimumBalanceAssetToken] = useState<number>(0);
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
@@ -719,6 +721,27 @@ const SwapTokens = () => {
     }
   };
 
+  const checkAssetTokenMinAmountToSwap = async () => {
+    const token = tokenBalances?.assets?.filter((item: any) => selectedTokens.tokenB.tokenId === item.tokenId);
+    if (token?.length === 0) {
+      if (selectedTokenBValue.tokenValue && api) {
+        const assetTokenInfo: any = await api.query.assets.asset(selectedTokens.tokenB.tokenId);
+        const assetTokenMinBalance = assetTokenInfo.toHuman()?.minBalance;
+        if (
+          parseInt(formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals)) <
+          parseInt(assetTokenMinBalance?.replace(/[, ]/g, ""))
+        ) {
+          setMinimumBalanceAssetToken(
+            formatDecimalsFromToken(assetTokenMinBalance?.replace(/[, ]/g, ""), selectedTokens.tokenB.decimals)
+          );
+          setLowMinimalAmountAssetToken(true);
+        } else {
+          setLowMinimalAmountAssetToken(false);
+        }
+      }
+    }
+  };
+
   useEffect(() => {
     if (
       selectedTokenBValue?.tokenValue &&
@@ -766,6 +789,7 @@ const SwapTokens = () => {
     ) {
       handleSwapAssetForAssetGasFee();
     }
+    checkAssetTokenMinAmountToSwap();
   }, [
     selectedTokens.tokenA.tokenSymbol && selectedTokens.tokenB.tokenSymbol,
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
@@ -948,6 +972,13 @@ const SwapTokens = () => {
         />
       </div>
       <WarningMessage show={lowTradingMinimum} message={t("pageError.tradingMinimum")} />
+      <WarningMessage
+        show={lowMinimalAmountAssetToken}
+        message={t("pageError.lowMinimalAmountAssetToken", {
+          tokenSymbol: selectedTokens.tokenB.tokenSymbol,
+          minimalAmount: minimumBalanceAssetToken,
+        })}
+      />
       <WarningMessage
         show={tooManyDecimalsError.isError}
         message={t("pageError.tooManyDecimals", {
