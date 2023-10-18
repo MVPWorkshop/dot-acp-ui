@@ -75,6 +75,7 @@ const SwapTokens = () => {
     swapExactInTokenAmount,
     swapExactOutTokenAmount,
     assetLoading,
+    isTokenCanNotCreateWarningSwap,
   } = state;
 
   const [tokenSelectionModal, setTokenSelectionModal] = useState<TokenSelection>(TokenSelection.None);
@@ -772,6 +773,7 @@ const SwapTokens = () => {
     ) {
       handleSwapAssetForAssetGasFee();
     }
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: false });
   }, [
     selectedTokens.tokenA.tokenSymbol && selectedTokens.tokenB.tokenSymbol,
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
@@ -960,6 +962,7 @@ const SwapTokens = () => {
         })}
       />
       <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
+      <WarningMessage show={isTokenCanNotCreateWarningSwap} message={t("pageError.tokenCanNotCreateWarning")} />
     </div>
   );
 };

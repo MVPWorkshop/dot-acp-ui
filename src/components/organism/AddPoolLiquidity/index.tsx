@@ -65,6 +65,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     exactNativeTokenAddLiquidity,
     exactAssetTokenAddLiquidity,
     assetLoading,
+    isTokenCanNotCreateWarningPools,
   } = state;
 
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
@@ -414,6 +415,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     }
   }, [selectedAccount]);
 
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
+  }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       {tokenBId?.id && poolExists === false ? (
@@ -550,6 +555,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           decimals: tooManyDecimalsError.decimalsAllowed,
         })}
       />
+      <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
     </div>
   );
 };

@@ -63,6 +63,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     successModalOpen,
     createPoolLoading,
     assetLoading,
+    isTokenCanNotCreateWarningPools,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -342,6 +343,10 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     }
   }, [selectedAccount]);
 
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
+  }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
+
   return (
     <>
       {poolExists ? (
@@ -482,6 +487,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               decimals: tooManyDecimalsError.decimalsAllowed,
             })}
           />
+          <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
         </div>
       )}
     </>
