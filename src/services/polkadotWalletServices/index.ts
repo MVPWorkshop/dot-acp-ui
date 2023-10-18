@@ -110,6 +110,117 @@ export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any
   }
 };
 
+export const setTokenBalanceUpdate = async (
+  api: ApiPromise,
+  walletAddress: string,
+  assetId: string,
+  oldWalletBalance: any
+) => {
+  const { data: balance } = await api.query.system.account(walletAddress);
+  const tokenMetadata = api.registry.getChainProperties();
+  const tokenSymbol = tokenMetadata?.tokenSymbol.toHuman();
+  const ss58Format = tokenMetadata?.ss58Format.toHuman();
+  const tokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
+  const nativeTokenNewBalance = formatBalance(balance?.free.toString(), {
+    withUnit: tokenSymbol as string,
+    withSi: false,
+  });
+
+  const tokenAsset = await api.query.assets.account(assetId, walletAddress);
+
+  const assetsUpdated = oldWalletBalance.assets;
+
+  if (tokenAsset.toHuman()) {
+    const assetTokenMetadata = await api.query.assets.metadata(assetId);
+
+    const resultObject = {
+      tokenId: assetId,
+      assetTokenMetadata: assetTokenMetadata.toHuman(),
+      tokenAsset: tokenAsset.toHuman(),
+    };
+
+    const assetInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObject.tokenId);
+
+    if (assetInPossession !== -1) {
+      assetsUpdated[assetInPossession] = resultObject;
+    } else {
+      assetsUpdated.push(resultObject);
+    }
+  }
+
+  const updatedTokensInfo = {
+    balance: nativeTokenNewBalance,
+    ss58Format,
+    tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
+    tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
+    assets: assetsUpdated,
+  };
+
+  return updatedTokensInfo;
+};
+
+export const setTokenBalanceAfterAssetsSwapUpdate = async (
+  api: ApiPromise,
+  walletAddress: string,
+  assetAId: string,
+  assetBId: string,
+  oldWalletBalance: any
+) => {
+  const { data: balance } = await api.query.system.account(walletAddress);
+  const tokenMetadata = api.registry.getChainProperties();
+  const tokenSymbol = tokenMetadata?.tokenSymbol.toHuman();
+  const ss58Format = tokenMetadata?.ss58Format.toHuman();
+  const tokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
+  const nativeTokenNewBalance = formatBalance(balance?.free.toString(), {
+    withUnit: tokenSymbol as string,
+    withSi: false,
+  });
+
+  const tokenAssetA = await api.query.assets.account(assetAId, walletAddress);
+  const tokenAssetB = await api.query.assets.account(assetBId, walletAddress);
+
+  const assetsUpdated = oldWalletBalance.assets;
+
+  if (tokenAssetA.toHuman() && tokenAssetB.toHuman()) {
+    const assetTokenAMetadata = await api.query.assets.metadata(assetAId);
+    const assetTokenBMetadata = await api.query.assets.metadata(assetBId);
+
+    const resultObjectA = {
+      tokenId: assetAId,
+      assetTokenMetadata: assetTokenAMetadata.toHuman(),
+      tokenAsset: tokenAssetA.toHuman(),
+    };
+    const resultObjectB = {
+      tokenId: assetBId,
+      assetTokenMetadata: assetTokenBMetadata.toHuman(),
+      tokenAsset: tokenAssetB.toHuman(),
+    };
+
+    const assetAInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObjectA.tokenId);
+    const assetBInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObjectB.tokenId);
+
+    if (assetAInPossession !== -1) {
+      assetsUpdated[assetAInPossession] = resultObjectA;
+    }
+
+    if (assetBInPossession !== -1) {
+      assetsUpdated[assetBInPossession] = resultObjectB;
+    } else {
+      assetsUpdated.push(resultObjectB);
+    }
+  }
+
+  const updatedTokensInfo = {
+    balance: nativeTokenNewBalance,
+    ss58Format,
+    tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
+    tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
+    assets: assetsUpdated,
+  };
+
+  return updatedTokensInfo;
+};
+
 export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
   LocalStorage.remove("wallet-connected");
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });

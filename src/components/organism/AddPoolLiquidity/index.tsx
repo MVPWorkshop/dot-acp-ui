@@ -15,7 +15,7 @@ import {
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
-import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
+import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -180,7 +180,12 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     navigateToPools();
     if (api) {
-      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      const walletAssets: any = await setTokenBalanceUpdate(
+        api,
+        selectedAccount.address,
+        selectedTokenB.assetTokenId,
+        tokenBalances
+      );
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
     }
   };
@@ -528,6 +533,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             onClose={() => setIsModalOpen(false)}
             open={isModalOpen}
             title={t("button.selectToken")}
+            selected={selectedTokenB}
           />
 
           <SwapAndPoolSuccessModal

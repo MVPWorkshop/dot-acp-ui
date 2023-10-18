@@ -14,8 +14,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { checkCreatePoolGasFee, createPool } from "../../../services/poolServices";
-import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
+import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
+import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -136,8 +136,15 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     navigateToPools();
     if (api) {
-      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      const walletAssets: any = await setTokenBalanceUpdate(
+        api,
+        selectedAccount.address,
+        selectedTokenB.assetTokenId,
+        tokenBalances
+      );
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+      const poolsTokenMetadata = await getAllLiquidityPoolsTokensMetadata(api);
+      dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: poolsTokenMetadata });
     }
   };
 
@@ -454,6 +461,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClose={() => setIsModalOpen(false)}
               open={isModalOpen}
               title={t("button.selectToken")}
+              selected={selectedTokenB}
             />
 
             <SwapAndPoolSuccessModal
