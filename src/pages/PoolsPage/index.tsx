@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
 import Button from "../../components/atom/Button";
@@ -5,13 +6,23 @@ import { ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useAppContext } from "../../state";
 import PoolDataCard from "./PoolDataCard";
+import Lottie from "react-lottie";
+import { poolsLottieOptions } from "../../assets/loader";
 import { t } from "i18next";
 
 const PoolsPage = () => {
   const { state } = useAppContext();
   const { selectedAccount, pools, poolsCards, tokenBalances } = state;
 
+  const [isPoolsLoading, setPoolsIsLoading] = useState<boolean>(true);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (pools.length > 0 && poolsCards.length > 0) {
+      setPoolsIsLoading(false);
+    }
+  }, [pools, poolsCards]);
 
   const navigateToAddLiquidity = () => {
     navigate(POOLS_ADD_LIQUIDITY);
@@ -39,7 +50,11 @@ const PoolsPage = () => {
             ) : null}
           </div>
         </div>
-        {pools && poolsCards ? (
+        {isPoolsLoading ? (
+          <div className="mt-60">
+            <Lottie options={poolsLottieOptions} height={90} width={90} />
+          </div>
+        ) : pools.length > 0 && poolsCards.length > 0 ? (
           <div className="grid grid-cols-3 gap-4">
             {poolsCards.map((item: any, index: number) => {
               return (
