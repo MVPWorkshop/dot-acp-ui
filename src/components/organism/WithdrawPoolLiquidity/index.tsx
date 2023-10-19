@@ -10,7 +10,7 @@ import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/type
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
-import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
+import { setTokenBalanceUpdate, assetTokenData } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -55,6 +55,7 @@ const WithdrawPoolLiquidity = () => {
     exactNativeTokenWithdraw,
     exactAssetTokenWithdraw,
     assetLoading,
+    isTokenCanNotCreateWarningPools,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -82,22 +83,20 @@ const WithdrawPoolLiquidity = () => {
   };
 
   const populateAssetToken = () => {
-    pools?.forEach((pool: any) => {
+    pools?.forEach(async (pool: any) => {
       if (pool?.[0]?.[1]?.interior?.X2) {
         if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === params?.id) {
           if (params?.id) {
-            const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
-              if (params?.id) {
-                return token.tokenId === params?.id.toString();
+            if (api) {
+              const tokenAlreadySelected: any = await assetTokenData(params?.id, api);
+              if (tokenAlreadySelected) {
+                setSelectedTokenB({
+                  tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
+                  assetTokenId: params?.id,
+                  decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
+                  assetTokenBalance: "0",
+                });
               }
-            });
-            if (tokenAlreadySelected) {
-              setSelectedTokenB({
-                tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
-                assetTokenId: params?.id,
-                decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
-                assetTokenBalance: tokenAlreadySelected?.tokenAsset?.balance,
-              });
             }
           }
         }
@@ -157,6 +156,10 @@ const WithdrawPoolLiquidity = () => {
       navigateToPools();
     }
   }, [selectedAccount]);
+
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
+  }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
 
   const getWithdrawButtonProperties = useMemo(() => {
     if (tokenBalances?.assets) {
@@ -411,6 +414,7 @@ const WithdrawPoolLiquidity = () => {
         />
       </div>
       <WarningMessage show={minimumTokenAmountExceeded} message={t("poolsPage.minimumAmountExceeded")} />
+      <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
     </div>
   );
 };
