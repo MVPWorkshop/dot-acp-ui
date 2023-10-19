@@ -426,7 +426,6 @@ const SwapTokens = () => {
   const getSwapButtonProperties = useMemo(() => {
     const tokenBalanceNumber = Number(tokenBalances?.balance);
     if (tokenBalances?.assets) {
-      console.log(tokenBalances?.assets);
       if (selectedTokens.tokenA.tokenSymbol === "" || selectedTokens.tokenB.tokenSymbol === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
