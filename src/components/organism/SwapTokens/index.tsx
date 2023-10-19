@@ -426,6 +426,7 @@ const SwapTokens = () => {
   const getSwapButtonProperties = useMemo(() => {
     const tokenBalanceNumber = Number(tokenBalances?.balance);
     if (tokenBalances?.assets) {
+      console.log(tokenBalances?.assets);
       if (selectedTokens.tokenA.tokenSymbol === "" || selectedTokens.tokenB.tokenSymbol === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
@@ -446,7 +447,10 @@ const SwapTokens = () => {
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         tokenANumber >
-          formatDecimalsFromToken(Number(selectedTokens.tokenA.tokenBalance), selectedTokens.tokenA.decimals)
+          formatDecimalsFromToken(
+            Number(selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, "")),
+            selectedTokens.tokenA.decimals
+          )
       ) {
         return {
           label: t("button.insufficientTokenAmount", { token: selectedTokens.tokenA.tokenSymbol }),
