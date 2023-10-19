@@ -444,6 +444,16 @@ const SwapTokens = () => {
         };
       }
       if (
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
+        tokenANumber >
+          formatDecimalsFromToken(Number(selectedTokens.tokenA.tokenBalance), selectedTokens.tokenA.decimals)
+      ) {
+        return {
+          label: t("button.insufficientTokenAmount", { token: selectedTokens.tokenA.tokenSymbol }),
+          disabled: true,
+        };
+      }
+      if (
         selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
         tokenANumber < tokenBalanceNumber &&
         !tooManyDecimalsError.isError
