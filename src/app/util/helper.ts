@@ -1,7 +1,7 @@
-import { t } from "i18next";
-import { Decimal } from "decimal.js";
-import { UrlParamType } from "../types";
 import type { AnyJson } from "@polkadot/types/types/codec";
+import { Decimal } from "decimal.js";
+import { t } from "i18next";
+import { UrlParamType } from "../types";
 
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {
