@@ -75,6 +75,16 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   return tokensInfo;
 };
 
+export const assetTokenData = async (id: string, api: ApiPromise) => {
+  const assetTokenMetadata = await api.query.assets.metadata(id);
+
+  const resultObject = {
+    tokenId: id,
+    assetTokenMetadata: assetTokenMetadata.toHuman(),
+  };
+  return resultObject;
+};
+
 export const getSupportedWallets = () => {
   const supportedWallets: Wallet[] = getWallets();
 

@@ -96,7 +96,9 @@
     "minimalAmountRequirement": "The minimum required amount for the {{token}} token is {{value}}.",
     "lowLiquidity": "Warning: This pool has low liquidity, there is a risk that transaction won't be completed.",
     "tooManyDecimals": "Too many {{token}} token decimals, please reduce, maximum allowed for this token is {{decimals}} decimals.",
-    "tradingMinimum": "Your order trade is lower than the trading minimum.",
+    "tradingMinimum": "Your order trade is lower than the trading minimum.", 
+    "tokenCanNotCreate":"{\"token\":\"CannotCreate\"}",
+    "tokenCanNotCreateWarning": "Your account has reached the limit of 16 assets and liquidity pools total. Burn or send all of assets of a certain type from your account, or withdraw all assets from a pool to make room for another type. Alternatively connect another wallet and use it for new assets and pools.",
     "lowMinimalAmountAssetToken": "The selected {{tokenSymbol}} token you want to receive is below the minimal amount {{minimalAmount}}."
   },
   "pageNotFound": "Page not found",
