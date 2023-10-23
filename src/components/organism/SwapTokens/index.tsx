@@ -880,6 +880,9 @@ const SwapTokens = () => {
         <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
         <TokenAmountInput
           tokenText={selectedTokens.tokenA?.tokenSymbol}
+          tokenBalance={selectedTokens.tokenA?.tokenBalance}
+          tokenId={selectedTokens.tokenA?.tokenId}
+          tokenDecimals={selectedTokens.tokenA?.decimals}
           labelText={t("tokenAmountInput.youPay")}
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenAValue?.tokenValue}
@@ -967,6 +970,7 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenA}
+          isWalletTokens={true}
         />
 
         <SwapSelectTokenModal
@@ -979,6 +983,7 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenB}
+          isWalletTokens={false}
         />
 
         <Button

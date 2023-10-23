@@ -2,7 +2,9 @@ import { FC } from "react";
 import classNames from "classnames";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ActionType } from "../../../app/types/enum";
+import { formatDecimalsFromToken } from "../../../app/util/helper";
 import { useAppContext } from "../../../state";
+import { ReactComponent as CheckIcon } from "../../../assets/img/selected-token-check.svg";
 import Modal from "../../atom/Modal";
 
 type TokenProps = {
@@ -45,7 +47,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, sele
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
                 <button
                   className={classNames("flex items-center gap-3 px-4 py-3", {
-                    "rounded-md bg-gray-100": item.tokenId === selected?.assetTokenId,
+                    "rounded-md bg-purple-200 hover:bg-purple-800": item.tokenId === selected?.assetTokenId,
                   })}
                   onClick={() =>
                     handlePoolAssetTokeData(
@@ -56,13 +58,28 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, sele
                     )
                   }
                 >
-                  <div>
-                    <DotToken width={36} height={36} />
-                  </div>
-                  <div className="flex flex-col items-start">
-                    <div className="text-gray-400 group-hover:text-white">{item.assetTokenMetadata.name}</div>
-                    <div className="text-small text-gray-300 group-hover:text-white">
-                      {item.assetTokenMetadata.symbol}
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex gap-3">
+                      <div>
+                        <DotToken width={36} height={36} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <div className="text-gray-400 group-hover:text-white">{item.assetTokenMetadata.name}</div>
+                        <div className="text-small text-gray-300 group-hover:text-white">
+                          {item.assetTokenMetadata.symbol}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex gap-1">
+                      <div className="text-[12px] group-hover:text-white">
+                        {item.tokenId
+                          ? formatDecimalsFromToken(
+                              Number(item.tokenAsset.balance.replace(/[, ]/g, "")),
+                              item.assetTokenMetadata.decimals
+                            )
+                          : item.tokenAsset.balance}
+                      </div>
+                      {item.tokenId === selected?.assetTokenId && <CheckIcon />}
                     </div>
                   </div>
                 </button>

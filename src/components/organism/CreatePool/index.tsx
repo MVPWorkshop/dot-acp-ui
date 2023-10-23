@@ -38,6 +38,8 @@ type AssetTokenProps = {
 type NativeTokenProps = {
   nativeTokenSymbol: any;
   nativeTokenDecimals: any;
+  tokenId: string;
+  tokenBalance: string;
 };
 
 type TokenValueProps = {
@@ -70,6 +72,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
+    tokenId: "",
+    tokenBalance: "",
   });
   const [selectedTokenB, setSelectedTokenB] = useState<AssetTokenProps>({
     tokenSymbol: "",
@@ -303,6 +307,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       setSelectedTokenA({
         nativeTokenSymbol: tokenBalances?.tokenSymbol,
         nativeTokenDecimals: tokenBalances?.tokenDecimals,
+        tokenId: "",
+        tokenBalance: tokenBalances.balance.toString(),
       });
     }
   }, [tokenBalances]);
@@ -370,6 +376,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenText={selectedTokenA?.nativeTokenSymbol}
               labelText={t("tokenAmountInput.youPay")}
               tokenIcon={<DotToken />}
+              tokenBalance={selectedTokenA.tokenBalance}
+              tokenId={selectedTokenA.tokenId}
+              tokenDecimals={selectedTokenA.nativeTokenDecimals}
               tokenValue={selectedTokenNativeValue?.tokenValue}
               onClick={() => null}
               onSetTokenValue={(value) => setSelectedTokenAValue(value)}
@@ -381,6 +390,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenText={selectedTokenB?.tokenSymbol}
               labelText={t("tokenAmountInput.youPay")}
               tokenIcon={<DotToken />}
+              tokenBalance={selectedTokenB.assetTokenBalance}
+              tokenId={selectedTokenB.assetTokenId}
+              tokenDecimals={selectedTokenB.decimals}
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
               onSetTokenValue={(value) => setSelectedTokenBValue(value)}
