@@ -38,6 +38,8 @@ type AssetTokenProps = {
 type NativeTokenProps = {
   nativeTokenSymbol: string;
   nativeTokenDecimals: string;
+  tokenId: string;
+  tokenBalance: string;
 };
 type TokenValueProps = {
   tokenValue: string;
@@ -71,6 +73,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
+    tokenId: "",
+    tokenBalance: "",
   });
   const [selectedTokenB, setSelectedTokenB] = useState<AssetTokenProps>({
     tokenSymbol: "",
@@ -364,6 +368,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
       setSelectedTokenA({
         nativeTokenSymbol: tokenBalances.tokenSymbol,
         nativeTokenDecimals: tokenBalances.tokenDecimals,
+        tokenId: "",
+        tokenBalance: tokenBalances.balance.toString(),
       });
     }
   }, [tokenBalances]);
@@ -438,6 +444,9 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           <TokenAmountInput
             tokenText={selectedTokenA?.nativeTokenSymbol}
             tokenIcon={<DotToken />}
+            tokenBalance={selectedTokenA.tokenBalance}
+            tokenId={selectedTokenA.tokenId}
+            tokenDecimals={selectedTokenA.nativeTokenDecimals}
             tokenValue={selectedTokenNativeValue?.tokenValue}
             onClick={() => null}
             onSetTokenValue={(value) => setSelectedTokenAValue(value)}
@@ -448,6 +457,9 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           <TokenAmountInput
             tokenText={selectedTokenB?.tokenSymbol}
             tokenIcon={<DotToken />}
+            tokenBalance={selectedTokenB.assetTokenBalance}
+            tokenId={selectedTokenB.assetTokenId}
+            tokenDecimals={selectedTokenB.decimals}
             tokenValue={selectedTokenAssetValue?.tokenValue}
             onClick={() => setIsModalOpen(true)}
             onSetTokenValue={(value) => setSelectedTokenBValue(value)}

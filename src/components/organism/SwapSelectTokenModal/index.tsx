@@ -2,6 +2,8 @@ import { FC } from "react";
 import classNames from "classnames";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import Modal from "../../atom/Modal";
+import { formatDecimalsFromToken } from "../../../app/util/helper";
+import { ReactComponent as CheckIcon } from "../../../assets/img/selected-token-check.svg";
 import { TokenProps } from "../../../app/types";
 
 interface SelectTokenPayload {
@@ -15,6 +17,7 @@ interface SwapSelectTokenModalProps {
   title: string;
   tokensData: TokenProps[];
   selected: TokenProps;
+  isWalletTokens: boolean;
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
@@ -24,6 +27,7 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
   title,
   tokensData,
   selected,
+  isWalletTokens,
   onClose,
   onSelect,
 }) => {
@@ -47,7 +51,7 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
               <div key={index} className="group flex min-w-[498px] flex-col hover:rounded-md hover:bg-purple-800">
                 <button
                   className={classNames("flex items-center gap-3 px-4 py-3", {
-                    "rounded-md bg-gray-100": item.tokenId === selected.tokenId,
+                    "rounded-md bg-purple-200 hover:bg-purple-800": item.tokenId === selected.tokenId,
                   })}
                   onClick={() =>
                     handleSelectToken({
@@ -58,23 +62,40 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
                     })
                   }
                 >
-                  <div>
-                    <DotToken width={36} height={36} />
-                  </div>
-                  <div className="flex flex-col items-start">
-                    <div
-                      className={classNames("text-gray-400 group-hover:text-white", {
-                        "text-white": item.tokenId === selected.tokenId,
-                      })}
-                    >
-                      {item.assetTokenMetadata.name}
+                  <div className="flex w-full items-center justify-between">
+                    <div className="flex gap-3">
+                      <div>
+                        <DotToken width={36} height={36} />
+                      </div>
+                      <div className="flex flex-col items-start">
+                        <div
+                          className={classNames("text-gray-400 group-hover:text-white", {
+                            "text-black": item.tokenId === selected.tokenId,
+                          })}
+                        >
+                          {item.assetTokenMetadata.name}
+                        </div>
+                        <div
+                          className={classNames("text-small text-gray-300 group-hover:text-white", {
+                            "text-black": item.tokenId === selected.tokenId,
+                          })}
+                        >
+                          {item.assetTokenMetadata.symbol}
+                        </div>
+                      </div>
                     </div>
-                    <div
-                      className={classNames("text-small text-gray-300 group-hover:text-white", {
-                        "text-white": item.tokenId === selected.tokenId,
-                      })}
-                    >
-                      {item.assetTokenMetadata.symbol}
+                    <div className="flex gap-1">
+                      {isWalletTokens && (
+                        <div className="text-[12px] group-hover:text-white">
+                          {item.tokenId
+                            ? formatDecimalsFromToken(
+                                Number(item.tokenAsset.balance.replace(/[, ]/g, "")),
+                                item.assetTokenMetadata.decimals
+                              )
+                            : item.tokenAsset.balance}
+                        </div>
+                      )}
+                      {item.tokenId === selected.tokenId ? <CheckIcon /> : null}
                     </div>
                   </div>
                 </button>
