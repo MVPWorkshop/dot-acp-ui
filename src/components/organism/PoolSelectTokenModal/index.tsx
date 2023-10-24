@@ -79,7 +79,7 @@ const PoolSelectTokenModal: FC<PoolSelectTokenModalProps> = ({ open, title, sele
                             )
                           : item.tokenAsset.balance}
                       </div>
-                      {item.tokenId === selected?.assetTokenId && <CheckIcon />}
+                      {item.tokenId === selected?.assetTokenId ? <CheckIcon /> : null}
                     </div>
                   </div>
                 </button>

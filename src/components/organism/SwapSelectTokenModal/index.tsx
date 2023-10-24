@@ -95,7 +95,7 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
                             : item.tokenAsset.balance}
                         </div>
                       )}
-                      {item.tokenId === selected.tokenId && <CheckIcon />}
+                      {item.tokenId === selected.tokenId ? <CheckIcon /> : null}
                     </div>
                   </div>
                 </button>
