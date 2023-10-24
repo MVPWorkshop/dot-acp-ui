@@ -183,6 +183,7 @@ const WithdrawPoolLiquidity = () => {
 
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
       const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance?.replace(/[, ]/g, "");
+      const nativeTokenExistentialDeposit: any = tokenBalances?.existentialDeposit.replace(/[, ]/g, "");
 
       const lpTokenTotalAsset: any = await api.query.poolAssets.asset(location?.state?.lpTokenId);
 
@@ -224,7 +225,11 @@ const WithdrawPoolLiquidity = () => {
         const assetOutSlippage = calculateSlippageReduce(assetOutFormatted, slippageValue);
         const assetOutSlippageFormatted = formatInputTokenValue(assetOutSlippage, selectedTokenB?.decimals);
 
-        setMinimumTokenAmountExceeded(assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance));
+        const minimumTokenAmountExceededCheck =
+          assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance) ||
+          nativeTokenInPool.sub(nativeTokenOut).lessThanOrEqualTo(nativeTokenExistentialDeposit);
+
+        setMinimumTokenAmountExceeded(minimumTokenAmountExceededCheck);
 
         setSelectedTokenNativeValue({
           tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals).toString(),
