@@ -1,10 +1,13 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { type Wallet, type WalletAccount } from "@talismn/connect-wallets";
+import { getWalletBySource, type Wallet, type WalletAccount } from "@talismn/connect-wallets";
 import { NetworkKeys } from "../../app/types/enum";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
+  checkSwapNativeForAssetExactInGasFee,
   checkSwapNativeForAssetExactOutGasFee,
+  swapAssetForAssetExactIn,
+  swapAssetForAssetExactOut,
 } from "../../services/swapServices/index";
 
 // Mock the Dispatch function
@@ -28,11 +31,17 @@ jest.mock("../../app/hooks/useGetNetwork", () => ({
   }),
 }));
 
+jest.mock("@talismn/connect-wallets", () => ({
+  getWalletBySource: jest.fn(),
+}));
+
 const assetTokenAId = "46";
 const assetTokenBId = "8";
 const assetTokenAValue = "2000000000000";
 const assetTokenBValue = "480403";
 const nativeTokenValue = "100000";
+const tokenADecimals = "0.5";
+const tokenBDecimals = "0.3";
 const account: WalletAccount = {
   address: "5FeR6eNy2fiB8x5RT5mkeekXTRg6LKnacFyd9acwW1dk6BCZ",
   name: "PolkaTest",
@@ -156,5 +165,98 @@ describe("checkSwapNativeForAssetExactOutGasFee", () => {
       type: "SET_SWAP_GAS_FEE",
       payload: "3.5948 mWND",
     });
+  });
+});
+
+describe("checkSwapNativeForAssetExactInGasFee", () => {
+  let api: ApiPromise;
+
+  beforeAll(async () => {
+    const provider = new WsProvider("wss://westmint-rpc.polkadot.io");
+    api = await ApiPromise.create({ provider });
+  });
+
+  afterAll(() => {
+    api.disconnect();
+  });
+
+  it("should calculate gas fees", async () => {
+    await checkSwapNativeForAssetExactInGasFee(
+      api,
+      assetTokenAId,
+      account,
+      nativeTokenValue,
+      assetTokenAValue,
+      false,
+      mockDispatch
+    );
+
+    expect(mockDispatch).toHaveBeenCalledTimes(2);
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "SET_SWAP_GAS_FEES_MESSAGE",
+      payload: "transaction will have a weight of 3.5948 mWND fees",
+    });
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "SET_SWAP_GAS_FEE",
+      payload: "3.5948 mWND",
+    });
+  });
+});
+
+describe("swapAssetForAssetExactOut", () => {
+  let api: ApiPromise;
+
+  beforeAll(async () => {
+    const provider = new WsProvider("wss://westmint-rpc.polkadot.io");
+    api = await ApiPromise.create({ provider });
+  });
+
+  it("should execute the swap and handle different response cases", async () => {
+    await swapAssetForAssetExactOut(
+      api,
+      assetTokenAId,
+      assetTokenBId,
+      account,
+      assetTokenAValue,
+      assetTokenBValue,
+      tokenADecimals,
+      tokenBDecimals,
+      mockDispatch
+    );
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "SET_SWAP_LOADING",
+      payload: true,
+    });
+    expect(getWalletBySource).toHaveBeenCalled();
+  });
+});
+
+describe("swapAssetForAssetExactIn", () => {
+  let api: ApiPromise;
+
+  beforeAll(async () => {
+    const provider = new WsProvider("wss://westmint-rpc.polkadot.io");
+    api = await ApiPromise.create({ provider });
+  });
+
+  it("should execute the swap and handle different response cases", async () => {
+    await swapAssetForAssetExactIn(
+      api,
+      assetTokenAId,
+      assetTokenBId,
+      account,
+      assetTokenAValue,
+      assetTokenBValue,
+      tokenADecimals,
+      tokenBDecimals,
+      mockDispatch
+    );
+
+    expect(mockDispatch).toHaveBeenCalledWith({
+      type: "SET_SWAP_LOADING",
+      payload: true,
+    });
+    expect(getWalletBySource).toHaveBeenCalled();
   });
 });
