@@ -64,6 +64,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     poolGasFee,
     successModalOpen,
     createPoolLoading,
+    addLiquidityLoading,
     assetLoading,
     isTokenCanNotCreateWarningPools,
   } = state;
@@ -303,7 +304,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   ]);
 
   useEffect(() => {
-    if (tokenBalances) {
+    if (tokenBalances?.assets) {
       setSelectedTokenA({
         nativeTokenSymbol: tokenBalances?.tokenSymbol,
         nativeTokenDecimals: tokenBalances?.tokenDecimals,
@@ -311,7 +312,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
         tokenBalance: tokenBalances.balance.toString(),
       });
     }
-  }, [tokenBalances]);
+  }, [tokenBalances?.assets]);
 
   useEffect(() => {
     const poolExists = checkIfPoolAlreadyExists(selectedTokenB.assetTokenId, pools);
@@ -459,9 +460,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
             <Button
               onClick={() => (getButtonProperties.disabled ? null : handlePool())}
               variant={ButtonVariants.btnInteractivePink}
-              disabled={getButtonProperties.disabled || createPoolLoading}
+              disabled={getButtonProperties.disabled || createPoolLoading || addLiquidityLoading}
             >
-              {createPoolLoading ? (
+              {createPoolLoading || addLiquidityLoading ? (
                 <Lottie options={lottieOptions} height={30} width={30} />
               ) : (
                 getButtonProperties.label

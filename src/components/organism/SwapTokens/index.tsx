@@ -456,13 +456,6 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        tokenANumber < tokenBalanceNumber &&
-        !tooManyDecimalsError.isError
-      ) {
-        return { label: t("button.swap"), disabled: false };
-      }
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
@@ -474,6 +467,13 @@ const SwapTokens = () => {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
         };
+      }
+      if (
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        tokenANumber < tokenBalanceNumber &&
+        !tooManyDecimalsError.isError
+      ) {
+        return { label: t("button.swap"), disabled: false };
       }
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
@@ -820,8 +820,10 @@ const SwapTokens = () => {
 
   useEffect(() => {
     if (
-      selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol ||
-      selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol
+      (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol ||
+        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) &&
+      selectedTokenAValue.tokenValue !== "" &&
+      selectedTokenBValue.tokenValue !== ""
     ) {
       handleSwapNativeForAssetGasFee();
     }
@@ -829,7 +831,9 @@ const SwapTokens = () => {
       selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
       selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
       selectedTokens.tokenA.tokenSymbol !== "" &&
-      selectedTokens.tokenB.tokenSymbol !== ""
+      selectedTokens.tokenB.tokenSymbol !== "" &&
+      selectedTokenAValue.tokenValue !== "" &&
+      selectedTokenBValue.tokenValue !== ""
     ) {
       handleSwapAssetForAssetGasFee();
     }
@@ -838,6 +842,26 @@ const SwapTokens = () => {
   }, [
     selectedTokens.tokenA.tokenSymbol && selectedTokens.tokenB.tokenSymbol,
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
+  ]);
+  useEffect(() => {
+    if (selectedTokenBValue.tokenValue === "") {
+      setTokenAValueForSwap({ tokenValue: 0 });
+      setTokenBValueForSwap({ tokenValue: 0 });
+      setLowMinimalAmountAssetToken(false);
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+        payload: "",
+      });
+      dispatch({
+        type: ActionType.SET_SWAP_GAS_FEE,
+        payload: "",
+      });
+    }
+  }, [
+    selectedTokenAValue.tokenValue,
+    selectedTokenBValue.tokenValue,
+    selectedTokens.tokenA.tokenSymbol,
+    selectedTokens.tokenB.tokenSymbol,
   ]);
 
   useEffect(() => {
@@ -872,6 +896,17 @@ const SwapTokens = () => {
       });
     }
   }, [selectedAccount]);
+
+  useEffect(() => {
+    dispatch({
+      type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+      payload: "",
+    });
+    dispatch({
+      type: ActionType.SET_SWAP_GAS_FEE,
+      payload: "",
+    });
+  }, []);
 
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
