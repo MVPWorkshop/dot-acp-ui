@@ -1,18 +1,18 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { formatBalance } from "@polkadot/util";
-import type { AnyJson } from "@polkadot/types/types/codec";
-import dotAcpToast from "../../app/util/toast";
-import { Dispatch } from "react";
-import { WalletAction } from "../../store/wallet/interface";
-import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
-import { TokenBalanceData } from "../../app/types";
-import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
+import type { AnyJson } from "@polkadot/types/types/codec";
+import { formatBalance } from "@polkadot/util";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
+import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
+import { Dispatch } from "react";
+import { TokenBalanceData } from "../../app/types";
+import { ActionType } from "../../app/types/enum";
 import LocalStorage from "../../app/util/localStorage";
+import dotAcpToast from "../../app/util/toast";
+import { WalletAction } from "../../store/wallet/interface";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
+  const wsProvider = new WsProvider(process.env.VITE_NETWORK_RPC_URL);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
