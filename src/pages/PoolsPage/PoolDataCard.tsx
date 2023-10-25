@@ -31,7 +31,7 @@ const PoolDataCard = ({
 }: PoolDataCardProps) => {
   const navigate = useNavigate();
   const { state } = useAppContext();
-  const { tokenBalances } = state;
+  const { tokenBalances, selectedAccount } = state;
 
   const onDepositClick = () => {
     navigate(urlTo(ADD_LIQUIDITY_TO_EXISTING, { id: assetTokenId }), {
@@ -83,7 +83,11 @@ const PoolDataCard = ({
             {t("button.deposit")}
             {checkIfDepositDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
-                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+                {tokenBalances?.balance && selectedAccount.address
+                  ? t("poolsPage.doNotHaveLiquidityPair")
+                  : !tokenBalances?.balance && selectedAccount.address
+                  ? t("poolsPage.assetsWait")
+                  : t("poolsPage.connectWallet")}
               </div>
             )}
           </Button>
@@ -96,7 +100,11 @@ const PoolDataCard = ({
             {t("button.withdraw")}
             {checkIfWithdrawDisabled() && (
               <div className="invisible absolute bottom-full left-1/2 mb-[10px] w-full -translate-x-1/2 transform rounded-md bg-warning px-2 py-1 font-inter text-medium text-gray-400 opacity-0 transition-opacity group-hover:visible group-hover:opacity-100">
-                {tokenBalances?.balance ? t("poolsPage.doNotHaveLiquidityPair") : t("poolsPage.connectWallet")}
+                {tokenBalances?.balance && selectedAccount.address
+                  ? t("poolsPage.doNotHaveLiquidityPair")
+                  : !tokenBalances?.balance && selectedAccount.address
+                  ? t("poolsPage.assetsWait")
+                  : t("poolsPage.connectWallet")}
               </div>
             )}
           </Button>
