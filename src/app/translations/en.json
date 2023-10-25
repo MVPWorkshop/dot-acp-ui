@@ -115,6 +115,7 @@
     "newPosition": "New Position",
     "doNotHaveLiquidityPair": "You don't have tokens from this liquidity pair.",
     "connectWallet": "Please connect your wallet",
+    "assetsWait": "Fetching your token balances, please wait a few seconds",
     "errorFetchingPools": "Error fetching pools: {{error}}",
     "minimumAmountExceeded": "Full withdrawal of this amount is not possible, as the defined minimum amount per token must stay within the pool."
   },
