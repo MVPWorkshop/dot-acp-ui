@@ -30,6 +30,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   const { nonce, data: balance } = await api.query.system.account(walletAddress);
   const nextNonce = await api.rpc.system.accountNextIndex(walletAddress);
   const tokenMetadata = api.registry.getChainProperties();
+  const existentialDeposit = await api.consts.balances.existentialDeposit;
 
   const allAssets = await api.query.assets.asset.entries();
 
@@ -67,6 +68,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   const tokensInfo = {
     balance: formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false }),
     ss58Format,
+    existentialDeposit: existentialDeposit.toHuman(),
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
     tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
     assets: myAssetTokenData,
