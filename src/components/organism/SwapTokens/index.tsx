@@ -456,13 +456,6 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (
-        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        tokenANumber < tokenBalanceNumber &&
-        !tooManyDecimalsError.isError
-      ) {
-        return { label: t("button.swap"), disabled: false };
-      }
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber > Number(nativeTokensInPool)) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
@@ -474,6 +467,13 @@ const SwapTokens = () => {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
         };
+      }
+      if (
+        selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
+        tokenANumber < tokenBalanceNumber &&
+        !tooManyDecimalsError.isError
+      ) {
+        return { label: t("button.swap"), disabled: false };
       }
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
