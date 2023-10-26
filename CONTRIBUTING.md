@@ -18,7 +18,7 @@ and submitting pull requests, but please respect the following restrictions:
 - Please do not use the issue tracker for personal support requests, contact contributors over github for support.
 - Please do not open issues or pull requests regarding the code in React (open them in their respective repositories).
 
-there are 3 options to open an issue, Bug report - Create a report to help us improve, Report a security vulnerability - Privately report a security vulnerability, or open a blank issue, you can see all 3 options under the Issues tab after clicking on the new issue button.
+there are 2 options to open an issue, Bug report - Create a report to help us improve or open a blank issue, you can see all 2 options under the Issues tab after clicking on the new issue button.
 
 _Note: Occasionally issues are opened that are unclear, or we cannot verify them. When the issue author has not responded to our questions for verification within 7 days then we will close the issue._
 

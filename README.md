@@ -26,9 +26,8 @@
 
 ## Description
 
-This project is part of Polkadot initiative for building front-end and UI for Asset Conversion Pallet on Polkadot's AssetHub. Link to the proposal here. Currently, it is possible to deploy this pallet on Westmint and Rococo.
+This project is part of Polkadot initiative for building front-end and UI for Asset Conversion Pallet on Polkadot's AssetHub. Link to the proposal here. Currently, it is possible to deploy this pallet on [Westmint](https://dot-acp-westmint.mvpworkshop.co) and[Rococo](https://dot-acp-rococo.mvpworkshop.co).
 
-Staging: https://dot-acp.dev.mvpworkshop.co/
 
 ## Useful links
 
