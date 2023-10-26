@@ -94,6 +94,9 @@ export const swapNativeForAssetExactIn = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -189,6 +192,9 @@ export const swapNativeForAssetExactOut = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -293,6 +299,9 @@ export const swapAssetForAssetExactIn = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -397,6 +406,9 @@ export const swapAssetForAssetExactOut = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }

@@ -5,11 +5,12 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
 import { calculateSlippageReduce, formatDecimalsFromToken, formatInputTokenValue } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
 import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
-import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
+import { setTokenBalanceUpdate, assetTokenData } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -54,6 +55,7 @@ const WithdrawPoolLiquidity = () => {
     exactNativeTokenWithdraw,
     exactAssetTokenWithdraw,
     assetLoading,
+    isTokenCanNotCreateWarningPools,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -81,22 +83,20 @@ const WithdrawPoolLiquidity = () => {
   };
 
   const populateAssetToken = () => {
-    pools?.forEach((pool: any) => {
+    pools?.forEach(async (pool: any) => {
       if (pool?.[0]?.[1]?.interior?.X2) {
         if (pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "").toString() === params?.id) {
           if (params?.id) {
-            const tokenAlreadySelected = tokenBalances?.assets?.find((token: any) => {
-              if (params?.id) {
-                return token.tokenId === params?.id.toString();
+            if (api) {
+              const tokenAlreadySelected: any = await assetTokenData(params?.id, api);
+              if (tokenAlreadySelected) {
+                setSelectedTokenB({
+                  tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
+                  assetTokenId: params?.id,
+                  decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
+                  assetTokenBalance: "0",
+                });
               }
-            });
-            if (tokenAlreadySelected) {
-              setSelectedTokenB({
-                tokenSymbol: tokenAlreadySelected?.assetTokenMetadata?.symbol,
-                assetTokenId: params?.id,
-                decimals: tokenAlreadySelected?.assetTokenMetadata?.decimals,
-                assetTokenBalance: tokenAlreadySelected?.tokenAsset?.balance,
-              });
             }
           }
         }
@@ -141,7 +141,12 @@ const WithdrawPoolLiquidity = () => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     navigateToPools();
     if (api) {
-      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      const walletAssets: any = await setTokenBalanceUpdate(
+        api,
+        selectedAccount.address,
+        selectedTokenB.assetTokenId,
+        tokenBalances
+      );
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
     }
   };
@@ -151,6 +156,10 @@ const WithdrawPoolLiquidity = () => {
       navigateToPools();
     }
   }, [selectedAccount]);
+
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
+  }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
 
   const getWithdrawButtonProperties = useMemo(() => {
     if (tokenBalances?.assets) {
@@ -174,6 +183,7 @@ const WithdrawPoolLiquidity = () => {
 
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
       const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance?.replace(/[, ]/g, "");
+      const nativeTokenExistentialDeposit: any = tokenBalances?.existentialDeposit.replace(/[, ]/g, "");
 
       const lpTokenTotalAsset: any = await api.query.poolAssets.asset(location?.state?.lpTokenId);
 
@@ -215,7 +225,11 @@ const WithdrawPoolLiquidity = () => {
         const assetOutSlippage = calculateSlippageReduce(assetOutFormatted, slippageValue);
         const assetOutSlippageFormatted = formatInputTokenValue(assetOutSlippage, selectedTokenB?.decimals);
 
-        setMinimumTokenAmountExceeded(assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance));
+        const minimumTokenAmountExceededCheck =
+          assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance) ||
+          nativeTokenInPool.sub(nativeTokenOut).lessThanOrEqualTo(nativeTokenExistentialDeposit);
+
+        setMinimumTokenAmountExceeded(minimumTokenAmountExceededCheck);
 
         setSelectedTokenNativeValue({
           tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals).toString(),
@@ -330,6 +344,7 @@ const WithdrawPoolLiquidity = () => {
                 onClick={() => {
                   setSlippageAuto(true);
                 }}
+                disabled={assetLoading || !selectedAccount.address}
               >
                 {t("tokenAmountInput.auto")}
               </button>
@@ -339,6 +354,7 @@ const WithdrawPoolLiquidity = () => {
                   "bg-purple-100": !slippageAuto,
                 })}
                 onClick={() => setSlippageAuto(false)}
+                disabled={assetLoading || !selectedAccount.address}
               >
                 {t("tokenAmountInput.custom")}
               </button>
@@ -358,7 +374,7 @@ const WithdrawPoolLiquidity = () => {
                   thousandSeparator={false}
                   allowNegative={false}
                   className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                  disabled={slippageAuto || withdrawLiquidityLoading}
+                  disabled={slippageAuto || withdrawLiquidityLoading || assetLoading || !selectedAccount.address}
                 />
                 <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
               </div>
@@ -398,11 +414,12 @@ const WithdrawPoolLiquidity = () => {
           tokenB={{
             value: exactAssetTokenWithdraw.toString(),
             symbol: selectedTokenB.tokenSymbol,
-            icon: <DotToken />,
+            icon: <AssetTokenIcon width={24} height={24} />,
           }}
         />
       </div>
       <WarningMessage show={minimumTokenAmountExceeded} message={t("poolsPage.minimumAmountExceeded")} />
+      <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
     </div>
   );
 };

@@ -10,6 +10,7 @@ import { TokenBalanceData } from "../../app/types";
 import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import LocalStorage from "../../app/util/localStorage";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
@@ -30,6 +31,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   const { nonce, data: balance } = await api.query.system.account(walletAddress);
   const nextNonce = await api.rpc.system.accountNextIndex(walletAddress);
   const tokenMetadata = api.registry.getChainProperties();
+  const existentialDeposit = await api.consts.balances.existentialDeposit;
 
   const allAssets = await api.query.assets.asset.entries();
 
@@ -65,14 +67,28 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   console.log(`${now}: balance of ${balance?.free} and a current nonce of ${nonce} and next nonce of ${nextNonce}`);
 
   const tokensInfo = {
-    balance: formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false }),
+    balance:
+      Number(balance?.free.toString().length) > Number(tokenDecimals)
+        ? formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false })
+        : formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string),
     ss58Format,
+    existentialDeposit: existentialDeposit.toHuman(),
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
     tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
     assets: myAssetTokenData,
   };
 
   return tokensInfo;
+};
+
+export const assetTokenData = async (id: string, api: ApiPromise) => {
+  const assetTokenMetadata = await api.query.assets.metadata(id);
+
+  const resultObject = {
+    tokenId: id,
+    assetTokenMetadata: assetTokenMetadata.toHuman(),
+  };
+  return resultObject;
 };
 
 export const getSupportedWallets = () => {
@@ -91,13 +107,124 @@ export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any
 
       LocalStorage.set("wallet-connected", selectedAccount);
 
-      dotAcpToast.success("Account balance successfully fetched!");
+      dotAcpToast.success("Wallet successfully connected!");
     } catch (error) {
       dotAcpToast.error(`Wallet connection error: ${error}`);
     } finally {
       dispatch({ type: ActionType.SET_ASSET_LOADING, payload: false });
     }
   }
+};
+
+export const setTokenBalanceUpdate = async (
+  api: ApiPromise,
+  walletAddress: string,
+  assetId: string,
+  oldWalletBalance: any
+) => {
+  const { data: balance } = await api.query.system.account(walletAddress);
+  const tokenMetadata = api.registry.getChainProperties();
+  const tokenSymbol = tokenMetadata?.tokenSymbol.toHuman();
+  const ss58Format = tokenMetadata?.ss58Format.toHuman();
+  const tokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
+  const nativeTokenNewBalance = formatBalance(balance?.free.toString(), {
+    withUnit: tokenSymbol as string,
+    withSi: false,
+  });
+
+  const tokenAsset = await api.query.assets.account(assetId, walletAddress);
+
+  const assetsUpdated = oldWalletBalance.assets;
+
+  if (tokenAsset.toHuman()) {
+    const assetTokenMetadata = await api.query.assets.metadata(assetId);
+
+    const resultObject = {
+      tokenId: assetId,
+      assetTokenMetadata: assetTokenMetadata.toHuman(),
+      tokenAsset: tokenAsset.toHuman(),
+    };
+
+    const assetInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObject.tokenId);
+
+    if (assetInPossession !== -1) {
+      assetsUpdated[assetInPossession] = resultObject;
+    } else {
+      assetsUpdated.push(resultObject);
+    }
+  }
+
+  const updatedTokensInfo = {
+    balance: nativeTokenNewBalance,
+    ss58Format,
+    tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
+    tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
+    assets: assetsUpdated,
+  };
+
+  return updatedTokensInfo;
+};
+
+export const setTokenBalanceAfterAssetsSwapUpdate = async (
+  api: ApiPromise,
+  walletAddress: string,
+  assetAId: string,
+  assetBId: string,
+  oldWalletBalance: any
+) => {
+  const { data: balance } = await api.query.system.account(walletAddress);
+  const tokenMetadata = api.registry.getChainProperties();
+  const tokenSymbol = tokenMetadata?.tokenSymbol.toHuman();
+  const ss58Format = tokenMetadata?.ss58Format.toHuman();
+  const tokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
+  const nativeTokenNewBalance = formatBalance(balance?.free.toString(), {
+    withUnit: tokenSymbol as string,
+    withSi: false,
+  });
+
+  const tokenAssetA = await api.query.assets.account(assetAId, walletAddress);
+  const tokenAssetB = await api.query.assets.account(assetBId, walletAddress);
+
+  const assetsUpdated = oldWalletBalance.assets;
+
+  if (tokenAssetA.toHuman() && tokenAssetB.toHuman()) {
+    const assetTokenAMetadata = await api.query.assets.metadata(assetAId);
+    const assetTokenBMetadata = await api.query.assets.metadata(assetBId);
+
+    const resultObjectA = {
+      tokenId: assetAId,
+      assetTokenMetadata: assetTokenAMetadata.toHuman(),
+      tokenAsset: tokenAssetA.toHuman(),
+    };
+    const resultObjectB = {
+      tokenId: assetBId,
+      assetTokenMetadata: assetTokenBMetadata.toHuman(),
+      tokenAsset: tokenAssetB.toHuman(),
+    };
+
+    const assetAInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObjectA.tokenId);
+    const assetBInPossession = assetsUpdated.findIndex((item: any) => item.tokenId === resultObjectB.tokenId);
+
+    if (assetAInPossession !== -1) {
+      assetsUpdated[assetAInPossession] = resultObjectA;
+    }
+
+    if (assetBInPossession !== -1) {
+      assetsUpdated[assetBInPossession] = resultObjectB;
+    } else {
+      assetsUpdated.push(resultObjectB);
+    }
+  }
+
+  const updatedTokensInfo = {
+    balance: nativeTokenNewBalance,
+    ss58Format,
+    tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
+    tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
+    assets: assetsUpdated,
+  };
+
+  return updatedTokensInfo;
 };
 
 export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {

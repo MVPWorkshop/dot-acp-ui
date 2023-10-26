@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
@@ -13,8 +14,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { checkCreatePoolGasFee, createPool } from "../../../services/poolServices";
-import { getWalletTokensBalance } from "../../../services/polkadotWalletServices";
+import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
+import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
@@ -37,6 +38,8 @@ type AssetTokenProps = {
 type NativeTokenProps = {
   nativeTokenSymbol: any;
   nativeTokenDecimals: any;
+  tokenId: string;
+  tokenBalance: string;
 };
 
 type TokenValueProps = {
@@ -61,13 +64,17 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     poolGasFee,
     successModalOpen,
     createPoolLoading,
+    addLiquidityLoading,
     assetLoading,
+    isTokenCanNotCreateWarningPools,
   } = state;
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedTokenA, setSelectedTokenA] = useState<NativeTokenProps>({
     nativeTokenSymbol: "",
     nativeTokenDecimals: "",
+    tokenId: "",
+    tokenBalance: "",
   });
   const [selectedTokenB, setSelectedTokenB] = useState<AssetTokenProps>({
     tokenSymbol: "",
@@ -134,8 +141,15 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: false });
     navigateToPools();
     if (api) {
-      const walletAssets: any = await getWalletTokensBalance(api, selectedAccount.address);
+      const walletAssets: any = await setTokenBalanceUpdate(
+        api,
+        selectedAccount.address,
+        selectedTokenB.assetTokenId,
+        tokenBalances
+      );
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletAssets });
+      const poolsTokenMetadata = await getAllLiquidityPoolsTokensMetadata(api);
+      dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: poolsTokenMetadata });
     }
   };
 
@@ -290,13 +304,15 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   ]);
 
   useEffect(() => {
-    if (tokenBalances) {
+    if (tokenBalances?.assets) {
       setSelectedTokenA({
         nativeTokenSymbol: tokenBalances?.tokenSymbol,
         nativeTokenDecimals: tokenBalances?.tokenDecimals,
+        tokenId: "",
+        tokenBalance: tokenBalances.balance.toString(),
       });
     }
-  }, [tokenBalances]);
+  }, [tokenBalances?.assets]);
 
   useEffect(() => {
     const poolExists = checkIfPoolAlreadyExists(selectedTokenB.assetTokenId, pools);
@@ -341,6 +357,10 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     }
   }, [selectedAccount]);
 
+  useEffect(() => {
+    dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
+  }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
+
   return (
     <>
       {poolExists ? (
@@ -357,6 +377,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenText={selectedTokenA?.nativeTokenSymbol}
               labelText={t("tokenAmountInput.youPay")}
               tokenIcon={<DotToken />}
+              tokenBalance={selectedTokenA.tokenBalance}
+              tokenId={selectedTokenA.tokenId}
+              tokenDecimals={selectedTokenA.nativeTokenDecimals}
               tokenValue={selectedTokenNativeValue?.tokenValue}
               onClick={() => null}
               onSetTokenValue={(value) => setSelectedTokenAValue(value)}
@@ -368,6 +391,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenText={selectedTokenB?.tokenSymbol}
               labelText={t("tokenAmountInput.youPay")}
               tokenIcon={<DotToken />}
+              tokenBalance={selectedTokenB.assetTokenBalance}
+              tokenId={selectedTokenB.assetTokenId}
+              tokenDecimals={selectedTokenB.decimals}
               tokenValue={selectedTokenAssetValue?.tokenValue}
               onClick={() => setIsModalOpen(true)}
               onSetTokenValue={(value) => setSelectedTokenBValue(value)}
@@ -393,6 +419,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       setSlippageAuto(true);
                       setSlippageValue(15);
                     }}
+                    disabled={assetLoading || !selectedAccount.address}
                   >
                     {t("tokenAmountInput.auto")}
                   </button>
@@ -402,6 +429,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       "bg-purple-100": !slippageAuto,
                     })}
                     onClick={() => setSlippageAuto(false)}
+                    disabled={assetLoading || !selectedAccount.address}
                   >
                     {t("tokenAmountInput.custom")}
                   </button>
@@ -421,7 +449,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
                       thousandSeparator={false}
                       allowNegative={false}
                       className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
-                      disabled={slippageAuto || createPoolLoading}
+                      disabled={slippageAuto || createPoolLoading || assetLoading || !selectedAccount.address}
                     />
                     <span className="absolute bottom-1/3 right-2 text-medium text-gray-100">%</span>
                   </div>
@@ -432,9 +460,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
             <Button
               onClick={() => (getButtonProperties.disabled ? null : handlePool())}
               variant={ButtonVariants.btnInteractivePink}
-              disabled={getButtonProperties.disabled || createPoolLoading}
+              disabled={getButtonProperties.disabled || createPoolLoading || addLiquidityLoading}
             >
-              {createPoolLoading ? (
+              {createPoolLoading || addLiquidityLoading ? (
                 <Lottie options={lottieOptions} height={30} width={30} />
               ) : (
                 getButtonProperties.label
@@ -446,6 +474,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               onClose={() => setIsModalOpen(false)}
               open={isModalOpen}
               title={t("button.selectToken")}
+              selected={selectedTokenB}
             />
 
             <SwapAndPoolSuccessModal
@@ -460,7 +489,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               tokenB={{
                 value: selectedTokenAssetValue?.tokenValue,
                 symbol: selectedTokenB.tokenSymbol,
-                icon: <DotToken />,
+                icon: <AssetTokenIcon width={24} height={24} />,
               }}
               actionLabel={t("modal.added")}
             />
@@ -479,6 +508,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               decimals: tooManyDecimalsError.decimalsAllowed,
             })}
           />
+          <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
         </div>
       )}
     </>

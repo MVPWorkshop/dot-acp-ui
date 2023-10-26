@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
-import { ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
+import { ActionType, ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
 import { reduceAddress } from "../../../app/util/helper";
 import {
   connectWalletAndFetchBalance,
@@ -56,6 +56,14 @@ const HeaderTopNav = () => {
     handleDisconnect(dispatch);
     setWalletAccount({} as WalletAccount);
     setModalStep({ step: WalletConnectSteps.stepExtensions });
+    dispatch({
+      type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
+      payload: "",
+    });
+    dispatch({
+      type: ActionType.SET_SWAP_GAS_FEE,
+      payload: "",
+    });
   };
 
   useEffect(() => {
