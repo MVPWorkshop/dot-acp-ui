@@ -167,7 +167,7 @@ export const swapNativeForAssetExactOut = async (
   dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
-    reverse ? [firstArg, secondArg] : [secondArg, firstArg],
+    reverse ? [secondArg, firstArg] : [firstArg, secondArg],
     reverse ? nativeTokenValue : assetTokenValue,
     reverse ? assetTokenValue : nativeTokenValue,
     account.address,
