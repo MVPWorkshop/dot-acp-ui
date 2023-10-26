@@ -10,6 +10,7 @@ import { TokenBalanceData } from "../../app/types";
 import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import LocalStorage from "../../app/util/localStorage";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
@@ -66,7 +67,10 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   console.log(`${now}: balance of ${balance?.free} and a current nonce of ${nonce} and next nonce of ${nextNonce}`);
 
   const tokensInfo = {
-    balance: formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false }),
+    balance:
+      Number(balance?.free.toString().length) > Number(tokenDecimals)
+        ? formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false })
+        : formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string),
     ss58Format,
     existentialDeposit: existentialDeposit.toHuman(),
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
