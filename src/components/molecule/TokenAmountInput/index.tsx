@@ -114,7 +114,7 @@ const TokenAmountInput = ({
       </div>
       <div className="flex w-full justify-end pr-1 text-medium text-gray-200">
         Balance:{" "}
-        {tokenId && tokenText
+        {tokenId && tokenText && Number(tokenBalance) !== 0
           ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
           : tokenBalance || 0}
       </div>

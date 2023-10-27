@@ -17,7 +17,6 @@ interface SwapSelectTokenModalProps {
   title: string;
   tokensData: TokenProps[];
   selected: TokenProps;
-  isWalletTokens: boolean;
   onClose: () => void;
   onSelect: (tokenData: TokenProps) => void;
 }
@@ -27,7 +26,6 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
   title,
   tokensData,
   selected,
-  isWalletTokens,
   onClose,
   onSelect,
 }) => {
@@ -85,16 +83,14 @@ const SwapSelectTokenModal: FC<SwapSelectTokenModalProps> = ({
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      {isWalletTokens && (
-                        <div className="text-[12px] group-hover:text-white">
-                          {item.tokenId
-                            ? formatDecimalsFromToken(
-                                Number(item.tokenAsset.balance.replace(/[, ]/g, "")),
-                                item.assetTokenMetadata.decimals
-                              )
-                            : item.tokenAsset.balance}
-                        </div>
-                      )}
+                      <div className="text-[12px] group-hover:text-white">
+                        {item.tokenId && item.tokenAsset.balance !== 0
+                          ? formatDecimalsFromToken(
+                              Number(item.tokenAsset.balance.replace(/[, ]/g, "")),
+                              item.assetTokenMetadata.decimals
+                            )
+                          : item.tokenAsset.balance}
+                      </div>
                       {item.tokenId === selected.tokenId ? <CheckIcon /> : null}
                     </div>
                   </div>
