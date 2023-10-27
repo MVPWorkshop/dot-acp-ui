@@ -244,6 +244,7 @@ export const swapAssetForAssetExactIn = async (
   tokenBDecimals: string,
   dispatch: Dispatch<SwapAction>
 ) => {
+  console.log(assetTokenAValue, assetTokenBValue);
   const firstArg = api
     .createType("MultiLocation", {
       parents: 0,
