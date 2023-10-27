@@ -382,8 +382,8 @@ export const swapAssetForAssetExactOut = async (
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
     [firstArg, secondArg, thirdArg],
-    assetTokenAValue,
     assetTokenBValue,
+    assetTokenAValue,
     account.address,
     false
   );
