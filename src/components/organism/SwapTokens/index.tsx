@@ -443,7 +443,7 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (Number(tokenBValueForSwap.tokenValue) < 1) {
+      if (Number(tokenBValueForSwap.tokenValue) < 1 && selectedTokens.tokenB.decimals === "0") {
         return {
           label: t("button.toLowForSwap", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
