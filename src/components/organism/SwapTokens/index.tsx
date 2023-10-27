@@ -659,9 +659,16 @@ const SwapTokens = () => {
     const poolLiquidTokens: any = [nativeToken]
       .concat(poolsTokenMetadata)
       ?.filter((item: any) => item.tokenId !== selectedTokens.tokenA?.tokenId);
-
-    setAvailablePoolTokenB(poolLiquidTokens);
-
+    if (tokenBalances !== null) {
+      for (const item of poolLiquidTokens) {
+        for (const walletAsset of tokenBalances.assets) {
+          if (item.tokenId === walletAsset.tokenId) {
+            item.tokenAsset.balance = walletAsset.tokenAsset.balance;
+          }
+        }
+      }
+      setAvailablePoolTokenB(poolLiquidTokens);
+    }
     return poolLiquidTokens;
   };
 
@@ -923,18 +930,21 @@ const SwapTokens = () => {
           tokenValue={selectedTokenAValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
           onSetTokenValue={(value) => tokenAValue(value.toString())}
-          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
 
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
+          tokenBalance={selectedTokens.tokenB?.tokenBalance}
+          tokenId={selectedTokens.tokenB?.tokenId}
+          tokenDecimals={selectedTokens.tokenB?.decimals}
           labelText={t("tokenAmountInput.youReceive")}
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenBValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
           onSetTokenValue={(value) => tokenBValue(value.toString())}
-          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets}
+          disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
 
@@ -1005,7 +1015,6 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenA}
-          isWalletTokens={true}
         />
 
         <SwapSelectTokenModal
@@ -1018,7 +1027,6 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenB}
-          isWalletTokens={false}
         />
 
         <Button
