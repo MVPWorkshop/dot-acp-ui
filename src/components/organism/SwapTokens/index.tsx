@@ -1015,7 +1015,6 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenA}
-          // isWalletTokens={true}
         />
 
         <SwapSelectTokenModal
@@ -1028,7 +1027,6 @@ const SwapTokens = () => {
             onSwapSelectModal(tokenData);
           }}
           selected={selectedTokens.tokenB}
-          // isWalletTokens={false}
         />
 
         <Button
