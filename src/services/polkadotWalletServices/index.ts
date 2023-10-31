@@ -1,16 +1,16 @@
 import { ApiPromise, WsProvider } from "@polkadot/api";
-import { formatBalance } from "@polkadot/util";
-import type { AnyJson } from "@polkadot/types/types/codec";
-import dotAcpToast from "../../app/util/toast";
-import { Dispatch } from "react";
-import { WalletAction } from "../../store/wallet/interface";
-import { ActionType } from "../../app/types/enum";
 import "@polkadot/api-augment";
-import { TokenBalanceData } from "../../app/types";
-import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
+import type { AnyJson } from "@polkadot/types/types/codec";
+import { formatBalance } from "@polkadot/util";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
-import LocalStorage from "../../app/util/localStorage";
+import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
+import { Dispatch } from "react";
+import { TokenBalanceData } from "../../app/types";
+import { ActionType } from "../../app/types/enum";
 import { formatDecimalsFromToken } from "../../app/util/helper";
+import LocalStorage from "../../app/util/localStorage";
+import dotAcpToast from "../../app/util/toast";
+import { WalletAction } from "../../store/wallet/interface";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
@@ -131,6 +131,7 @@ export const setTokenBalanceUpdate = async (
     withUnit: tokenSymbol as string,
     withSi: false,
   });
+  const existentialDeposit = await api.consts.balances.existentialDeposit;
 
   const tokenAsset = await api.query.assets.account(assetId, walletAddress);
 
@@ -160,6 +161,7 @@ export const setTokenBalanceUpdate = async (
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
     tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
     assets: assetsUpdated,
+    existentialDeposit: existentialDeposit.toHuman(),
   };
 
   return updatedTokensInfo;
