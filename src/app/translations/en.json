@@ -34,6 +34,7 @@
     "insufficientTokenAmount": "Insufficient {{token}} amount",
     "insufficientTokenLiquidity": "Insufficient {{token}} liquidity in pool",
     "minimumTokenAmountExceeded": "Minimum asset token amount exceeded",
+    "toLowForSwap":"{{token}} amount too low - slippage impact",
     "enterAmount": "Enter amount",
     "selectToken": "Select token",
     "swap": "Swap",

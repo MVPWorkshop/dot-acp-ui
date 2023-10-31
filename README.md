@@ -11,7 +11,7 @@
             <li><a href='#run-project'>Basic usage</a></li>
         </ul>
     </li>
-    <li href='#how-to-manually-test-the-app'>How to manually test the app</li>
+    <li><a href='#how-to-manually-test-the-app'>How to manually test the app</a></li>
     <li><a href='#ui-kit'>Contributors</a>
         <ul>
             <li><a href='#customizing-styles-with-tailwindcss'>Customizing Styles with Tailwind.css</a></li>

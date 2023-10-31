@@ -10,7 +10,9 @@ import { ActionType } from "../../app/types/enum";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import LocalStorage from "../../app/util/localStorage";
 import dotAcpToast from "../../app/util/toast";
+import { PoolAction } from "../../store/pools/interface";
 import { WalletAction } from "../../store/wallet/interface";
+import { getAllLiquidityPoolsTokensMetadata } from "../poolServices";
 
 export const setupPolkadotApi = async () => {
   const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
@@ -97,10 +99,17 @@ export const getSupportedWallets = () => {
   return supportedWallets;
 };
 
-export const setTokenBalance = async (dispatch: Dispatch<WalletAction>, api: any, selectedAccount: WalletAccount) => {
+export const setTokenBalance = async (
+  dispatch: Dispatch<WalletAction | PoolAction>,
+  api: any,
+  selectedAccount: WalletAccount
+) => {
   if (api) {
     dispatch({ type: ActionType.SET_ASSET_LOADING, payload: true });
     try {
+      const poolsTokenMetadata = await getAllLiquidityPoolsTokensMetadata(api);
+      dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: poolsTokenMetadata });
+
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
 
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
@@ -229,15 +238,16 @@ export const setTokenBalanceAfterAssetsSwapUpdate = async (
   return updatedTokensInfo;
 };
 
-export const handleDisconnect = (dispatch: Dispatch<WalletAction>) => {
+export const handleDisconnect = (dispatch: Dispatch<WalletAction | PoolAction>) => {
   LocalStorage.remove("wallet-connected");
   dispatch({ type: ActionType.SET_ACCOUNTS, payload: [] });
   dispatch({ type: ActionType.SET_SELECTED_ACCOUNT, payload: {} as WalletAccount });
   dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: {} as TokenBalanceData });
+  dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: [] });
 };
 
 export const connectWalletAndFetchBalance = async (
-  dispatch: Dispatch<WalletAction>,
+  dispatch: Dispatch<WalletAction | PoolAction>,
   api: any,
   account: WalletAccount
 ) => {
