@@ -265,7 +265,7 @@ const WithdrawPoolLiquidity = () => {
           nativeTokenExistentialDeposit,
           assetTokenInfoMinBalance
         );
-        setMaxPercentage(truncateDecimalNumber(max));
+        setMaxPercentage(minimumTokenAmountExceededCheck ? truncateDecimalNumber(max) : 100);
       }
     }
   };
