@@ -1,13 +1,13 @@
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
-import { NumericFormat } from "react-number-format";
-import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../app/types/enum";
 import { t } from "i18next";
-import useClickOutside from "../../../app/hooks/useClickOutside";
-import { formatDecimalsFromToken } from "../../../app/util/helper";
+import React, { useRef, useState } from "react";
 import Lottie from "react-lottie";
+import { NumericFormat } from "react-number-format";
+import useClickOutside from "../../../app/hooks/useClickOutside";
+import { ButtonVariants } from "../../../app/types/enum";
+import { formatDecimalsFromToken } from "../../../app/util/helper";
 import { lottieOptions } from "../../../assets/loader";
+import Button from "../../atom/Button";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -21,6 +21,7 @@ type TokenAmountInputProps = {
   labelText?: string;
   selectDisabled?: boolean;
   assetLoading?: boolean;
+  withdrawAmountPercentage?: number;
   onClick: () => void;
   onSetTokenValue: (value: string) => void;
 };
@@ -36,6 +37,7 @@ const TokenAmountInput = ({
   labelText,
   selectDisabled,
   assetLoading,
+  withdrawAmountPercentage,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -112,11 +114,16 @@ const TokenAmountInput = ({
           </Button>
         )}
       </div>
-      <div className="flex w-full justify-end pr-1 text-medium text-gray-200">
-        Balance:{" "}
-        {tokenId && tokenText && Number(tokenBalance) !== 0
-          ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
-          : tokenBalance || 0}
+      <div className="flex w-full justify-between">
+        {withdrawAmountPercentage ? (
+          <span className="text-[13px] tracking-[0.2px] text-black text-opacity-50">({withdrawAmountPercentage}%)</span>
+        ) : null}
+        <div className="flex w-full justify-end pr-1 text-medium text-gray-200">
+          Balance:{" "}
+          {tokenId && tokenText && Number(tokenBalance) !== 0
+            ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
+            : tokenBalance || 0}
+        </div>
       </div>
     </div>
   );

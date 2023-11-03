@@ -1,7 +1,7 @@
-import { t } from "i18next";
-import { Decimal } from "decimal.js";
-import { UrlParamType } from "../types";
 import type { AnyJson } from "@polkadot/types/types/codec";
+import { Decimal } from "decimal.js";
+import { t } from "i18next";
+import { UrlParamType } from "../types";
 
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {
@@ -52,4 +52,14 @@ export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
   }
 
   return exists;
+};
+
+export const truncateDecimalNumber = (number: number, size = 2): number => {
+  const value = number.toString().split(".");
+
+  if (value?.[1]) {
+    return Number(`${value[0]}.${value[1].slice(0, size)}`);
+  }
+
+  return Number(value);
 };
