@@ -19,6 +19,7 @@ export const initialPoolsState: PoolsState = {
   exactAssetTokenAddLiquidity: 0,
   exactNativeTokenWithdraw: 0,
   exactAssetTokenWithdraw: 0,
+  isTokenCanNotCreateWarningPools: false,
 };
 
 export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState => {
@@ -57,6 +58,8 @@ export const poolsReducer = (state: PoolsState, action: PoolAction): PoolsState 
       return { ...state, exactNativeTokenWithdraw: action.payload };
     case ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW:
       return { ...state, exactAssetTokenWithdraw: action.payload };
+    case ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS:
+      return { ...state, isTokenCanNotCreateWarningPools: action.payload };
     default:
       return state;
   }

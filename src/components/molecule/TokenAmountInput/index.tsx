@@ -1,15 +1,19 @@
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
-import { NumericFormat } from "react-number-format";
-import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../app/types/enum";
 import { t } from "i18next";
-import useClickOutside from "../../../app/hooks/useClickOutside";
+import React, { useRef, useState } from "react";
 import Lottie from "react-lottie";
+import { NumericFormat } from "react-number-format";
+import useClickOutside from "../../../app/hooks/useClickOutside";
+import { ButtonVariants } from "../../../app/types/enum";
+import { formatDecimalsFromToken } from "../../../app/util/helper";
 import { lottieOptions } from "../../../assets/loader";
+import Button from "../../atom/Button";
 
 type TokenAmountInputProps = {
   tokenText: string;
+  tokenBalance?: string;
+  tokenId?: string;
+  tokenDecimals?: string | undefined;
   disabled?: boolean;
   className?: string;
   tokenIcon?: React.ReactNode;
@@ -17,6 +21,7 @@ type TokenAmountInputProps = {
   labelText?: string;
   selectDisabled?: boolean;
   assetLoading?: boolean;
+  withdrawAmountPercentage?: number;
   onClick: () => void;
   onSetTokenValue: (value: string) => void;
 };
@@ -24,11 +29,15 @@ type TokenAmountInputProps = {
 const TokenAmountInput = ({
   tokenIcon,
   tokenText,
+  tokenBalance,
+  tokenId,
+  tokenDecimals,
   disabled,
   tokenValue,
   labelText,
   selectDisabled,
   assetLoading,
+  withdrawAmountPercentage,
   onSetTokenValue,
   onClick,
 }: TokenAmountInputProps) => {
@@ -44,65 +53,78 @@ const TokenAmountInput = ({
     <div
       ref={wrapperRef}
       className={classNames(
-        "relative flex items-center justify-start gap-2 rounded-lg border bg-purple-100 px-4 py-7",
+        "relative flex flex-col items-center justify-start gap-2 rounded-lg border bg-purple-100 px-4 py-6",
         {
           "border-pink": isFocused,
           "border-transparent": !isFocused,
         }
       )}
     >
-      <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-gray-200">
-        {labelText}
-      </label>
-      <NumericFormat
-        id="token-amount"
-        getInputRef={inputRef}
-        allowNegative={false}
-        fixedDecimalScale
-        displayType={"input"}
-        disabled={disabled}
-        placeholder={"0"}
-        className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
-        onFocus={() => setIsFocused(true)}
-        value={tokenValue}
-        isAllowed={({ floatValue }) => {
-          if (floatValue) {
-            return floatValue?.toString()?.length <= 15;
-          } else {
-            return true;
-          }
-        }}
-        onValueChange={({ floatValue }) => {
-          onSetTokenValue(floatValue?.toString() || "");
-        }}
-      />
-
-      {tokenText ? (
-        <Button
-          icon={tokenIcon}
-          type="button"
-          onClick={() => onClick()}
-          variant={ButtonVariants.btnSelectGray}
-          disabled={disabled || selectDisabled}
-          className="basis-2/5 disabled:basis-[23%]"
-        >
-          {tokenText}
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          onClick={() => onClick()}
-          variant={ButtonVariants.btnSelectPink}
-          className="basis-[57%]"
+      <div className="flex">
+        <label htmlFor="token-amount" className="absolute top-4 text-small font-normal text-gray-200">
+          {labelText}
+        </label>
+        <NumericFormat
+          id="token-amount"
+          getInputRef={inputRef}
+          allowNegative={false}
+          fixedDecimalScale
+          displayType={"input"}
           disabled={disabled}
-        >
-          {disabled && assetLoading ? (
-            <Lottie options={lottieOptions} height={20} width={20} />
-          ) : (
-            t("button.selectToken")
-          )}
-        </Button>
-      )}
+          placeholder={"0"}
+          className="w-full basis-auto bg-transparent font-unbounded-variable text-heading-4 font-bold text-gray-300 outline-none placeholder:text-gray-200"
+          onFocus={() => setIsFocused(true)}
+          value={tokenValue}
+          isAllowed={({ floatValue }) => {
+            if (floatValue) {
+              return floatValue?.toString()?.length <= 15;
+            } else {
+              return true;
+            }
+          }}
+          onValueChange={({ floatValue }) => {
+            onSetTokenValue(floatValue?.toString() || "");
+          }}
+        />
+
+        {tokenText ? (
+          <Button
+            icon={tokenIcon}
+            type="button"
+            onClick={() => onClick()}
+            variant={ButtonVariants.btnSelectGray}
+            disabled={disabled || selectDisabled}
+            className="basis-2/5 disabled:basis-[23%]"
+          >
+            {tokenText}
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            onClick={() => onClick()}
+            variant={ButtonVariants.btnSelectPink}
+            className="basis-[57%]"
+            disabled={disabled}
+          >
+            {disabled && assetLoading ? (
+              <Lottie options={lottieOptions} height={20} width={20} />
+            ) : (
+              t("button.selectToken")
+            )}
+          </Button>
+        )}
+      </div>
+      <div className="flex w-full justify-between">
+        {withdrawAmountPercentage ? (
+          <span className="text-[13px] tracking-[0.2px] text-black text-opacity-50">({withdrawAmountPercentage}%)</span>
+        ) : null}
+        <div className="flex w-full justify-end pr-1 text-medium text-gray-200">
+          Balance:{" "}
+          {tokenId && tokenText && Number(tokenBalance) !== 0
+            ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
+            : tokenBalance || 0}
+        </div>
+      </div>
     </div>
   );
 };

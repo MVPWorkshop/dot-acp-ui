@@ -94,6 +94,9 @@ export const swapNativeForAssetExactIn = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -164,7 +167,7 @@ export const swapNativeForAssetExactOut = async (
   dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
-    reverse ? [firstArg, secondArg] : [secondArg, firstArg],
+    reverse ? [secondArg, firstArg] : [firstArg, secondArg],
     reverse ? nativeTokenValue : assetTokenValue,
     reverse ? assetTokenValue : nativeTokenValue,
     account.address,
@@ -189,6 +192,9 @@ export const swapNativeForAssetExactOut = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -293,6 +299,9 @@ export const swapAssetForAssetExactIn = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }
@@ -373,8 +382,8 @@ export const swapAssetForAssetExactOut = async (
 
   const result = api.tx.assetConversion.swapTokensForExactTokens(
     [firstArg, secondArg, thirdArg],
-    assetTokenAValue,
     assetTokenBValue,
+    assetTokenAValue,
     account.address,
     false
   );
@@ -397,6 +406,9 @@ export const swapAssetForAssetExactOut = async (
             dotAcpToast.error(checkIfExactError(docs.join(" ")) ? t("swapPage.slippageError") : `${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
           }

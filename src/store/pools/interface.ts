@@ -20,6 +20,7 @@ export interface PoolsState {
   exactAssetTokenAddLiquidity: number;
   exactNativeTokenWithdraw: number;
   exactAssetTokenWithdraw: number;
+  isTokenCanNotCreateWarningPools: boolean;
 }
 
 export type PoolAction =
@@ -42,4 +43,5 @@ export type PoolAction =
   | { type: ActionType.SET_EXACT_NATIVE_TOKEN_ADD_LIQUIDITY; payload: number }
   | { type: ActionType.SET_EXACT_ASSET_TOKEN_ADD_LIQUIDITY; payload: number }
   | { type: ActionType.SET_EXACT_NATIVE_TOKEN_WITHDRAW; payload: number }
-  | { type: ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW; payload: number };
+  | { type: ActionType.SET_EXACT_ASSET_TOKEN_WITHDRAW; payload: number }
+  | { type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS; payload: boolean };

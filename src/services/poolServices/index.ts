@@ -255,6 +255,9 @@ export const addLiquidity = async (
             dotAcpToast.error(`${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           }
@@ -270,7 +273,10 @@ export const addLiquidity = async (
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
-          await createPoolCardsArray(api, dispatch, allPools, account);
+          if (allPools) {
+            dispatch({ type: ActionType.SET_POOLS, payload: allPools });
+            await createPoolCardsArray(api, dispatch, allPools, account);
+          }
         }
       }
     })
@@ -339,6 +345,9 @@ export const removeLiquidity = async (
             dotAcpToast.error(`${docs.join(" ")}`);
             dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           } else {
+            if (response.dispatchError.toString() === t("pageError.tokenCanNotCreate")) {
+              dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: true });
+            }
             dotAcpToast.error(response.dispatchError.toString());
             dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           }
@@ -354,7 +363,10 @@ export const removeLiquidity = async (
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
-          await createPoolCardsArray(api, dispatch, allPools, account);
+          if (allPools) {
+            dispatch({ type: ActionType.SET_POOLS, payload: allPools });
+            await createPoolCardsArray(api, dispatch, allPools, account);
+          }
         }
       }
     })

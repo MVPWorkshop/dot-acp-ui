@@ -53,3 +53,13 @@ export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
 
   return exists;
 };
+
+export const truncateDecimalNumber = (number: number, size = 2): number => {
+  const value = number.toString().split(".");
+
+  if (value?.[1]) {
+    return Number(`${value[0]}.${value[1].slice(0, size)}`);
+  }
+
+  return Number(value);
+};
