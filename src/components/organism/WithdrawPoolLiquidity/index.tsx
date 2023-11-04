@@ -243,6 +243,9 @@ const WithdrawPoolLiquidity = () => {
           nativeTokenInPool
             .sub(nativeTokenOut * (withdrawAmountPercentage / 100))
             .lessThanOrEqualTo(nativeTokenExistentialDeposit);
+        const nativeMinimumTokenAmountExceededCheck =
+          assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance) ||
+          nativeTokenInPool.sub(nativeTokenOut).lessThanOrEqualTo(nativeTokenExistentialDeposit);
 
         setMinimumTokenAmountExceeded(minimumTokenAmountExceededCheck);
 
@@ -265,7 +268,7 @@ const WithdrawPoolLiquidity = () => {
           nativeTokenExistentialDeposit,
           assetTokenInfoMinBalance
         );
-        setMaxPercentage(truncateDecimalNumber(max));
+        setMaxPercentage(nativeMinimumTokenAmountExceededCheck ? truncateDecimalNumber(max) : 100);
       }
     }
   };

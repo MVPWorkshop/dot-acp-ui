@@ -15,7 +15,7 @@ import { WalletAction } from "../../store/wallet/interface";
 import { getAllLiquidityPoolsTokensMetadata } from "../poolServices";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider(import.meta.env.VITE_NETWORK_RPC_URL);
+  const wsProvider = new WsProvider(process.env.VITE_NETWORK_RPC_URL);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
