@@ -4,6 +4,7 @@ type NetworkConfig = {
   nativeTokenSymbol: string;
   rpcUrl: string;
   parents: number;
+  assethubSubscanUrl?: string;
 };
 
 export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
@@ -11,10 +12,12 @@ export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
     nativeTokenSymbol: "WND",
     rpcUrl: "wss://westmint-rpc.polkadot.io",
     parents: 0,
+    assethubSubscanUrl: "https://westmint.statescan.io/#/accounts/",
   },
   [NetworkKeys.Rococo]: {
     nativeTokenSymbol: "ROC",
     rpcUrl: "wss://rococo-asset-hub-rpc.polkadot.io/",
     parents: 1,
+    assethubSubscanUrl: "https://assethub-rococo.subscan.io/account/",
   },
 };
