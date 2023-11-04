@@ -1,10 +1,8 @@
-import * as React from "react";
 import { ReactComponent as WarningIcon } from "../../../assets/img/warning-icon.svg";
 
 type WarningMessageProps = {
   message: string;
   show: boolean;
-  url?: React.ReactNode;
 };
 
 const WarningMessage = ({ message, show }: WarningMessageProps) => {
