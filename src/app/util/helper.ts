@@ -2,6 +2,14 @@ import type { AnyJson } from "@polkadot/types/types/codec";
 import { Decimal } from "decimal.js";
 import { t } from "i18next";
 import { UrlParamType } from "../types";
+import * as Sentry from "@sentry/react";
+
+export const init = () => {
+  // Sentry
+  Sentry.init({
+    dsn: process.env.VITE_SENTRY_DSN,
+  });
+};
 
 export const reduceAddress = (address: string | undefined, lengthLeft: number, lengthRight: number) => {
   if (address) {

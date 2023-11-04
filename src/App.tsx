@@ -16,7 +16,7 @@ const App: FC = () => {
 
   useEffect(() => {
     if (walletConnected && api) {
-      connectWalletAndFetchBalance(dispatch, api, walletConnected);
+      connectWalletAndFetchBalance(dispatch, api, walletConnected).then();
     }
   }, [api]);
 
@@ -25,7 +25,7 @@ const App: FC = () => {
       if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
     };
 
-    updatePoolsCards();
+    updatePoolsCards().then();
   }, [pools, selectedAccount]);
 
   return (
