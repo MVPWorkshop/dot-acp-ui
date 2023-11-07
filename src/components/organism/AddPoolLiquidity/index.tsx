@@ -1,11 +1,12 @@
+import classNames from "classnames";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
+import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import { useNavigate, useParams } from "react-router-dom";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
-import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
-import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { InputEditedProps, TokenDecimalsErrorProps } from "../../../app/types";
 import { ActionType, ButtonVariants, InputEditedType } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
@@ -14,20 +15,20 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
+import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { lottieOptions } from "../../../assets/loader";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
-import TokenAmountInput from "../../molecule/TokenAmountInput";
-import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
-import classNames from "classnames";
-import { lottieOptions } from "../../../assets/loader";
-import Lottie from "react-lottie";
-import { InputEditedProps, TokenDecimalsErrorProps } from "../../../app/types";
-import PoolSelectTokenModal from "../PoolSelectTokenModal";
-import CreatePool from "../CreatePool";
 import WarningMessage from "../../atom/WarningMessage";
+import TokenAmountInput from "../../molecule/TokenAmountInput";
+import CreatePool from "../CreatePool";
+import PoolSelectTokenModal from "../PoolSelectTokenModal";
+import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -51,6 +52,7 @@ type AddPoolLiquidityProps = {
 
 const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const { state, dispatch } = useAppContext();
+  const { assethubSubscanUrl } = useGetNetwork();
 
   const navigate = useNavigate();
   const params = tokenBId ? tokenBId : useParams();
@@ -97,6 +99,9 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     decimalsAllowed: 0,
   });
 
+  const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
 
@@ -129,6 +134,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   };
 
   const handlePool = async () => {
+    if (waitingForTransaction) {
+      clearTimeout(waitingForTransaction);
+    }
+    setIsTransactionTimeout(false);
     if (api && selectedTokenNativeValue && selectedTokenAssetValue) {
       const nativeTokenValue = formatInputTokenValue(selectedNativeTokenNumber, selectedTokenA?.nativeTokenDecimals)
         .toLocaleString()
@@ -430,6 +439,22 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
   }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
 
+  useEffect(() => {
+    if (addLiquidityLoading) {
+      setWaitingForTransaction(
+        setTimeout(() => {
+          if (addLiquidityLoading) {
+            setIsTransactionTimeout(true);
+            dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
+          }
+        }, 180000)
+      ); // 3 minutes 180000
+    } else {
+      if (waitingForTransaction) {
+        clearTimeout(waitingForTransaction);
+      }
+    }
+  }, [addLiquidityLoading]);
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       {tokenBId?.id && poolExists === false ? (
@@ -574,6 +599,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         })}
       />
       <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
+      <WarningMessage
+        show={isTransactionTimeout}
+        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+      />
     </div>
   );
 };
