@@ -8,6 +8,9 @@ import { I18nextProvider } from "react-i18next";
 import { HelmetProvider } from "react-helmet-async";
 import i18n from "./app/config/i18n";
 import "./assets/scss/app.scss";
+import { init } from "./app/util/helper.ts";
+
+init();
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

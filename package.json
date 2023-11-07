@@ -33,6 +33,7 @@
     "@polkadot/keyring": "^12.3.2",
     "@polkadot/types": "^10.9.1",
     "@polkadot/util": "^12.3.2",
+    "@sentry/react": "^7.77.0",
     "@talismn/connect-wallets": "^1.2.3",
     "babel-plugin-transform-import-meta": "^2.2.1",
     "classnames": "^2.3.2",
