@@ -15,7 +15,8 @@ import {
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { lottieOptions } from "../../../assets/loader";
-import { getPoolReserves, createPoolCardsArray } from "../../../services/poolServices";
+import { setTokenBalanceAfterAssetsSwapUpdate, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
+import { createPoolCardsArray, getPoolReserves } from "../../../services/poolServices";
 import {
   checkSwapAssetForAssetExactInGasFee,
   checkSwapAssetForAssetExactOutGasFee,
@@ -32,13 +33,12 @@ import {
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
 } from "../../../services/tokenServices";
-import { setTokenBalanceUpdate, setTokenBalanceAfterAssetsSwapUpdate } from "../../../services/polkadotWalletServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
+import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
-import WarningMessage from "../../atom/WarningMessage";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -59,7 +59,7 @@ type TokenSelectedProps = {
 
 const SwapTokens = () => {
   const { state, dispatch } = useAppContext();
-  const { nativeTokenSymbol } = useGetNetwork();
+  const { nativeTokenSymbol, assethubSubscanUrl } = useGetNetwork();
 
   const {
     tokenBalances,
@@ -121,6 +121,9 @@ const SwapTokens = () => {
     isError: false,
     decimalsAllowed: 0,
   });
+
+  const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
 
   const nativeToken = {
     tokenId: "",
@@ -564,7 +567,11 @@ const SwapTokens = () => {
   };
 
   const handleSwap = async () => {
+    if (waitingForTransaction) {
+      clearTimeout(waitingForTransaction);
+    }
     setSwapSuccessfulReset(false);
+    setIsTransactionTimeout(false);
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -921,6 +928,23 @@ const SwapTokens = () => {
     });
   }, []);
 
+  useEffect(() => {
+    if (swapLoading) {
+      setWaitingForTransaction(
+        setTimeout(() => {
+          if (swapLoading) {
+            setIsTransactionTimeout(true);
+            dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
+          }
+        }, 180000)
+      ); // 3 minutes 180000
+    } else {
+      if (waitingForTransaction) {
+        clearTimeout(waitingForTransaction);
+      }
+    }
+  }, [swapLoading]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -1087,6 +1111,10 @@ const SwapTokens = () => {
       />
       <WarningMessage show={liquidityLow} message={t("pageError.lowLiquidity")} />
       <WarningMessage show={isTokenCanNotCreateWarningSwap} message={t("pageError.tokenCanNotCreateWarning")} />
+      <WarningMessage
+        show={isTransactionTimeout}
+        message={t("swapPage.warning.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+      />
     </div>
   );
 };
