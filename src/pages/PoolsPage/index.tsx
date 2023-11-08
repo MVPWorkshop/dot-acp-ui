@@ -6,8 +6,7 @@ import { ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
 import { useAppContext } from "../../state";
 import PoolDataCard from "./PoolDataCard";
-import Lottie from "react-lottie";
-import { poolsLottieOptions } from "../../assets/loader";
+import { LottieLarge } from "../../assets/loader";
 import { t } from "i18next";
 
 const PoolsPage = () => {
@@ -51,8 +50,8 @@ const PoolsPage = () => {
           </div>
         </div>
         {isPoolsLoading ? (
-          <div className="mt-60">
-            <Lottie options={poolsLottieOptions} height={90} width={90} />
+          <div className="mt-60 flex items-center justify-center">
+            <LottieLarge />
           </div>
         ) : pools.length > 0 && poolsCards.length > 0 ? (
           <div className="grid grid-cols-3 gap-4">

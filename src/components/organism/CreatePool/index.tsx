@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
-import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
@@ -18,7 +17,6 @@ import dotAcpToast from "../../../app/util/toast";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
-import { lottieOptions } from "../../../assets/loader";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -28,6 +26,7 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import AddPoolLiquidity from "../AddPoolLiquidity";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import { LottieMedium } from "../../../assets/loader";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -488,11 +487,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
               variant={ButtonVariants.btnInteractivePink}
               disabled={getButtonProperties.disabled || createPoolLoading || addLiquidityLoading}
             >
-              {createPoolLoading || addLiquidityLoading ? (
-                <Lottie options={lottieOptions} height={30} width={30} />
-              ) : (
-                getButtonProperties.label
-              )}
+              {createPoolLoading || addLiquidityLoading ? <LottieMedium /> : getButtonProperties.label}
             </Button>
 
             <PoolSelectTokenModal
