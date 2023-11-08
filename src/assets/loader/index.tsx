@@ -11,52 +11,5 @@ export const LottieMedium = () => (
 );
 
 export const LottieLarge = () => (
-  <Lottie
-    animationData={poolsLoader}
-    loop={true}
-    autoplay={true}
-    style={{ height: 90, width: 90, position: "absolute" }}
-  />
+  <Lottie animationData={poolsLoader} loop={true} autoplay={true} style={{ height: 90, width: 90 }} />
 );
-
-export const lottieOptionsSmall = {
-  loop: true,
-  autoplay: true,
-  animationData: dotLoader,
-  width: 20,
-  height: 20,
-  rendererSettings: {
-    preserveAspectRatio: "xMidYMid slice",
-  },
-};
-
-export const lottieOptionsMedium = {
-  loop: true,
-  autoplay: true,
-  animationData: dotLoader,
-  width: 30,
-  height: 30,
-  rendererSettings: {
-    preserveAspectRatio: "xMidYMid slice",
-  },
-};
-
-export const lottieOptionsLarge = {
-  loop: true,
-  autoplay: true,
-  animationData: poolsLoader,
-  width: 90,
-  height: 90,
-  rendererSettings: {
-    preserveAspectRatio: "xMidYMid slice",
-  },
-};
-
-export const poolsLottieOptions = {
-  loop: true,
-  autoplay: true,
-  animationData: poolsLoader,
-  rendererSettings: {
-    preserveAspectRatio: "xMidYMid slice",
-  },
-};
