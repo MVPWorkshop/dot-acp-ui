@@ -399,7 +399,11 @@ const WithdrawPoolLiquidity = () => {
           withdrawAmountPercentage={withdrawAmountPercentage}
         />
 
-        <AmountPercentage maxValue={maxPercentage} onChange={(value) => setWithdrawAmountPercentage(value)} />
+        <AmountPercentage
+          maxValue={maxPercentage}
+          onChange={(value) => setWithdrawAmountPercentage(value)}
+          disabled={withdrawLiquidityLoading}
+        />
 
         <div className="mt-1 text-small">{transferGasFeesMessage}</div>
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
