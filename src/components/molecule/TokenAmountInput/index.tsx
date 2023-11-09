@@ -1,13 +1,12 @@
 import classNames from "classnames";
 import { t } from "i18next";
 import React, { useRef, useState } from "react";
-import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import useClickOutside from "../../../app/hooks/useClickOutside";
 import { ButtonVariants } from "../../../app/types/enum";
 import { formatDecimalsFromToken } from "../../../app/util/helper";
-import { lottieOptions } from "../../../assets/loader";
 import Button from "../../atom/Button";
+import { LottieSmall } from "../../../assets/loader";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -106,11 +105,7 @@ const TokenAmountInput = ({
             className="basis-[57%]"
             disabled={disabled}
           >
-            {disabled && assetLoading ? (
-              <Lottie options={lottieOptions} height={20} width={20} />
-            ) : (
-              t("button.selectToken")
-            )}
+            {disabled && assetLoading ? <LottieSmall /> : t("button.selectToken")}
           </Button>
         )}
       </div>

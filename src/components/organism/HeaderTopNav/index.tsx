@@ -14,14 +14,13 @@ import { useAppContext } from "../../../state/index.tsx";
 import Button from "../../atom/Button/index.tsx";
 import { t } from "i18next";
 import { useEffect, useState } from "react";
-import { lottieOptions } from "../../../assets/loader/index.tsx";
-import Lottie from "react-lottie";
 import WalletConnectModal from "../WalletConnectModal/index.tsx";
 import LocalStorage from "../../../app/util/localStorage.ts";
 import { ModalStepProps } from "../../../app/types/index.ts";
 import type { Timeout } from "react-number-format/types/types";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import dotAcpToast from "../../../app/util/toast.ts";
+import { LottieSmall } from "../../../assets/loader/index.tsx";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -121,7 +120,7 @@ const HeaderTopNav = () => {
                   variant={ButtonVariants.btnPrimaryPinkLg}
                   disabled={walletConnectLoading}
                 >
-                  <Lottie options={lottieOptions} height={20} width={20} />
+                  <LottieSmall />
                 </Button>
               ) : (
                 <div className="flex items-center justify-center gap-[26px]">
@@ -139,11 +138,7 @@ const HeaderTopNav = () => {
             </>
           ) : (
             <Button onClick={connectWallet} variant={ButtonVariants.btnPrimaryPinkLg} disabled={walletConnectLoading}>
-              {walletConnectLoading ? (
-                <Lottie options={lottieOptions} height={20} width={20} />
-              ) : (
-                t("button.connectWallet")
-              )}
+              {walletConnectLoading ? <LottieSmall /> : t("button.connectWallet")}
             </Button>
           )}
         </div>

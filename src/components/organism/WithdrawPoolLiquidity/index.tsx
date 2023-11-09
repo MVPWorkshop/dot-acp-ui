@@ -2,7 +2,6 @@ import classNames from "classnames";
 import Decimal from "decimal.js";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
-import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
@@ -19,7 +18,6 @@ import dotAcpToast from "../../../app/util/toast";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
-import { lottieOptions } from "../../../assets/loader";
 import { assetTokenData, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -29,6 +27,7 @@ import AmountPercentage from "../../molecule/AmountPercentage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import { LottieMedium } from "../../../assets/loader";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -484,11 +483,7 @@ const WithdrawPoolLiquidity = () => {
           variant={ButtonVariants.btnInteractivePink}
           disabled={getWithdrawButtonProperties.disabled || withdrawLiquidityLoading}
         >
-          {withdrawLiquidityLoading ? (
-            <Lottie options={lottieOptions} height={30} width={30} />
-          ) : (
-            getWithdrawButtonProperties.label
-          )}
+          {withdrawLiquidityLoading ? <LottieMedium /> : getWithdrawButtonProperties.label}
         </Button>
         <PoolSelectTokenModal
           onSelect={setSelectedTokenB}

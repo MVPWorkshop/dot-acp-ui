@@ -1,7 +1,6 @@
 import classNames from "classnames";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
-import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { InputEditedProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
@@ -14,7 +13,6 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
-import { lottieOptions } from "../../../assets/loader";
 import { setTokenBalanceAfterAssetsSwapUpdate, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { createPoolCardsArray, getPoolReserves } from "../../../services/poolServices";
 import {
@@ -39,6 +37,7 @@ import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
+import { LottieMedium } from "../../../assets/loader";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -1064,7 +1063,7 @@ const SwapTokens = () => {
           variant={ButtonVariants.btnInteractivePink}
           disabled={getSwapButtonProperties.disabled || swapLoading}
         >
-          {swapLoading ? <Lottie options={lottieOptions} height={30} width={30} /> : getSwapButtonProperties.label}
+          {swapLoading ? <LottieMedium /> : getSwapButtonProperties.label}
         </Button>
 
         <SwapAndPoolSuccessModal
