@@ -72,20 +72,24 @@ export const truncateDecimalNumber = (number: number, size = 2): number => {
   return Number(value);
 };
 
-export const toFixedNumber = (x: number) => {
-  if (Math.abs(x) < 1.0) {
-    const e = parseInt(x.toString().split("e-")[1]);
+export const toFixedNumber = (number: number) => {
+  let decimalX = new Decimal(number);
+
+  if (decimalX.abs().lessThan(1.0)) {
+    const e = decimalX.toString().split("e-")[1];
     if (e) {
-      x *= Math.pow(10, e - 1);
-      x = Number("0." + new Array(e).join("0") + x.toString().substring(2));
+      const powerOfTen = new Decimal(10).pow(new Decimal(e).minus(1));
+      decimalX = decimalX.times(powerOfTen);
+      decimalX = new Decimal("0." + "0".repeat(parseInt(e)) + decimalX.toString().substring(2));
     }
   } else {
-    let e = parseInt(x.toString().split("+")[1]);
+    let e = parseInt(decimalX.toString().split("+")[1]);
     if (e > 20) {
       e -= 20;
-      x /= Math.pow(10, e);
-      x += Number(new Array(e + 1).join("0"));
+      decimalX = decimalX.dividedBy(new Decimal(10).pow(e));
+      decimalX = decimalX.plus(new Decimal("0".repeat(e + 1)));
     }
   }
-  return x;
+
+  return decimalX.toNumber();
 };

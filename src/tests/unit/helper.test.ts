@@ -110,7 +110,7 @@ describe("calculateSlippageReduce", () => {
 describe("toFixedNumber", () => {
   it("formats number correctly", () => {
     const result = toFixedNumber(Number("1e+23"));
-    expect(result).toEqual(99999999999999980000);
+    expect(result).toEqual(100000000000000000000);
   });
 
   it("formats number correctly", () => {
