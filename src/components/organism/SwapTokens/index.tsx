@@ -1113,7 +1113,7 @@ const SwapTokens = () => {
       <WarningMessage show={isTokenCanNotCreateWarningSwap} message={t("pageError.tokenCanNotCreateWarning")} />
       <WarningMessage
         show={isTransactionTimeout}
-        message={t("swapPage.warning.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
       />
     </div>
   );

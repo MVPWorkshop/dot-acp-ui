@@ -1,11 +1,12 @@
+import classNames from "classnames";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
+import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import { useNavigate } from "react-router-dom";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
-import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
-import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { TokenDecimalsErrorProps } from "../../../app/types";
 import { ActionType, ButtonVariants } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
@@ -14,19 +15,19 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import dotAcpToast from "../../../app/util/toast";
-import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
+import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
+import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { lottieOptions } from "../../../assets/loader";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
+import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
-import TokenAmountInput from "../../molecule/TokenAmountInput";
-import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import PoolSelectTokenModal from "../PoolSelectTokenModal";
-import classNames from "classnames";
 import WarningMessage from "../../atom/WarningMessage";
-import Lottie from "react-lottie";
-import { lottieOptions } from "../../../assets/loader";
+import TokenAmountInput from "../../molecule/TokenAmountInput";
 import AddPoolLiquidity from "../AddPoolLiquidity";
-import { TokenDecimalsErrorProps } from "../../../app/types";
+import PoolSelectTokenModal from "../PoolSelectTokenModal";
+import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -52,6 +53,7 @@ type CreatePoolProps = {
 
 const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const { state, dispatch } = useAppContext();
+  const { assethubSubscanUrl } = useGetNetwork();
 
   const navigate = useNavigate();
 
@@ -97,6 +99,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     decimalsAllowed: 0,
   });
 
+  const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
 
@@ -105,6 +110,10 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   };
 
   const handlePool = async () => {
+    if (waitingForTransaction) {
+      clearTimeout(waitingForTransaction);
+    }
+    setIsTransactionTimeout(false);
     if (api && selectedTokenAssetValue && selectedTokenNativeValue) {
       const nativeTokenValue = formatInputTokenValue(selectedNativeTokenNumber, selectedTokenA?.nativeTokenDecimals)
         .toLocaleString()
@@ -361,6 +370,23 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS, payload: false });
   }, [selectedTokenB.assetTokenId, selectedTokenNativeValue, selectedTokenAssetValue]);
 
+  useEffect(() => {
+    if (createPoolLoading) {
+      setWaitingForTransaction(
+        setTimeout(() => {
+          if (createPoolLoading) {
+            setIsTransactionTimeout(true);
+            dispatch({ type: ActionType.SET_CREATE_POOL_LOADING, payload: false });
+          }
+        }, 180000)
+      ); // 3 minutes 180000
+    } else {
+      if (waitingForTransaction) {
+        clearTimeout(waitingForTransaction);
+      }
+    }
+  }, [createPoolLoading]);
+
   return (
     <>
       {poolExists ? (
@@ -509,6 +535,10 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
             })}
           />
           <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
+          <WarningMessage
+            show={isTransactionTimeout}
+            message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+          />
         </div>
       )}
     </>

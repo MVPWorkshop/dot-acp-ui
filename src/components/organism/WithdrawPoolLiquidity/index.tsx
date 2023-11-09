@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import Lottie from "react-lottie";
 import { NumericFormat } from "react-number-format";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { LpTokenAsset } from "../../../app/types";
 import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
@@ -45,6 +46,7 @@ type TokenValueProps = {
 
 const WithdrawPoolLiquidity = () => {
   const { state, dispatch } = useAppContext();
+  const { assethubSubscanUrl } = useGetNetwork();
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -85,6 +87,8 @@ const WithdrawPoolLiquidity = () => {
   const [minimumTokenAmountExceeded, setMinimumTokenAmountExceeded] = useState<boolean>(false);
   const [withdrawAmountPercentage, setWithdrawAmountPercentage] = useState<number>(100);
   const [maxPercentage, setMaxPercentage] = useState<number>(100);
+  const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -114,6 +118,10 @@ const WithdrawPoolLiquidity = () => {
 
   const handlePool = async () => {
     const lpToken = Math.floor(Number(lpTokensAmountToBurn) * (withdrawAmountPercentage / 100)).toString();
+    if (waitingForTransaction) {
+      clearTimeout(waitingForTransaction);
+    }
+    setIsTransactionTimeout(false);
 
     try {
       if (api) {
@@ -358,6 +366,23 @@ const WithdrawPoolLiquidity = () => {
     return value.toString();
   };
 
+  useEffect(() => {
+    if (withdrawLiquidityLoading) {
+      setWaitingForTransaction(
+        setTimeout(() => {
+          if (withdrawLiquidityLoading) {
+            setIsTransactionTimeout(true);
+            dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
+          }
+        }, 3000)
+      ); // 3 minutes 180000
+    } else {
+      if (waitingForTransaction) {
+        clearTimeout(waitingForTransaction);
+      }
+    }
+  }, [withdrawLiquidityLoading]);
+
   return (
     <div className="flex w-full max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -490,6 +515,10 @@ const WithdrawPoolLiquidity = () => {
       </div>
       <WarningMessage show={minimumTokenAmountExceeded} message={t("poolsPage.minimumAmountExceeded")} />
       <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
+      <WarningMessage
+        show={isTransactionTimeout}
+        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+      />
     </div>
   );
 };
