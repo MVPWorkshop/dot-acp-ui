@@ -3,10 +3,11 @@ import { NumericFormat } from "react-number-format";
 
 interface AmountPercentageProps {
   maxValue: number;
+  disabled: boolean;
   onChange: (value: number) => void;
 }
 
-const AmountPercentage: FC<AmountPercentageProps> = ({ maxValue, onChange }) => {
+const AmountPercentage: FC<AmountPercentageProps> = ({ maxValue, onChange, disabled }) => {
   const [value, setValue] = useState<number>(100);
 
   const handleClick = (value: number) => {
@@ -32,30 +33,35 @@ const AmountPercentage: FC<AmountPercentageProps> = ({ maxValue, onChange }) => 
             thousandSeparator={false}
             allowNegative={false}
             className="w-full rounded-lg bg-purple-100 p-2 text-large  text-gray-200 outline-none"
+            disabled={disabled}
           />
           <span className="absolute right-2 top-[10px] text-medium text-gray-100">%</span>
         </div>
         <button
           className="flex h-[37px] w-[65px] items-center justify-center rounded-[100px] bg-pink bg-opacity-10 text-[11px] tracking-[.66px] text-pink"
           onClick={() => handleClick(25)}
+          disabled={disabled}
         >
           25%
         </button>
         <button
           className="flex h-[37px] w-[65px] items-center justify-center rounded-[100px] bg-pink bg-opacity-10 text-[11px] tracking-[.66px] text-pink"
           onClick={() => handleClick(50)}
+          disabled={disabled}
         >
           50%
         </button>
         <button
           className="flex h-[37px] w-[65px] items-center justify-center rounded-[100px] bg-pink bg-opacity-10 text-[11px] tracking-[.66px] text-pink"
           onClick={() => handleClick(75)}
+          disabled={disabled}
         >
           75%
         </button>
         <button
           className="flex h-[37px] w-[65px] items-center justify-center rounded-[100px] bg-pink bg-opacity-10 text-[11px] tracking-[.66px] text-pink"
           onClick={() => handleClick(maxValue)}
+          disabled={disabled}
         >
           Max
         </button>
