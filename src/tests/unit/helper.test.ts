@@ -3,6 +3,7 @@ import {
   calculateSlippageReduce,
   formatDecimalsFromToken,
   formatInputTokenValue,
+  toFixedNumber,
 } from "../../app/util/helper";
 
 describe("formatInputTokenValue", () => {
@@ -103,5 +104,22 @@ describe("calculateSlippageReduce", () => {
 
   it("should return the correct result with a decimal slippage", () => {
     expect(calculateSlippageReduce(50, 1.5)).toBe(49.25);
+  });
+});
+
+describe("toFixedNumber", () => {
+  it("formats number correctly", () => {
+    const result = toFixedNumber(Number("1e+23"));
+    expect(result).toEqual(100000000000000000000);
+  });
+
+  it("formats number correctly", () => {
+    const result = toFixedNumber(Number("2e-4"));
+    expect(result).toEqual(0.0002);
+  });
+
+  it("formats number correctly", () => {
+    const result = toFixedNumber(Number("1e21"));
+    expect(result).toEqual(100000000000000000000);
   });
 });

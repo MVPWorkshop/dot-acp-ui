@@ -44,7 +44,7 @@ export const formatInputTokenValue = (base: number, decimals: string) => {
 };
 
 export const formatDecimalsFromToken = (base: number, decimals: string) => {
-  return new Decimal(base).dividedBy(Math.pow(10, parseFloat(decimals))).toNumber();
+  return toFixedNumber(new Decimal(base).dividedBy(Math.pow(10, parseFloat(decimals))).toNumber());
 };
 
 export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
@@ -70,4 +70,26 @@ export const truncateDecimalNumber = (number: number, size = 2): number => {
   }
 
   return Number(value);
+};
+
+export const toFixedNumber = (number: number) => {
+  let decimalX = new Decimal(number);
+
+  if (decimalX.abs().lessThan(1.0)) {
+    const e = decimalX.toString().split("e-")[1];
+    if (e) {
+      const powerOfTen = new Decimal(10).pow(new Decimal(e).minus(1));
+      decimalX = decimalX.times(powerOfTen);
+      decimalX = new Decimal("0." + "0".repeat(parseInt(e)) + decimalX.toString().substring(2));
+    }
+  } else {
+    let e = parseInt(decimalX.toString().split("+")[1]);
+    if (e > 20) {
+      e -= 20;
+      decimalX = decimalX.dividedBy(new Decimal(10).pow(e));
+      decimalX = decimalX.plus(new Decimal("0".repeat(e + 1)));
+    }
+  }
+
+  return decimalX.toNumber();
 };
