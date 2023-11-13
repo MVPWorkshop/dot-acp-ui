@@ -13,9 +13,11 @@ import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 import { WalletAction } from "../../store/wallet/interface";
 import { getAllLiquidityPoolsTokensMetadata } from "../poolServices";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 
 export const setupPolkadotApi = async () => {
-  const wsProvider = new WsProvider(process.env.VITE_NETWORK_RPC_URL);
+  const { rpcUrl } = useGetNetwork();
+  const wsProvider = new WsProvider(rpcUrl);
   const api = await ApiPromise.create({ provider: wsProvider });
   const [chain, nodeName, nodeVersion] = await Promise.all([
     api.rpc.system.chain(),
