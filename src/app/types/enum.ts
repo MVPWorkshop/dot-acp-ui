@@ -81,6 +81,7 @@ export enum TokenPosition {
 export enum NetworkKeys {
   Westmint = "westmint",
   Rococo = "rococo",
+  Kusama = "kusama",
 }
 
 export enum WalletConnectSteps {
