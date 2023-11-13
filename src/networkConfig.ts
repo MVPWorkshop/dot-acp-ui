@@ -20,4 +20,10 @@ export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
     parents: 1,
     assethubSubscanUrl: "https://assethub-rococo.subscan.io/account/",
   },
+  [NetworkKeys.Kusama]: {
+    nativeTokenSymbol: "KSM",
+    rpcUrl: "wss://kusama-asset-hub-rpc.polkadot.io/",
+    parents: 1,
+    assethubSubscanUrl: "https://kusama.subscan.io/",
+  },
 };
