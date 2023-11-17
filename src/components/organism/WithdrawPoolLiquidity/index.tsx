@@ -18,6 +18,7 @@ import dotAcpToast from "../../../app/util/toast";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { LottieMedium } from "../../../assets/loader";
 import { assetTokenData, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { checkWithdrawPoolLiquidityGasFee, getPoolReserves, removeLiquidity } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -27,7 +28,6 @@ import AmountPercentage from "../../molecule/AmountPercentage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import { LottieMedium } from "../../../assets/loader";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -373,7 +373,7 @@ const WithdrawPoolLiquidity = () => {
             setIsTransactionTimeout(true);
             dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           }
-        }, 3000)
+        }, 180000)
       ); // 3 minutes 180000
     } else {
       if (waitingForTransaction) {
