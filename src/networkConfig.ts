@@ -24,6 +24,6 @@ export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
     nativeTokenSymbol: "KSM",
     rpcUrl: "wss://kusama-asset-hub-rpc.polkadot.io/",
     parents: 1,
-    assethubSubscanUrl: "https://kusama.subscan.io/",
+    assethubSubscanUrl: "https://kusama.subscan.io/account/",
   },
 };
