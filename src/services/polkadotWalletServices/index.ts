@@ -111,8 +111,6 @@ export const setTokenBalance = async (
 
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
 
-      console.log("wallet tokens:", walletTokens);
-
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
 
       LocalStorage.set("wallet-connected", selectedAccount);
