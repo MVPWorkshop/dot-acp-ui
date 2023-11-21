@@ -70,11 +70,12 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 
   console.log(`${now}: balance of ${balance?.free} and a current nonce of ${nonce} and next nonce of ${nextNonce}`);
 
+  const balanceFormatted = formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string).toFixed(
+    2
+  );
+
   const tokensInfo = {
-    balance:
-      Number(balance?.free.toString().length) > Number(tokenDecimals)
-        ? formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false })
-        : formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string),
+    balance: balanceFormatted,
     ss58Format,
     existentialDeposit: existentialDeposit.toHuman(),
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
