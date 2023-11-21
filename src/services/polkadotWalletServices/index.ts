@@ -71,10 +71,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   console.log(`${now}: balance of ${balance?.free} and a current nonce of ${nonce} and next nonce of ${nextNonce}`);
 
   const tokensInfo = {
-    balance:
-      Number(balance?.free.toString().length) > Number(tokenDecimals)
-        ? formatBalance(balance?.free.toString(), { withUnit: tokenSymbol as string, withSi: false })
-        : formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string),
+    balance: formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string),
     ss58Format,
     existentialDeposit: existentialDeposit.toHuman(),
     tokenDecimals: Array.isArray(tokenDecimals) ? tokenDecimals?.[0] : "",
@@ -113,6 +110,8 @@ export const setTokenBalance = async (
       dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: poolsTokenMetadata });
 
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
+
+      console.log("wallet tokens:", walletTokens);
 
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
 
