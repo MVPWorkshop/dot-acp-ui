@@ -2,7 +2,7 @@ import PoweredBy from "../../atom/PoweredBy";
 
 const Footer = () => {
   return (
-    <footer style={{ backgroundColor: "#E6EAF6" }}>
+    <footer>
       <PoweredBy />
     </footer>
   );
