@@ -1,4 +1,5 @@
 import classNames from "classnames";
+import Decimal from "decimal.js";
 import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
@@ -17,6 +18,7 @@ import dotAcpToast from "../../../app/util/toast";
 import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { LottieMedium } from "../../../assets/loader";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { checkCreatePoolGasFee, createPool, getAllLiquidityPoolsTokensMetadata } from "../../../services/poolServices";
 import { useAppContext } from "../../../state";
@@ -26,7 +28,6 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import AddPoolLiquidity from "../AddPoolLiquidity";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
-import { LottieMedium } from "../../../assets/loader";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -226,10 +227,13 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     if (selectedTokenAssetValue && api && selectedTokenB.assetTokenId) {
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
       const assetTokenMinBalance = assetTokenInfo.toHuman()?.minBalance;
-      if (selectedTokenAssetValue.tokenValue >= assetTokenMinBalance?.replace(/[, ]/g, "")) {
+      const formattedMinTokenAmount = assetTokenMinBalance?.replace(/[, ]/g, "");
+      const assetTokenMinBalanceFormatted = formatDecimalsFromToken(formattedMinTokenAmount, selectedTokenB.decimals);
+
+      if (new Decimal(selectedTokenAssetValue.tokenValue).gte(assetTokenMinBalanceFormatted)) {
         setAssetTokenMinValueExceeded(false);
       } else {
-        setAssetTokenMinValue(assetTokenMinBalance);
+        setAssetTokenMinValue(assetTokenMinBalanceFormatted.toString());
         setAssetTokenMinValueExceeded(true);
       }
     }
