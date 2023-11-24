@@ -128,5 +128,9 @@
     "poolExists": "No need to create a new pool. Liquidity can be added to the existing one.",
     "palletSlippageError": "Calculated amount out is less than provided minimum amount.",
     "slippageError": "The transaction could not be completed due to the set slippage."
+  },
+  "footer": {
+    "poweredBy": "Powered by",
+    "company": "MVP Workshop"
   }
 }
