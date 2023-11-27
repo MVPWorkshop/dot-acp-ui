@@ -1,8 +1,8 @@
 import type { AnyJson } from "@polkadot/types/types/codec";
+import * as Sentry from "@sentry/react";
 import { Decimal } from "decimal.js";
 import { t } from "i18next";
 import { UrlParamType } from "../types";
-import * as Sentry from "@sentry/react";
 
 export const init = () => {
   // Sentry
@@ -27,24 +27,24 @@ export const urlTo = (path: string, params?: UrlParamType) => {
   return path;
 };
 
-export const calculateSlippageReduce = (tokenValue: number, slippageValue: number) => {
-  return new Decimal(tokenValue).minus(new Decimal(tokenValue).times(slippageValue).dividedBy(100)).toNumber();
+export const calculateSlippageReduce = (tokenValue: Decimal.Value, slippageValue: number) => {
+  return new Decimal(tokenValue).minus(new Decimal(tokenValue).times(slippageValue).dividedBy(100)).toFixed();
 };
 
-export const calculateSlippageAdd = (tokenValue: number, slippageValue: number) => {
-  return new Decimal(tokenValue).plus(new Decimal(tokenValue).times(slippageValue).dividedBy(100)).toNumber();
+export const calculateSlippageAdd = (tokenValue: Decimal.Value, slippageValue: number) => {
+  return new Decimal(tokenValue).plus(new Decimal(tokenValue).times(slippageValue).dividedBy(100)).toFixed();
 };
 
-export const formatInputTokenValue = (base: number, decimals: string) => {
+export const formatInputTokenValue = (base: Decimal.Value, decimals: string) => {
   return new Decimal(base)
     .times(Math.pow(10, parseFloat(decimals)))
     .floor()
-    .toFixed()
-    .toString();
+    .toFixed();
 };
 
-export const formatDecimalsFromToken = (base: number, decimals: string) => {
-  return toFixedNumber(new Decimal(base).dividedBy(Math.pow(10, parseFloat(decimals))).toNumber());
+export const formatDecimalsFromToken = (base: Decimal.Value, decimals: string) => {
+  // console.log("formatDecimalsFromToken", base, decimals)
+  return new Decimal(base || 0).dividedBy(Math.pow(10, parseFloat(decimals))).toFixed();
 };
 
 export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
@@ -62,8 +62,8 @@ export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {
   return exists;
 };
 
-export const truncateDecimalNumber = (number: number, size = 2): number => {
-  const value = number.toString().split(".");
+export const truncateDecimalNumber = (number: string, size = 2): number => {
+  const value = number.split(".");
 
   if (value?.[1]) {
     return Number(`${value[0]}.${value[1].slice(0, size)}`);
@@ -92,4 +92,36 @@ export const toFixedNumber = (number: number) => {
   }
 
   return decimalX.toNumber();
+};
+
+/**
+ * Accepts a string input and converts it to the base unit
+ * @param input format like "110.4089 µKSM", "1.9200 mWND" or "0.001919 WND"
+ * @returns converted value in the base unit (e.g. 0.0000001104089, 0.00192)
+ */
+export const convertToBaseUnit = (input: string): Decimal => {
+  // Regular expression to extract the number, optionally the unit (m or µ), followed by the currency type
+  const regex = /(\d+\.?\d*)\s*([mµ])?\w+/;
+  const match = input.match(regex);
+
+  if (!match) {
+    console.log("Invalid input format", input);
+    return new Decimal(0);
+  }
+
+  const [, rawValue, unit] = match;
+  let value = new Decimal(rawValue);
+
+  // Convert based on the unit
+  switch (unit) {
+    case "m": // milli, divide by 1,000
+      value = value.div(1000);
+      break;
+    case "µ": // micro, divide by 1,000,000
+      value = value.div(1000000);
+      break;
+    // If no unit is specified, we assume the value is already in the base unit
+  }
+
+  return value;
 };

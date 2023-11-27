@@ -199,8 +199,8 @@ const WithdrawPoolLiquidity = () => {
       const res: any = await getPoolReserves(api, selectedTokenB.assetTokenId);
 
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
-      const assetTokenInfoMinBalance = assetTokenInfo.toHuman().minBalance?.replace(/[, ]/g, "");
-      const nativeTokenExistentialDeposit: any = tokenBalances?.existentialDeposit.replace(/[, ]/g, "");
+      const assetTokenInfoMinBalance = assetTokenInfo?.toHuman()?.minBalance?.replace(/[, ]/g, "");
+      const nativeTokenExistentialDeposit = tokenBalances?.existentialDeposit.replace(/[, ]/g, "");
       const lpTokenTotalAsset: any = await api.query.poolAssets.asset(location?.state?.lpTokenId);
 
       const lpTotalAssetSupply = lpTokenTotalAsset.toHuman()?.supply?.replace(/[, ]/g, "");
@@ -220,21 +220,22 @@ const WithdrawPoolLiquidity = () => {
         const nativeTokenOut = nativeTokenInPool
           .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
           .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
-          .floor()
-          .toNumber();
+          .floor();
 
         const assetInPool = new Decimal(res[1]?.replace(/[, ]/g, ""));
         const assetOut = assetInPool
           .mul(new Decimal(lpTokenUserAssetBalance).toNumber())
           .dividedBy(new Decimal(lpTotalAssetSupply).toNumber())
-          .floor()
-          .toNumber();
+          .floor();
 
-        const nativeTokenOutFormatted =
-          formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals) *
-          (withdrawAmountPercentage / 100);
-        const assetOutFormatted =
-          formatDecimalsFromToken(assetOut, selectedTokenB?.decimals) * (withdrawAmountPercentage / 100);
+        const nativeTokenOutFormatted = new Decimal(
+          formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals)
+        )
+          .mul(withdrawAmountPercentage)
+          .div(100);
+        const assetOutFormatted = new Decimal(formatDecimalsFromToken(assetOut, selectedTokenB?.decimals))
+          .mul(withdrawAmountPercentage)
+          .div(100);
 
         const nativeTokenOutSlippage = calculateSlippageReduce(nativeTokenOutFormatted, slippageValue);
         const nativeTokenOutSlippageFormatted = formatInputTokenValue(
@@ -246,24 +247,24 @@ const WithdrawPoolLiquidity = () => {
         const assetOutSlippageFormatted = formatInputTokenValue(assetOutSlippage, selectedTokenB?.decimals);
 
         const minimumTokenAmountExceededCheck =
-          assetInPool.sub(assetOut * (withdrawAmountPercentage / 100)).lessThanOrEqualTo(assetTokenInfoMinBalance) ||
+          assetInPool.sub(assetOut.mul(withdrawAmountPercentage).div(100)).lte(assetTokenInfoMinBalance) ||
           nativeTokenInPool
-            .sub(nativeTokenOut * (withdrawAmountPercentage / 100))
-            .lessThanOrEqualTo(nativeTokenExistentialDeposit);
+            .sub(nativeTokenOut.mul(withdrawAmountPercentage).div(100))
+            .lte(nativeTokenExistentialDeposit || 0);
         const nativeMinimumTokenAmountExceededCheck =
           assetInPool.sub(assetOut).lessThanOrEqualTo(assetTokenInfoMinBalance) ||
-          nativeTokenInPool.sub(nativeTokenOut).lessThanOrEqualTo(nativeTokenExistentialDeposit);
+          nativeTokenInPool.sub(nativeTokenOut).lessThanOrEqualTo(nativeTokenExistentialDeposit || 0);
 
         setMinimumTokenAmountExceeded(minimumTokenAmountExceededCheck);
 
         setSelectedTokenNativeValue({
-          tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals).toString(),
+          tokenValue: formatDecimalsFromToken(nativeTokenOut, selectedTokenA?.nativeTokenDecimals),
         });
 
         setNativeTokenWithSlippage({ tokenValue: nativeTokenOutSlippageFormatted });
 
         setSelectedTokenAssetValue({
-          tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals).toString(),
+          tokenValue: formatDecimalsFromToken(assetOut, selectedTokenB?.decimals),
         });
         setAssetTokenWithSlippage({ tokenValue: assetOutSlippageFormatted });
 
@@ -272,17 +273,17 @@ const WithdrawPoolLiquidity = () => {
           selectedTokenAssetValue?.tokenValue || "0",
           selectedTokenA.nativeTokenDecimals,
           selectedTokenB.decimals,
-          nativeTokenExistentialDeposit,
-          assetTokenInfoMinBalance
+          nativeTokenExistentialDeposit || "0",
+          assetTokenInfoMinBalance || "0"
         );
         setMaxPercentage(nativeMinimumTokenAmountExceededCheck ? truncateDecimalNumber(max) : 100);
       }
     }
   };
 
-  const calculatePercentage = (value: number, baseValue: number) => {
-    const result = new Decimal(value - baseValue).dividedBy(value).times(100).toNumber();
-    return result;
+  const calculatePercentage = (value: string, baseValue: string) => {
+    const valueMinusBaseValue = new Decimal(value).minus(baseValue);
+    return valueMinusBaseValue.dividedBy(value).mul(100);
   };
 
   const calculateMaxPercent = (
@@ -290,20 +291,16 @@ const WithdrawPoolLiquidity = () => {
     selectedTokenAssetValue: string,
     selectedTokenA: string,
     selectedTokenB: string,
-    nativeTokenExistentialDeposit: number,
-    assetTokenInfoMinBalance: number
+    nativeTokenExistentialDeposit: string,
+    assetTokenInfoMinBalance: string
   ) => {
-    const selectedTokenAPow = Number(
-      formatInputTokenValue(new Decimal(selectedTokenNativeValue).toNumber(), selectedTokenA)
-    );
-    const selectedTokenBPow = Number(
-      formatInputTokenValue(new Decimal(selectedTokenAssetValue).toNumber(), selectedTokenB)
-    );
+    const selectedTokenAPow = formatInputTokenValue(selectedTokenNativeValue, selectedTokenA);
+    const selectedTokenBPow = formatInputTokenValue(selectedTokenAssetValue, selectedTokenB);
 
     const percentA = calculatePercentage(selectedTokenAPow, nativeTokenExistentialDeposit);
     const percentB = calculatePercentage(selectedTokenBPow, assetTokenInfoMinBalance);
 
-    return percentA < percentB ? percentA : percentB;
+    return percentA.lt(percentB) ? percentA.toFixed() : percentB.toFixed();
   };
 
   useEffect(() => {
@@ -349,20 +346,18 @@ const WithdrawPoolLiquidity = () => {
   }, [slippageValue, selectedTokenB.assetTokenId, selectedTokenNativeValue?.tokenValue, withdrawAmountPercentage]);
 
   const formattedTokenBValue = () => {
-    let value = 0;
+    let value = new Decimal(0);
 
-    if (Number(selectedTokenB?.decimals) > 0) {
+    if (new Decimal(selectedTokenB?.decimals || 0).gt(0)) {
       value = selectedTokenAssetValue?.tokenValue
-        ? new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toNumber()
-        : 0;
+        ? new Decimal(selectedTokenAssetValue?.tokenValue).mul(withdrawAmountPercentage).div(100)
+        : value;
     } else {
-      const percentValue = new Decimal(selectedTokenAssetValue?.tokenValue || 0)
-        .times(withdrawAmountPercentage / 100)
-        .toNumber();
-      value = percentValue < 1 ? Math.ceil(percentValue) : Math.floor(percentValue);
+      const percentValue = new Decimal(selectedTokenAssetValue?.tokenValue || 0).mul(withdrawAmountPercentage).div(100);
+      value = percentValue.lt(1) ? Decimal.ceil(percentValue) : Decimal.floor(percentValue);
     }
 
-    return value.toString();
+    return value.toFixed();
   };
 
   useEffect(() => {
@@ -400,7 +395,7 @@ const WithdrawPoolLiquidity = () => {
           tokenIcon={<DotToken />}
           tokenValue={
             selectedTokenNativeValue?.tokenValue
-              ? new Decimal(selectedTokenNativeValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
+              ? new Decimal(selectedTokenNativeValue?.tokenValue).mul(withdrawAmountPercentage).div(100).toFixed()
               : ""
           }
           onClick={() => null}
@@ -501,12 +496,12 @@ const WithdrawPoolLiquidity = () => {
           contentTitle={t("modal.removeFromPool.successfulWithdrawal")}
           actionLabel={t("modal.removeFromPool.withdrawal")}
           tokenA={{
-            value: exactNativeTokenWithdraw.toString(),
+            value: exactNativeTokenWithdraw,
             symbol: selectedTokenA.nativeTokenSymbol,
             icon: <DotToken />,
           }}
           tokenB={{
-            value: exactAssetTokenWithdraw.toString(),
+            value: exactAssetTokenWithdraw,
             symbol: selectedTokenB.tokenSymbol,
             icon: <AssetTokenIcon width={24} height={24} />,
           }}

@@ -11,6 +11,7 @@ import { ActionType, ButtonVariants } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
   checkIfPoolAlreadyExists,
+  convertToBaseUnit,
   formatDecimalsFromToken,
   formatInputTokenValue,
 } from "../../../app/util/helper";
@@ -102,8 +103,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
 
-  const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
-  const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
+  const selectedNativeTokenNumber = new Decimal(selectedTokenNativeValue?.tokenValue || 0);
+  const selectedAssetTokenNumber = new Decimal(selectedTokenAssetValue?.tokenValue || 0);
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -164,6 +165,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
 
   const setSelectedTokenAValue = (value: string) => {
     if (value) {
+      value = new Decimal(value).toFixed();
       if (slippageValue) {
         if (value.includes(".")) {
           if (value.split(".")[1].length > parseInt(selectedTokenA.nativeTokenDecimals)) {
@@ -182,7 +184,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           decimalsAllowed: 0,
         });
 
-        const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
+        const nativeTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
 
         setSelectedTokenNativeValue({ tokenValue: value });
@@ -195,6 +197,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
 
   const setSelectedTokenBValue = (value: string) => {
     if (value) {
+      value = new Decimal(value).toFixed();
       if (slippageValue) {
         if (value.includes(".")) {
           if (value.split(".")[1].length > parseInt(selectedTokenB.decimals)) {
@@ -213,9 +216,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           decimalsAllowed: 0,
         });
 
-        const assetTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
+        const assetTokenSlippageValue = calculateSlippageReduce(value, slippageValue);
         const tokenWithSlippageFormatted = formatInputTokenValue(assetTokenSlippageValue, selectedTokenB?.decimals);
-        setSelectedTokenAssetValue({ tokenValue: value.toString() });
+        setSelectedTokenAssetValue({ tokenValue: value });
         setAssetTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
       }
     } else {
@@ -245,22 +248,23 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
         return { label: t("button.selectToken"), disabled: true };
       }
       if (
-        selectedNativeTokenNumber <= 0 ||
-        selectedAssetTokenNumber <= 0 ||
+        selectedNativeTokenNumber.lte(0) ||
+        selectedAssetTokenNumber.lte(0) ||
         selectedTokenNativeValue?.tokenValue === "" ||
         selectedTokenAssetValue?.tokenValue === ""
       ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
 
-      if (selectedNativeTokenNumber > Number(tokenBalances?.balance)) {
+      if (selectedNativeTokenNumber.gt(tokenBalances.balance)) {
         return {
           label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
           disabled: true,
         };
       }
 
-      if (selectedNativeTokenNumber + parseFloat(poolGasFee) / 1000 > Number(tokenBalances?.balance)) {
+      const fee = convertToBaseUnit(poolGasFee);
+      if (selectedNativeTokenNumber.plus(fee).gt(tokenBalances.balance)) {
         return {
           label: t("button.insufficientTokenAmount", { token: selectedTokenA.nativeTokenSymbol }),
           disabled: true,
@@ -268,22 +272,20 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       }
 
       if (
-        selectedAssetTokenNumber >
-        formatDecimalsFromToken(
-          parseInt(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, "")),
-          selectedTokenB.decimals
+        selectedAssetTokenNumber.gt(
+          formatDecimalsFromToken(selectedTokenB.assetTokenBalance?.replace(/[, ]/g, ""), selectedTokenB.decimals)
         )
       ) {
         return { label: t("button.insufficientTokenAmount", { token: selectedTokenB.tokenSymbol }), disabled: true };
       }
 
-      if (selectedNativeTokenNumber > 0 && selectedAssetTokenNumber > 0 && assetTokenMinValueExceeded) {
+      if (selectedNativeTokenNumber.gt(0) && selectedAssetTokenNumber.gt(0) && assetTokenMinValueExceeded) {
         return { label: t("button.minimumTokenAmountExceeded"), disabled: true };
       }
 
       if (
-        selectedNativeTokenNumber > 0 &&
-        selectedAssetTokenNumber > 0 &&
+        selectedNativeTokenNumber.gt(0) &&
+        selectedAssetTokenNumber.gt(0) &&
         !assetTokenMinValueExceeded &&
         !tooManyDecimalsError.isError
       ) {
@@ -291,8 +293,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       }
 
       if (
-        selectedNativeTokenNumber > 0 &&
-        selectedAssetTokenNumber > 0 &&
+        selectedNativeTokenNumber.gt(0) &&
+        selectedAssetTokenNumber.gt(0) &&
         !assetTokenMinValueExceeded &&
         tooManyDecimalsError.isError
       ) {
@@ -349,8 +351,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     if (
       selectedTokenNativeValue &&
       selectedTokenAssetValue &&
-      selectedAssetTokenNumber > 0 &&
-      selectedNativeTokenNumber > 0
+      selectedAssetTokenNumber.gt(0) &&
+      selectedNativeTokenNumber.gt(0)
     ) {
       setSelectedTokenAValue(selectedTokenNativeValue.tokenValue);
       setSelectedTokenBValue(selectedTokenAssetValue.tokenValue);
