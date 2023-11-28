@@ -197,7 +197,7 @@ export const getAssetTokenBFromAssetTokenA = async (
   const decodedAmount = api.createType("Option<u128>", response);
 
   const amountOfNativeTokens = api.createType("u128", BigInt(decodedAmount.toString())).toU8a();
-
+  // napraviti istu ovakvu funkciju i na ovoj liniji izracunati price impact za asset to native
   const encodedInputHex2 = concatAndHexEncodeU8A(nativeTokenMultiLocation, multiLocation2, amountOfNativeTokens, bool);
 
   const response2 = await api.rpc.state.call(
@@ -206,6 +206,7 @@ export const getAssetTokenBFromAssetTokenA = async (
   );
 
   const decodedAmount2 = api.createType("Option<u128>", response2);
-
+  // izracunati price impact za native to asset
+  // saberem ta dva price impakta i prikazem ih, to je price imapct za asset to asset
   return decodedAmount2.toHuman();
 };

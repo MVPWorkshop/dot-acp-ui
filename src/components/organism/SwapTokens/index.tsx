@@ -38,6 +38,7 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
 import { LottieMedium } from "../../../assets/loader";
+import Decimal from "decimal.js";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -123,6 +124,8 @@ const SwapTokens = () => {
 
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+  const [priceImpact, setPriceImpact] = useState<string>("");
+  const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
 
   const nativeToken = {
     tokenId: "",
@@ -944,6 +947,180 @@ const SwapTokens = () => {
     }
   }, [swapLoading]);
 
+  const calculatePriceImpact = async () => {
+    if (api) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && selectedTokenBValue.tokenValue !== "") {
+        const poolSelected: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokens.tokenB.tokenId
+        );
+        if (poolSelected) {
+          const poolReserve: any = await getPoolReserves(
+            api,
+            poolSelected?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          const assetTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[1]?.replace(/[, ]/g, ""),
+            selectedTokens.tokenB.decimals
+          );
+
+          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(new Decimal(assetTokenReserve).toNumber());
+
+          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(new Decimal(nativeTokenReserve));
+
+          setAssetBPriceOfOneAssetA(new Decimal(priceOfAssetBForOneAssetA).toFixed(5));
+
+          console.log(selectedTokenAValue.tokenValue);
+          console.log(selectedTokenBValue.tokenValue);
+
+          const valueA = new Decimal(selectedTokenAValue.tokenValue).add(nativeTokenReserve);
+          const valueB = new Decimal(assetTokenReserve).minus(selectedTokenBValue.tokenValue);
+
+          const priceAfterSwap = valueA.div(valueB).toNumber();
+
+          const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
+
+          setPriceImpact(priceImpact.mul(100).toFixed(2));
+        }
+      } else if (
+        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol &&
+        selectedTokenBValue.tokenValue !== "" &&
+        selectedTokenAValue.tokenValue !== ""
+      ) {
+        const poolSelected: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokens.tokenA.tokenId
+        );
+
+        if (poolSelected) {
+          const poolReserve: any = await getPoolReserves(
+            api,
+            poolSelected?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+          const assetTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[1]?.replace(/[, ]/g, ""),
+            selectedTokens.tokenA.decimals
+          );
+
+          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
+
+          const priceOfAssetBForOneAssetA = new Decimal(nativeTokenReserve).div(assetTokenReserve);
+
+          setAssetBPriceOfOneAssetA(priceOfAssetBForOneAssetA.toFixed(5));
+
+          const valueA = new Decimal(assetTokenReserve).minus(selectedTokenAValue.tokenValue);
+          const valueB = new Decimal(nativeTokenReserve).add(selectedTokenBValue.tokenValue);
+
+          const priceAfterSwap = valueB.div(valueA).toNumber();
+
+          const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
+
+          setPriceImpact(priceImpact.mul(100).toFixed(2));
+        }
+      }
+      if (
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
+        selectedTokenBValue.tokenValue !== "" &&
+        selectedTokenAValue.tokenValue !== ""
+      ) {
+        const poolSelectedA: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokens.tokenA.tokenId
+        );
+
+        const poolSelectedB: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokens.tokenB.tokenId
+        );
+
+        if (poolSelectedA && poolSelectedB) {
+          const poolReserveA: any = await getPoolReserves(
+            api,
+            poolSelectedA?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          const assetTokenReserveA = formatDecimalsFromToken(
+            poolReserveA?.[1]?.replace(/[, ]/g, ""),
+            selectedTokens.tokenA.decimals
+          );
+          const nativeTokenReserveA = formatDecimalsFromToken(poolReserveA?.[0]?.replace(/[, ]/g, ""), "12");
+
+          const priceBeforeSwapA = new Decimal(assetTokenReserveA).div(nativeTokenReserveA);
+
+          const valueAWithDecimals = formatInputTokenValue(
+            new Decimal(selectedTokenAValue.tokenValue).toNumber(),
+            selectedTokens.tokenA.decimals
+          );
+
+          const nativeTokenAmount = await getNativeTokenFromAssetToken(
+            api,
+            selectedTokens?.tokenA?.tokenId,
+            valueAWithDecimals
+          );
+
+          if (nativeTokenAmount) {
+            const nativeTokenAmountFormated = formatDecimalsFromToken(
+              new Decimal(nativeTokenAmount?.toString().replace(/[, ]/g, "")).toNumber(),
+              "12"
+            );
+            const valueA = new Decimal(assetTokenReserveA).add(selectedTokenAValue.tokenValue);
+            const valueB = new Decimal(nativeTokenReserveA).minus(nativeTokenAmountFormated);
+
+            const priceAfterSwapA = valueA.div(valueB);
+
+            const priceImpactTokenA = 1 - priceBeforeSwapA.div(priceAfterSwapA).toNumber();
+
+            const poolReserveB: any = await getPoolReserves(
+              api,
+              poolSelectedB?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+            );
+
+            const assetTokenReserveB = formatDecimalsFromToken(
+              poolReserveA?.[1]?.replace(/[, ]/g, ""),
+              selectedTokens.tokenB.decimals
+            );
+            const nativeTokenReserveB = formatDecimalsFromToken(poolReserveB?.[0]?.replace(/[, ]/g, ""), "12");
+
+            const priceBeforeSwapB = new Decimal(nativeTokenReserveB).div(new Decimal(assetTokenReserveB));
+
+            const tokenBValue = new Decimal(assetTokenReserveB).minus(selectedTokenBValue.tokenValue);
+            const nativeTokenBValue = new Decimal(nativeTokenReserveB).add(nativeTokenAmountFormated);
+
+            const priceAfterSwapB = nativeTokenBValue.div(tokenBValue).toNumber();
+
+            const priceImpactTokenB = 1 - priceBeforeSwapB.div(priceAfterSwapB).toNumber();
+
+            let totalPriceImpact: Decimal;
+
+            if (new Decimal(priceImpactTokenA).lessThan(priceImpactTokenB)) {
+              totalPriceImpact = new Decimal(priceImpactTokenB).times(1 + priceImpactTokenA);
+            } else {
+              totalPriceImpact = new Decimal(priceImpactTokenA).times(1 + priceImpactTokenB);
+            }
+
+            console.log(totalPriceImpact.mul(100).toFixed(2));
+            setPriceImpact(totalPriceImpact.mul(100).toFixed(2));
+          }
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    calculatePriceImpact();
+  }, [
+    selectedTokens.tokenA.tokenSymbol,
+    selectedTokens.tokenB.tokenSymbol,
+    selectedTokenBValue.tokenValue,
+    selectedTokenAValue.tokenValue,
+  ]);
+
   return (
     <div className="flex max-w-[460px] flex-col gap-4">
       <div className="relative flex w-full flex-col items-center gap-1.5 rounded-2xl bg-white p-5">
@@ -1033,6 +1210,55 @@ const SwapTokens = () => {
             </div>
           </div>
         </div>
+        {selectedTokenAValue.tokenValue !== "" && selectedTokenBValue.tokenValue !== "" && (
+          <>
+            {" "}
+            <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-2 py-4">
+              <div className="flex w-full flex-row text-medium font-normal text-gray-200">
+                <span>
+                  1 {selectedTokens.tokenA.tokenSymbol} = {assetBPriceOfOneAssetA} {selectedTokens.tokenB.tokenSymbol}
+                </span>
+              </div>
+            </div>
+            <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Price impact</div>
+                <span>~ {priceImpact}%</span>
+              </div>
+
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">
+                  {inputEdited.inputType === InputEditedType.exactIn ? "Exact input" : "Exact output"}
+                </div>
+                <span>
+                  {inputEdited.inputType === InputEditedType.exactIn
+                    ? selectedTokenAValue.tokenValue + " " + selectedTokens.tokenA.tokenSymbol
+                    : selectedTokenBValue.tokenValue + " " + selectedTokens.tokenB.tokenSymbol}
+                </span>
+              </div>
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">
+                  {inputEdited.inputType === InputEditedType.exactIn ? "Expected output" : "Expected input"}
+                </div>
+                <span>
+                  {inputEdited.inputType === InputEditedType.exactIn
+                    ? selectedTokenBValue.tokenValue + " " + selectedTokens.tokenB.tokenSymbol
+                    : selectedTokenAValue.tokenValue + " " + selectedTokens.tokenA.tokenSymbol}
+                </span>
+              </div>
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">
+                  {inputEdited.inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}
+                </div>
+                <span>
+                  {inputEdited.inputType === InputEditedType.exactIn
+                    ? tokenBValueForSwap.tokenValue + " " + selectedTokens.tokenB.tokenSymbol
+                    : tokenAValueForSwap.tokenValue + " " + selectedTokens.tokenA.tokenSymbol}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
 
         <SwapSelectTokenModal
           open={tokenSelectionModal === TokenSelection.TokenA}

@@ -18,7 +18,7 @@ import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg"
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
-import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee, getPoolReserves } from "../../../services/poolServices";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -28,6 +28,7 @@ import CreatePool from "../CreatePool";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import { LottieMedium } from "../../../assets/loader";
+import Decimal from "decimal.js";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -100,6 +101,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+  const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
+  const [priceImpact, setPriceImpact] = useState<string>("");
 
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
@@ -371,6 +374,49 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     tokenBalances,
   ]);
 
+  const calculatePriceImpact = async () => {
+    if (api) {
+      if (selectedTokenAssetValue?.tokenValue && selectedTokenNativeValue?.tokenValue) {
+        const poolSelected: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokenB.assetTokenId
+        );
+        if (poolSelected) {
+          const poolReserve: any = await getPoolReserves(
+            api,
+            poolSelected?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          const assetTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[1]?.replace(/[, ]/g, ""),
+            selectedTokenB.decimals
+          );
+
+          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(new Decimal(assetTokenReserve).toNumber());
+
+          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(new Decimal(nativeTokenReserve));
+
+          setAssetBPriceOfOneAssetA(new Decimal(priceOfAssetBForOneAssetA).toFixed(5));
+
+          const valueA = new Decimal(selectedTokenNativeValue?.tokenValue).add(nativeTokenReserve);
+          const valueB = new Decimal(selectedTokenAssetValue?.tokenValue).minus(assetTokenReserve);
+
+          const priceAfterSwap = valueA.div(valueB).toNumber();
+
+          const priceImpact = 1 - priceBeforeSwap.div(priceAfterSwap).toNumber();
+
+          setPriceImpact(priceImpact.toFixed(2));
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    calculatePriceImpact();
+  }, [selectedTokenB.tokenSymbol, selectedTokenAssetValue?.tokenValue, selectedTokenNativeValue?.tokenValue]);
+
   useEffect(() => {
     if (tokenBalances) {
       setSelectedTokenA({
@@ -551,6 +597,56 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
               </div>
             ) : null}
           </div>
+
+          {selectedTokenNativeValue?.tokenValue && selectedTokenAssetValue?.tokenValue && (
+            <>
+              {" "}
+              <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-2 py-4">
+                <div className="flex w-full flex-row text-medium font-normal text-gray-200">
+                  <span>
+                    1 {selectedTokenA.nativeTokenSymbol} = {assetBPriceOfOneAssetA} {selectedTokenB.tokenSymbol}
+                  </span>
+                </div>
+              </div>
+              <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">Price impact</div>
+                  <span>~ {priceImpact}%</span>
+                </div>
+
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">
+                    {inputEdited.inputType === InputEditedType.exactIn ? "Exact input" : "Exact output"}
+                  </div>
+                  <span>
+                    {inputEdited.inputType === InputEditedType.exactIn
+                      ? selectedTokenNativeValue.tokenValue + " " + selectedTokenA.nativeTokenSymbol
+                      : selectedTokenAssetValue.tokenValue + " " + selectedTokenB.tokenSymbol}
+                  </span>
+                </div>
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">
+                    {inputEdited.inputType === InputEditedType.exactIn ? "Expected output" : "Expected input"}
+                  </div>
+                  <span>
+                    {inputEdited.inputType === InputEditedType.exactIn
+                      ? selectedTokenAssetValue.tokenValue + " " + selectedTokenB.tokenSymbol
+                      : selectedTokenNativeValue.tokenValue + " " + selectedTokenA.nativeTokenSymbol}
+                  </span>
+                </div>
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">
+                    {inputEdited.inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}
+                  </div>
+                  <span>
+                    {inputEdited.inputType === InputEditedType.exactIn
+                      ? selectedTokenAssetValue.tokenValue + " " + selectedTokenB.tokenSymbol
+                      : selectedTokenNativeValue.tokenValue + " " + selectedTokenA.nativeTokenSymbol}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
 
           <Button
             onClick={() => (getButtonProperties.disabled ? null : handlePool())}
