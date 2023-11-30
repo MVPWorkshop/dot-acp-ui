@@ -277,7 +277,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const setSelectedTokenBValue = (value: string) => {
     setInputEdited({ inputType: InputEditedType.exactOut });
     if (slippageValue && value !== "") {
-      // value = new Decimal(value).toFixed();
+      value = new Decimal(value).toFixed();
       if (value.includes(".")) {
         if (value.split(".")[1].length > parseInt(selectedTokenB.decimals)) {
           setTooManyDecimalsError({
