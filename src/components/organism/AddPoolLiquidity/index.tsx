@@ -243,8 +243,14 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         );
 
         const tokenWithSlippage = calculateSlippageReduce(nativeTokenNoDecimals, slippageValue);
-        const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
-
+        const tokenWithSlippageFormatted = formatInputTokenValue(
+          tokenWithSlippage,
+          selectedTokenA?.nativeTokenDecimals
+        );
+        console.log("slippageValue:", slippageValue);
+        console.log("nativeTokenNoDecimals:", nativeTokenNoDecimals);
+        console.log("tokenWithSlippage:", tokenWithSlippage);
+        console.log("tokenWithSlippageFormatted:", tokenWithSlippageFormatted);
         setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals.toString() });
         setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
       }
@@ -272,7 +278,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
       });
 
       const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
-      const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
+      const tokenWithSlippageFormatted = formatInputTokenValue(
+        nativeTokenSlippageValue,
+        selectedTokenA?.nativeTokenDecimals
+      );
       setSelectedTokenNativeValue({ tokenValue: value.toString() });
       setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
       getPriceOfAssetTokenFromNativeToken(Number(value));
@@ -626,8 +635,18 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                   </div>
                   <span>
                     {inputEdited.inputType === InputEditedType.exactIn
-                      ? selectedTokenAssetValue.tokenValue + " " + selectedTokenB.tokenSymbol
-                      : selectedTokenNativeValue.tokenValue + " " + selectedTokenA.nativeTokenSymbol}
+                      ? formatDecimalsFromToken(
+                          new Decimal(assetTokenWithSlippage.tokenValue || 0).toNumber(),
+                          selectedTokenB.decimals
+                        ) +
+                        " " +
+                        selectedTokenB.tokenSymbol
+                      : formatDecimalsFromToken(
+                          new Decimal(nativeTokenWithSlippage?.tokenValue || 0).toNumber(),
+                          selectedTokenA.nativeTokenDecimals
+                        ) +
+                        " " +
+                        selectedTokenA.nativeTokenSymbol}
                   </span>
                 </div>
               </div>
