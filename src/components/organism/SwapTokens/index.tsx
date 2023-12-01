@@ -967,19 +967,15 @@ const SwapTokens = () => {
 
           const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
 
-          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(new Decimal(assetTokenReserve).toNumber());
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
 
-          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(new Decimal(nativeTokenReserve));
-
-          setAssetBPriceOfOneAssetA(new Decimal(priceOfAssetBForOneAssetA).toFixed(5));
-
-          console.log(selectedTokenAValue.tokenValue);
-          console.log(selectedTokenBValue.tokenValue);
+          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(nativeTokenReserve);
+          setAssetBPriceOfOneAssetA(priceOfAssetBForOneAssetA.toFixed(5));
 
           const valueA = new Decimal(selectedTokenAValue.tokenValue).add(nativeTokenReserve);
           const valueB = new Decimal(assetTokenReserve).minus(selectedTokenBValue.tokenValue);
 
-          const priceAfterSwap = valueA.div(valueB).toNumber();
+          const priceAfterSwap = valueA.div(valueB);
 
           const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
 
@@ -1016,7 +1012,7 @@ const SwapTokens = () => {
           const valueA = new Decimal(assetTokenReserve).minus(selectedTokenAValue.tokenValue);
           const valueB = new Decimal(nativeTokenReserve).add(selectedTokenBValue.tokenValue);
 
-          const priceAfterSwap = valueB.div(valueA).toNumber();
+          const priceAfterSwap = valueB.div(valueA);
 
           const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
 
@@ -1065,16 +1061,16 @@ const SwapTokens = () => {
           );
 
           if (nativeTokenAmount) {
-            const nativeTokenAmountFormated = formatDecimalsFromToken(
+            const nativeTokenAmountFormatted = formatDecimalsFromToken(
               new Decimal(nativeTokenAmount?.toString().replace(/[, ]/g, "")).toNumber(),
               "12"
             );
             const valueA = new Decimal(assetTokenReserveA).add(selectedTokenAValue.tokenValue);
-            const valueB = new Decimal(nativeTokenReserveA).minus(nativeTokenAmountFormated);
+            const valueB = new Decimal(nativeTokenReserveA).minus(nativeTokenAmountFormatted);
 
             const priceAfterSwapA = valueA.div(valueB);
 
-            const priceImpactTokenA = 1 - priceBeforeSwapA.div(priceAfterSwapA).toNumber();
+            const priceImpactTokenA = new Decimal(1).minus(priceBeforeSwapA.div(priceAfterSwapA));
 
             const poolReserveB: any = await getPoolReserves(
               api,
@@ -1085,26 +1081,41 @@ const SwapTokens = () => {
               poolReserveA?.[1]?.replace(/[, ]/g, ""),
               selectedTokens.tokenB.decimals
             );
+
+            const oneAssetTokenBAmount = await getAssetTokenBFromAssetTokenA(
+              api,
+              formatInputTokenValue(1, selectedTokens.tokenA.decimals),
+              selectedTokens?.tokenA?.tokenId,
+              selectedTokens?.tokenB?.tokenId
+            );
+            if (oneAssetTokenBAmount) {
+              const oneAssetTokenBFormatted = formatDecimalsFromToken(
+                new Decimal(oneAssetTokenBAmount?.toString().replace(/[, ]/g, "")).toNumber(),
+                selectedTokens.tokenB.decimals
+              );
+
+              setAssetBPriceOfOneAssetA(oneAssetTokenBFormatted.toString());
+            }
+
             const nativeTokenReserveB = formatDecimalsFromToken(poolReserveB?.[0]?.replace(/[, ]/g, ""), "12");
 
-            const priceBeforeSwapB = new Decimal(nativeTokenReserveB).div(new Decimal(assetTokenReserveB));
+            const priceBeforeSwapB = new Decimal(nativeTokenReserveB).div(assetTokenReserveB);
 
             const tokenBValue = new Decimal(assetTokenReserveB).minus(selectedTokenBValue.tokenValue);
-            const nativeTokenBValue = new Decimal(nativeTokenReserveB).add(nativeTokenAmountFormated);
+            const nativeTokenBValue = new Decimal(nativeTokenReserveB).add(nativeTokenAmountFormatted);
 
-            const priceAfterSwapB = nativeTokenBValue.div(tokenBValue).toNumber();
+            const priceAfterSwapB = nativeTokenBValue.div(tokenBValue);
 
-            const priceImpactTokenB = 1 - priceBeforeSwapB.div(priceAfterSwapB).toNumber();
+            const priceImpactTokenB = new Decimal(1).minus(priceBeforeSwapB.div(priceAfterSwapB));
 
             let totalPriceImpact: Decimal;
 
             if (new Decimal(priceImpactTokenA).lessThan(priceImpactTokenB)) {
-              totalPriceImpact = new Decimal(priceImpactTokenB).times(1 + priceImpactTokenA);
+              totalPriceImpact = new Decimal(priceImpactTokenB).times(priceImpactTokenA.add(1));
             } else {
-              totalPriceImpact = new Decimal(priceImpactTokenA).times(1 + priceImpactTokenB);
+              totalPriceImpact = new Decimal(priceImpactTokenA).times(priceImpactTokenB.add(1));
             }
 
-            console.log(totalPriceImpact.mul(100).toFixed(2));
             setPriceImpact(totalPriceImpact.mul(100).toFixed(2));
           }
         }
@@ -1224,17 +1235,6 @@ const SwapTokens = () => {
               <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
                 <div className="flex">Price impact</div>
                 <span>~ {priceImpact}%</span>
-              </div>
-
-              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
-                <div className="flex">
-                  {inputEdited.inputType === InputEditedType.exactIn ? "Exact input" : "Exact output"}
-                </div>
-                <span>
-                  {inputEdited.inputType === InputEditedType.exactIn
-                    ? selectedTokenAValue.tokenValue + " " + selectedTokens.tokenA.tokenSymbol
-                    : selectedTokenBValue.tokenValue + " " + selectedTokens.tokenB.tokenSymbol}
-                </span>
               </div>
               <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
                 <div className="flex">
