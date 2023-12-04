@@ -37,73 +37,73 @@ describe("formatInputTokenValue", () => {
 
 describe("formatDecimalsFromToken", () => {
   it("correctly formats decimals from a token", () => {
-    expect(formatDecimalsFromToken(123456, "2")).toBe(1234.56);
-    expect(formatDecimalsFromToken(1000000, "6")).toBe(1);
+    expect(formatDecimalsFromToken(123456, "2")).toBe("1234.56");
+    expect(formatDecimalsFromToken(1000000, "6")).toBe("1");
   });
 
   it("handles edge cases", () => {
-    expect(formatDecimalsFromToken(0, "4")).toBe(0);
-    expect(formatDecimalsFromToken(-500000, "3")).toBe(-500);
+    expect(formatDecimalsFromToken(0, "4")).toBe("0");
+    expect(formatDecimalsFromToken(-500000, "3")).toBe("-500");
   });
 });
 
 describe("calculateSlippageAdd", () => {
   it("should return the correct result with a positive token value and slippage", () => {
-    expect(calculateSlippageAdd(100, 5)).toBe(105);
+    expect(calculateSlippageAdd(100, 5)).toBe("105");
   });
 
   it("should return the correct result with a positive token value and zero slippage", () => {
-    expect(calculateSlippageAdd(100, 0)).toBe(100);
+    expect(calculateSlippageAdd(100, 0)).toBe("100");
   });
 
   it("should return the correct result with a negative token value and slippage", () => {
-    expect(calculateSlippageAdd(-50, 10)).toBe(-55);
+    expect(calculateSlippageAdd(-50, 10)).toBe("-55");
   });
 
   it("should return the correct result with a zero token value and slippage", () => {
-    expect(calculateSlippageAdd(0, 2)).toBe(0);
+    expect(calculateSlippageAdd(0, 2)).toBe("0");
   });
 
   it("should return the correct result with a decimal token value and slippage", () => {
-    expect(calculateSlippageAdd(10.5, 3)).toBeCloseTo(10.815, 4);
+    expect(calculateSlippageAdd(10.5, 3)).toBe("10.815");
   });
 
   it("should return the correct result with a large token value and slippage", () => {
-    expect(calculateSlippageAdd(1000000, 1)).toBe(1010000);
+    expect(calculateSlippageAdd(1000000, 1)).toBe("1010000");
   });
 
   it("should return the correct result with a decimal slippage", () => {
-    expect(calculateSlippageAdd(50, 1.5)).toBe(50.75);
+    expect(calculateSlippageAdd(50, 1.5)).toBe("50.75");
   });
 });
 
 describe("calculateSlippageReduce", () => {
   it("should return the correct result with a positive token value and slippage", () => {
-    expect(calculateSlippageReduce(100, 5)).toBe(95);
+    expect(calculateSlippageReduce(100, 5)).toBe("95");
   });
 
   it("should return the correct result with a positive token value and zero slippage", () => {
-    expect(calculateSlippageReduce(100, 0)).toBe(100);
+    expect(calculateSlippageReduce(100, 0)).toBe("100");
   });
 
   it("should return the correct result with a negative token value and slippage", () => {
-    expect(calculateSlippageReduce(-50, 10)).toBe(-45);
+    expect(calculateSlippageReduce(-50, 10)).toBe("-45");
   });
 
   it("should return the correct result with a zero token value and slippage", () => {
-    expect(calculateSlippageReduce(0, 2)).toBe(0);
+    expect(calculateSlippageReduce(0, 2)).toBe("0");
   });
 
   it("should return the correct result with a decimal token value and slippage", () => {
-    expect(calculateSlippageReduce(10.5, 3)).toBeCloseTo(10.185, 4);
+    expect(calculateSlippageReduce(10.5, 3)).toBe("10.185");
   });
 
   it("should return the correct result with a large token value and slippage", () => {
-    expect(calculateSlippageReduce(1000000, 1)).toBe(990000);
+    expect(calculateSlippageReduce(1000000, 1)).toBe("990000");
   });
 
   it("should return the correct result with a decimal slippage", () => {
-    expect(calculateSlippageReduce(50, 1.5)).toBe(49.25);
+    expect(calculateSlippageReduce(50, 1.5)).toBe("49.25");
   });
 });
 
