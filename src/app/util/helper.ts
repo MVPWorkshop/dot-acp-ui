@@ -43,7 +43,6 @@ export const formatInputTokenValue = (base: Decimal.Value, decimals: string) => 
 };
 
 export const formatDecimalsFromToken = (base: Decimal.Value, decimals: string) => {
-  // console.log("formatDecimalsFromToken", base, decimals)
   return new Decimal(base || 0).dividedBy(Math.pow(10, parseFloat(decimals))).toFixed();
 };
 
@@ -105,7 +104,6 @@ export const convertToBaseUnit = (input: string): Decimal => {
   const match = input.match(regex);
 
   if (!match) {
-    console.log("Invalid input format", input);
     return new Decimal(0);
   }
 
