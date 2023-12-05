@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
-import HeaderTopNav from "../components/organism/HeaderTopNav";
 import SeoHelmet from "../components/atom/SeoHelmet";
+import Footer from "../components/organism/Footer";
+import HeaderTopNav from "../components/organism/HeaderTopNav";
 
 const MainLayout = () => {
   return (
@@ -8,6 +9,7 @@ const MainLayout = () => {
       <SeoHelmet />
       <HeaderTopNav />
       <Outlet />
+      <Footer />
     </>
   );
 };

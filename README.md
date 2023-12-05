@@ -31,7 +31,7 @@ This project is part of Polkadot initiative for building front-end and UI for As
 
 ## Useful links
 
-Link to [Figma file](https://www.figma.com/file/yxVrecZAWQSoHRYvGhBGOm/dotACP-%E2%80%93-UI-KIT?type=design&node-id=15%3A6&mode=design&t=ncMCkhjdQ6WQEz3k-1).
+Link to [Figma file](https://www.figma.com/community/file/1309495648742675196/dotacp-ui-kit).
 Link to User story [document](https://docs.google.com/document/d/1EiRS3g4I1bvLaxou3UBr_CLzsnE-Uqp0QaRhNSHoB-o/edit#heading=h.94y7ctthwqt2).
 Link to the [GitHub project](https://github.com/orgs/MVPWorkshop/projects/11).
 All important information regarding the pallet communication is [here](./ASSET_CONVERSION_PALLET.md).
