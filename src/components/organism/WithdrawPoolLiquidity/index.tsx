@@ -88,6 +88,8 @@ const WithdrawPoolLiquidity = () => {
   const [maxPercentage, setMaxPercentage] = useState<number>(100);
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+  const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
+  const [priceImpact, setPriceImpact] = useState<string>("");
 
   const navigateToPools = () => {
     navigate(POOLS_PAGE);
@@ -306,6 +308,74 @@ const WithdrawPoolLiquidity = () => {
     return percentA < percentB ? percentA : percentB;
   };
 
+  const formattedTokenBValue = () => {
+    let value = 0;
+
+    if (Number(selectedTokenB?.decimals) > 0) {
+      value = selectedTokenAssetValue?.tokenValue
+        ? new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toNumber()
+        : 0;
+    } else {
+      const percentValue = new Decimal(selectedTokenAssetValue?.tokenValue || 0)
+        .times(withdrawAmountPercentage / 100)
+        .toNumber();
+      value = percentValue < 1 ? Math.ceil(percentValue) : Math.floor(percentValue);
+    }
+
+    return value.toString();
+  };
+
+  const calculatePriceImpact = async () => {
+    if (api) {
+      if (selectedTokenNativeValue?.tokenValue !== "" && selectedTokenAssetValue?.tokenValue !== "") {
+        const poolSelected: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokenB.assetTokenId
+        );
+        if (poolSelected && selectedTokenNativeValue?.tokenValue && selectedTokenAssetValue?.tokenValue) {
+          const poolReserve: any = await getPoolReserves(
+            api,
+            poolSelected?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          const assetTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[1]?.replace(/[, ]/g, ""),
+            selectedTokenB.decimals
+          );
+
+          const nativeTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[0]?.replace(/[, ]/g, ""),
+            selectedTokenA.nativeTokenDecimals
+          );
+
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
+
+          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(nativeTokenReserve);
+          setAssetBPriceOfOneAssetA(priceOfAssetBForOneAssetA.toFixed(5));
+
+          const valueA = new Decimal(selectedTokenNativeValue?.tokenValue).add(nativeTokenReserve);
+          const valueB = new Decimal(assetTokenReserve).minus(formattedTokenBValue());
+
+          const priceAfterSwap = valueA.div(valueB);
+
+          const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
+
+          setPriceImpact(priceImpact.mul(100).toFixed(2));
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    calculatePriceImpact();
+  }, [
+    selectedTokenA.nativeTokenSymbol,
+    selectedTokenB.tokenSymbol,
+    selectedTokenNativeValue?.tokenValue,
+    selectedTokenAssetValue?.tokenValue,
+    withdrawAmountPercentage,
+  ]);
+
   useEffect(() => {
     if (tokenBalances) {
       setSelectedTokenA({
@@ -347,23 +417,6 @@ const WithdrawPoolLiquidity = () => {
   useEffect(() => {
     getNativeAndAssetTokensFromPool();
   }, [slippageValue, selectedTokenB.assetTokenId, selectedTokenNativeValue?.tokenValue, withdrawAmountPercentage]);
-
-  const formattedTokenBValue = () => {
-    let value = 0;
-
-    if (Number(selectedTokenB?.decimals) > 0) {
-      value = selectedTokenAssetValue?.tokenValue
-        ? new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toNumber()
-        : 0;
-    } else {
-      const percentValue = new Decimal(selectedTokenAssetValue?.tokenValue || 0)
-        .times(withdrawAmountPercentage / 100)
-        .toNumber();
-      value = percentValue < 1 ? Math.ceil(percentValue) : Math.floor(percentValue);
-    }
-
-    return value.toString();
-  };
 
   useEffect(() => {
     if (withdrawLiquidityLoading) {
@@ -444,6 +497,7 @@ const WithdrawPoolLiquidity = () => {
                 })}
                 onClick={() => {
                   setSlippageAuto(true);
+                  setSlippageValue(15);
                 }}
                 disabled={assetLoading || !selectedAccount.address}
               >
@@ -482,6 +536,61 @@ const WithdrawPoolLiquidity = () => {
             </div>
           </div>
         </div>
+        {selectedTokenNativeValue?.tokenValue !== "" && selectedTokenAssetValue?.tokenValue !== "" && (
+          <>
+            {" "}
+            <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-2 py-4">
+              <div className="flex w-full flex-row text-medium font-normal text-gray-200">
+                <span>
+                  1 {selectedTokenA.nativeTokenSymbol} = {assetBPriceOfOneAssetA} {selectedTokenB.tokenSymbol}
+                </span>
+              </div>
+            </div>
+            <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Price impact</div>
+                <span>~ {priceImpact}%</span>
+              </div>
+
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Expected output</div>
+                <span>
+                  {selectedTokenNativeValue?.tokenValue &&
+                    new Decimal(selectedTokenNativeValue?.tokenValue).times(withdrawAmountPercentage / 100).toString() +
+                      " " +
+                      selectedTokenA.nativeTokenSymbol}
+                </span>
+              </div>
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Minimum output</div>
+                <span>
+                  {formatDecimalsFromToken(
+                    new Decimal(nativeTokenWithSlippage?.tokenValue || 0).toNumber(),
+                    selectedTokenA.nativeTokenDecimals
+                  ) +
+                    " " +
+                    selectedTokenA.nativeTokenSymbol}
+                </span>
+              </div>
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Expected output</div>
+                <span>{formattedTokenBValue() + " " + selectedTokenB.tokenSymbol}</span>
+              </div>
+              <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                <div className="flex">Minimum output</div>
+
+                <span>
+                  {formatDecimalsFromToken(
+                    new Decimal(assetTokenWithSlippage.tokenValue || 0).toNumber(),
+                    selectedTokenB.decimals
+                  ) +
+                    " " +
+                    selectedTokenB.tokenSymbol}
+                </span>
+              </div>
+            </div>
+          </>
+        )}
         <Button
           onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool())}
           variant={ButtonVariants.btnInteractivePink}

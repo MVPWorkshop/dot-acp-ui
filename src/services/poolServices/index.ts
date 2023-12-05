@@ -544,7 +544,8 @@ export const createPoolCardsArray = async (
   api: ApiPromise,
   dispatch: Dispatch<PoolAction>,
   pools: any,
-  selectedAccount?: WalletAccount
+  selectedAccount?: WalletAccount,
+  nativeTokenDecimals?: string
 ) => {
   const apiPool = api as ApiPromise;
 
@@ -577,20 +578,25 @@ export const createPoolCardsArray = async (
               assetTokenMetadata.toHuman()?.decimals
             );
 
-            const nativeTokenBalance = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+            if (nativeTokenDecimals) {
+              const nativeTokenBalance = formatDecimalsFromToken(
+                poolReserve?.[0]?.replace(/[, ]/g, ""),
+                nativeTokenDecimals
+              );
 
-            poolCardsArray.push({
-              name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
-              lpTokenAsset: lpToken ? lpToken : null,
-              lpTokenId: lpTokenId,
-              assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
-              totalTokensLocked: {
-                nativeToken: nativeTokenBalance.toFixed(3),
-                nativeTokenIcon: NativeTokenIcon,
-                assetToken: assetTokenBalance.toFixed(3),
-                assetTokenIcon: AssetTokenIcon,
-              },
-            });
+              poolCardsArray.push({
+                name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
+                lpTokenAsset: lpToken ? lpToken : null,
+                lpTokenId: lpTokenId,
+                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
+                totalTokensLocked: {
+                  nativeToken: nativeTokenBalance.toFixed(3),
+                  nativeTokenIcon: NativeTokenIcon,
+                  assetToken: assetTokenBalance.toFixed(3),
+                  assetTokenIcon: AssetTokenIcon,
+                },
+              });
+            }
           }
         }
       })

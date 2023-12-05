@@ -18,7 +18,7 @@ import { ReactComponent as BackArrow } from "../../../assets/img/back-arrow.svg"
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
-import { addLiquidity, checkAddPoolLiquidityGasFee } from "../../../services/poolServices";
+import { addLiquidity, checkAddPoolLiquidityGasFee, getPoolReserves } from "../../../services/poolServices";
 import { getAssetTokenFromNativeToken, getNativeTokenFromAssetToken } from "../../../services/tokenServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -28,6 +28,7 @@ import CreatePool from "../CreatePool";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import { LottieMedium } from "../../../assets/loader";
+import Decimal from "decimal.js";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -100,6 +101,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
 
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
+  const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
+  const [priceImpact, setPriceImpact] = useState<string>("");
 
   const selectedNativeTokenNumber = Number(selectedTokenNativeValue?.tokenValue);
   const selectedAssetTokenNumber = Number(selectedTokenAssetValue?.tokenValue);
@@ -240,7 +243,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
         );
 
         const tokenWithSlippage = calculateSlippageReduce(nativeTokenNoDecimals, slippageValue);
-        const tokenWithSlippageFormatted = formatInputTokenValue(tokenWithSlippage, selectedTokenB?.decimals);
+        const tokenWithSlippageFormatted = formatInputTokenValue(
+          tokenWithSlippage,
+          selectedTokenA?.nativeTokenDecimals
+        );
 
         setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals.toString() });
         setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
@@ -269,7 +275,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
       });
 
       const nativeTokenSlippageValue = calculateSlippageReduce(Number(value), slippageValue);
-      const tokenWithSlippageFormatted = formatInputTokenValue(nativeTokenSlippageValue, selectedTokenB?.decimals);
+      const tokenWithSlippageFormatted = formatInputTokenValue(
+        nativeTokenSlippageValue,
+        selectedTokenA?.nativeTokenDecimals
+      );
       setSelectedTokenNativeValue({ tokenValue: value.toString() });
       setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
       getPriceOfAssetTokenFromNativeToken(Number(value));
@@ -370,6 +379,51 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
     tooManyDecimalsError.isError,
     tokenBalances,
   ]);
+
+  const calculatePriceImpact = async () => {
+    if (api) {
+      if (selectedTokenNativeValue?.tokenValue !== "" && selectedTokenAssetValue?.tokenValue !== "") {
+        const poolSelected: any = pools?.find(
+          (pool: any) =>
+            pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "") === selectedTokenB.assetTokenId
+        );
+        if (poolSelected && selectedTokenNativeValue?.tokenValue && selectedTokenAssetValue?.tokenValue) {
+          const poolReserve: any = await getPoolReserves(
+            api,
+            poolSelected?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
+          );
+
+          const assetTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[1]?.replace(/[, ]/g, ""),
+            selectedTokenB.decimals
+          );
+
+          const nativeTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[0]?.replace(/[, ]/g, ""),
+            selectedTokenA.nativeTokenDecimals
+          );
+
+          const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
+
+          const priceOfAssetBForOneAssetA = new Decimal(assetTokenReserve).div(nativeTokenReserve);
+          setAssetBPriceOfOneAssetA(priceOfAssetBForOneAssetA.toFixed(5));
+
+          const valueA = new Decimal(selectedTokenNativeValue?.tokenValue).add(nativeTokenReserve);
+          const valueB = new Decimal(assetTokenReserve).minus(selectedTokenAssetValue?.tokenValue);
+
+          const priceAfterSwap = valueA.div(valueB);
+
+          const priceImpact = new Decimal(1).minus(priceBeforeSwap.div(priceAfterSwap));
+
+          setPriceImpact(priceImpact.mul(100).toFixed(2));
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    calculatePriceImpact();
+  }, [selectedTokenB.tokenSymbol, selectedTokenAssetValue?.tokenValue, selectedTokenNativeValue?.tokenValue]);
 
   useEffect(() => {
     if (tokenBalances) {
@@ -492,7 +546,6 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             assetLoading={assetLoading}
           />
           <div className="mt-1 text-small">{transferGasFeesMessage}</div>
-
           <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
             <div className="flex w-full justify-between text-medium font-normal text-gray-200">
               <div className="flex">{t("tokenAmountInput.slippageTolerance")}</div>
@@ -551,7 +604,54 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
               </div>
             ) : null}
           </div>
-
+          {selectedTokenNativeValue?.tokenValue && selectedTokenAssetValue?.tokenValue && (
+            <>
+              {" "}
+              <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-2 py-4">
+                <div className="flex w-full flex-row text-medium font-normal text-gray-200">
+                  <span>
+                    1 {selectedTokenA.nativeTokenSymbol} = {assetBPriceOfOneAssetA} {selectedTokenB.tokenSymbol}
+                  </span>
+                </div>
+              </div>
+              <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">Price impact</div>
+                  <span>~ {priceImpact}%</span>
+                </div>
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">
+                    {inputEdited.inputType === InputEditedType.exactIn ? "Expected output" : "Expected input"}
+                  </div>
+                  <span>
+                    {inputEdited.inputType === InputEditedType.exactIn
+                      ? selectedTokenAssetValue.tokenValue + " " + selectedTokenB.tokenSymbol
+                      : selectedTokenNativeValue.tokenValue + " " + selectedTokenA.nativeTokenSymbol}
+                  </span>
+                </div>
+                <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
+                  <div className="flex">
+                    {inputEdited.inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}
+                  </div>
+                  <span>
+                    {inputEdited.inputType === InputEditedType.exactIn
+                      ? formatDecimalsFromToken(
+                          new Decimal(assetTokenWithSlippage.tokenValue || 0).toNumber(),
+                          selectedTokenB.decimals
+                        ) +
+                        " " +
+                        selectedTokenB.tokenSymbol
+                      : formatDecimalsFromToken(
+                          new Decimal(nativeTokenWithSlippage?.tokenValue || 0).toNumber(),
+                          selectedTokenA.nativeTokenDecimals
+                        ) +
+                        " " +
+                        selectedTokenA.nativeTokenSymbol}
+                  </span>
+                </div>
+              </div>
+            </>
+          )}
           <Button
             onClick={() => (getButtonProperties.disabled ? null : handlePool())}
             variant={ButtonVariants.btnInteractivePink}
@@ -559,7 +659,6 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           >
             {addLiquidityLoading ? <LottieMedium /> : getButtonProperties.label}
           </Button>
-
           <PoolSelectTokenModal
             onSelect={setSelectedTokenB}
             onClose={() => setIsModalOpen(false)}
@@ -567,7 +666,6 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             title={t("button.selectToken")}
             selected={selectedTokenB}
           />
-
           <SwapAndPoolSuccessModal
             open={successModalOpen}
             onClose={closeSuccessModal}
