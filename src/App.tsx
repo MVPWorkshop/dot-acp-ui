@@ -10,7 +10,7 @@ import type { WalletAccount } from "@talismn/connect-wallets";
 
 const App: FC = () => {
   const { dispatch, state } = useStateAndDispatch();
-  const { api, pools, selectedAccount } = state;
+  const { api, pools, selectedAccount, tokenBalances } = state;
 
   const walletConnected: WalletAccount = LocalStorage.get("wallet-connected");
 
@@ -22,11 +22,11 @@ const App: FC = () => {
 
   useEffect(() => {
     const updatePoolsCards = async () => {
-      if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
+      if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount, tokenBalances?.tokenDecimals);
     };
 
     updatePoolsCards().then();
-  }, [pools, selectedAccount]);
+  }, [pools, selectedAccount, tokenBalances]);
 
   return (
     <AppStateProvider state={state} dispatch={dispatch}>

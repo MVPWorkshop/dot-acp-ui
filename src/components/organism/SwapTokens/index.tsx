@@ -965,7 +965,10 @@ const SwapTokens = () => {
             selectedTokens.tokenB.decimals
           );
 
-          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+          const nativeTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[0]?.replace(/[, ]/g, ""),
+            selectedTokens.tokenA.decimals
+          );
 
           const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
 
@@ -1001,7 +1004,10 @@ const SwapTokens = () => {
             selectedTokens.tokenA.decimals
           );
 
-          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+          const nativeTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[0]?.replace(/[, ]/g, ""),
+            selectedTokens.tokenB.decimals
+          );
 
           const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
 
@@ -1045,7 +1051,16 @@ const SwapTokens = () => {
             poolReserveA?.[1]?.replace(/[, ]/g, ""),
             selectedTokens.tokenA.decimals
           );
-          const nativeTokenReserveA = formatDecimalsFromToken(poolReserveA?.[0]?.replace(/[, ]/g, ""), "12");
+
+          const nativeTokenDecimals =
+            selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol
+              ? selectedTokens.tokenA.decimals
+              : selectedTokens.tokenB.decimals;
+
+          const nativeTokenReserveA = formatDecimalsFromToken(
+            poolReserveA?.[0]?.replace(/[, ]/g, ""),
+            nativeTokenDecimals
+          );
 
           const priceBeforeSwapA = new Decimal(assetTokenReserveA).div(nativeTokenReserveA);
 
@@ -1063,7 +1078,7 @@ const SwapTokens = () => {
           if (nativeTokenAmount) {
             const nativeTokenAmountFormatted = formatDecimalsFromToken(
               new Decimal(nativeTokenAmount?.toString().replace(/[, ]/g, "")).toNumber(),
-              "12"
+              nativeTokenDecimals
             );
             const valueA = new Decimal(assetTokenReserveA).add(selectedTokenAValue.tokenValue);
             const valueB = new Decimal(nativeTokenReserveA).minus(nativeTokenAmountFormatted);
@@ -1097,7 +1112,10 @@ const SwapTokens = () => {
               setAssetBPriceOfOneAssetA(oneAssetTokenBFormatted.toString());
             }
 
-            const nativeTokenReserveB = formatDecimalsFromToken(poolReserveB?.[0]?.replace(/[, ]/g, ""), "12");
+            const nativeTokenReserveB = formatDecimalsFromToken(
+              poolReserveB?.[0]?.replace(/[, ]/g, ""),
+              nativeTokenDecimals
+            );
 
             const priceBeforeSwapB = new Decimal(nativeTokenReserveB).div(assetTokenReserveB);
 

@@ -247,10 +247,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           tokenWithSlippage,
           selectedTokenA?.nativeTokenDecimals
         );
-        console.log("slippageValue:", slippageValue);
-        console.log("nativeTokenNoDecimals:", nativeTokenNoDecimals);
-        console.log("tokenWithSlippage:", tokenWithSlippage);
-        console.log("tokenWithSlippageFormatted:", tokenWithSlippageFormatted);
+
         setSelectedTokenNativeValue({ tokenValue: nativeTokenNoDecimals.toString() });
         setNativeTokenWithSlippage({ tokenValue: tokenWithSlippageFormatted });
       }
@@ -401,7 +398,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             selectedTokenB.decimals
           );
 
-          const nativeTokenReserve = formatDecimalsFromToken(poolReserve?.[0]?.replace(/[, ]/g, ""), "12");
+          const nativeTokenReserve = formatDecimalsFromToken(
+            poolReserve?.[0]?.replace(/[, ]/g, ""),
+            selectedTokenA.nativeTokenDecimals
+          );
 
           const priceBeforeSwap = new Decimal(nativeTokenReserve).div(assetTokenReserve);
 
