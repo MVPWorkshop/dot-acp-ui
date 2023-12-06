@@ -87,6 +87,11 @@ const HeaderTopNav = () => {
     setSupportedWallets(wallets);
   }, []);
 
+  const switchNetwork = (network: string) => {
+    window.sessionStorage.setItem("network", network);
+    window.location.reload();
+  };
+
   return (
     <>
       <nav className="flex h-[73px] items-center justify-between px-[23px]">
@@ -111,6 +116,9 @@ const HeaderTopNav = () => {
             {t("button.pool")}
           </NavLink>
         </div>
+        <button onClick={() => switchNetwork("rococo")}>Rococo</button>
+        <button onClick={() => switchNetwork("westmint")}>Westend</button>
+        <button onClick={() => switchNetwork("kusama")}>Kusama</button>
         <div className="w-[180px]">
           {walletConnected ? (
             <>
