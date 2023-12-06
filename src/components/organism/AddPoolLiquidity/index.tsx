@@ -628,18 +628,8 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                   </div>
                   <span>
                     {inputEdited.inputType === InputEditedType.exactIn
-                      ? formatDecimalsFromToken(
-                          new Decimal(assetTokenWithSlippage.tokenValue || 0).toNumber(),
-                          selectedTokenB.decimals
-                        ) +
-                        " " +
-                        selectedTokenB.tokenSymbol
-                      : formatDecimalsFromToken(
-                          new Decimal(nativeTokenWithSlippage?.tokenValue || 0).toNumber(),
-                          selectedTokenA.nativeTokenDecimals
-                        ) +
-                        " " +
-                        selectedTokenA.nativeTokenSymbol}
+                      ? assetTokenWithSlippage?.tokenValue + " " + selectedTokenB.tokenSymbol
+                      : nativeTokenWithSlippage?.tokenValue + " " + selectedTokenA.nativeTokenSymbol}
                   </span>
                 </div>
               </div>

@@ -1274,8 +1274,12 @@ const SwapTokens = () => {
                 </div>
                 <span>
                   {inputEdited.inputType === InputEditedType.exactIn
-                    ? tokenBValueForSwap.tokenValue + " " + selectedTokens.tokenB.tokenSymbol
-                    : tokenAValueForSwap.tokenValue + " " + selectedTokens.tokenA.tokenSymbol}
+                    ? formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals) +
+                      " " +
+                      selectedTokens.tokenB.tokenSymbol
+                    : formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals) +
+                      " " +
+                      selectedTokens.tokenA.tokenSymbol}
                 </span>
               </div>
             </div>
