@@ -559,22 +559,28 @@ const WithdrawPoolLiquidity = () => {
               <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
                 <div className="flex">Minimum output</div>
                 <span>
-                  {formatDecimalsFromToken(
-                    new Decimal(nativeTokenWithSlippage?.tokenValue || 0).toNumber(),
-                    selectedTokenA.nativeTokenDecimals
-                  ) +
+                  {formatDecimalsFromToken(nativeTokenWithSlippage?.tokenValue, selectedTokenA.nativeTokenDecimals) +
                     " " +
                     selectedTokenA.nativeTokenSymbol}
                 </span>
               </div>
               <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
                 <div className="flex">Expected output</div>
-                <span>{nativeTokenWithSlippage.tokenValue + " " + selectedTokenB.tokenSymbol}</span>
+                <span>
+                  {selectedTokenAssetValue?.tokenValue &&
+                    new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toString() +
+                      " " +
+                      selectedTokenB.tokenSymbol}
+                </span>
               </div>
               <div className="flex w-full flex-row justify-between text-medium font-normal text-gray-200">
                 <div className="flex">Minimum output</div>
 
-                <span>{assetTokenWithSlippage.tokenValue + " " + selectedTokenB.tokenSymbol}</span>
+                <span>
+                  {formatDecimalsFromToken(assetTokenWithSlippage.tokenValue, selectedTokenB.decimals) +
+                    " " +
+                    selectedTokenB.tokenSymbol}
+                </span>
               </div>
             </div>
           </>
