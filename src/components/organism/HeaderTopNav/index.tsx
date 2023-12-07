@@ -3,7 +3,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { POOLS_ROUTE, SWAP_ROUTE } from "../../../app/router/routes.ts";
 import { ReactComponent as AccountImage } from "../../../assets/img/account-image-icon.svg";
 import { ReactComponent as Logo } from "../../../assets/img/logo-icon.svg";
-import { ActionType, ButtonVariants, WalletConnectSteps } from "../../../app/types/enum.ts";
+import { ActionType, ButtonVariants, NetworkKeys, WalletConnectSteps } from "../../../app/types/enum.ts";
 import { reduceAddress } from "../../../app/util/helper";
 import {
   connectWalletAndFetchBalance,
@@ -21,6 +21,7 @@ import type { Timeout } from "react-number-format/types/types";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import dotAcpToast from "../../../app/util/toast.ts";
 import { LottieSmall } from "../../../assets/loader/index.tsx";
+import SelectNetwork from "../../atom/Dropdown/index.tsx";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -87,11 +88,6 @@ const HeaderTopNav = () => {
     setSupportedWallets(wallets);
   }, []);
 
-  const switchNetwork = (network: string) => {
-    window.sessionStorage.setItem("network", network);
-    window.location.reload();
-  };
-
   return (
     <>
       <nav className="flex h-[73px] items-center justify-between px-[23px]">
@@ -116,9 +112,10 @@ const HeaderTopNav = () => {
             {t("button.pool")}
           </NavLink>
         </div>
-        <button onClick={() => switchNetwork("rococo")}>Rococo</button>
-        <button onClick={() => switchNetwork("westmint")}>Westend</button>
-        <button onClick={() => switchNetwork("kusama")}>Kusama</button>
+        <SelectNetwork
+          items={[{ name: "Rococo" }, { name: "Westmint" }, { name: "Kusama" }]}
+          networkSelected={window.sessionStorage.getItem("network") as NetworkKeys}
+        />
         <div className="w-[180px]">
           {walletConnected ? (
             <>
