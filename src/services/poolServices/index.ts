@@ -1,16 +1,17 @@
 import { ApiPromise } from "@polkadot/api";
 import { u8aToHex } from "@polkadot/util";
+import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
+import Decimal from "decimal.js";
+import { t } from "i18next";
 import { Dispatch } from "react";
-import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import useGetNetwork from "../../app/hooks/useGetNetwork";
+import { LpTokenAsset, PoolCardProps } from "../../app/types";
+import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 import dotAcpToast from "../../app/util/toast";
-import { PoolAction } from "../../store/pools/interface";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
-import { formatDecimalsFromToken } from "../../app/util/helper";
-import { LpTokenAsset, PoolCardProps } from "../../app/types";
-import { getWalletBySource, type WalletAccount } from "@talismn/connect-wallets";
-import { t } from "i18next";
+import { PoolAction } from "../../store/pools/interface";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
 
@@ -573,30 +574,34 @@ export const createPoolCardsArray = async (
               pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, "")
             );
 
-            const assetTokenBalance = formatDecimalsFromToken(
+            let assetTokenBalance = formatDecimalsFromToken(
               poolReserve?.[1]?.replace(/[, ]/g, ""),
               assetTokenMetadata.toHuman()?.decimals
             );
 
-            if (nativeTokenDecimals) {
-              const nativeTokenBalance = formatDecimalsFromToken(
-                poolReserve?.[0]?.replace(/[, ]/g, ""),
-                nativeTokenDecimals
-              );
-
-              poolCardsArray.push({
-                name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
-                lpTokenAsset: lpToken ? lpToken : null,
-                lpTokenId: lpTokenId,
-                assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
-                totalTokensLocked: {
-                  nativeToken: nativeTokenBalance.toFixed(3),
-                  nativeTokenIcon: NativeTokenIcon,
-                  assetToken: assetTokenBalance.toFixed(3),
-                  assetTokenIcon: AssetTokenIcon,
-                },
-              });
+            if (new Decimal(assetTokenBalance).gte(1)) {
+              assetTokenBalance = new Decimal(assetTokenBalance).toFixed(4);
             }
+
+            let nativeTokenBalance = formatDecimalsFromToken(
+              poolReserve?.[0]?.replace(/[, ]/g, ""),
+              nativeTokenDecimals || "0"
+            );
+            if (new Decimal(nativeTokenBalance).gte(1)) {
+              nativeTokenBalance = new Decimal(nativeTokenBalance).toFixed(4);
+            }
+            poolCardsArray.push({
+              name: `${nativeTokenSymbol}–${assetTokenMetadata.toHuman()?.symbol}`,
+              lpTokenAsset: lpToken ? lpToken : null,
+              lpTokenId: lpTokenId,
+              assetTokenId: pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex?.replace(/[, ]/g, ""),
+              totalTokensLocked: {
+                nativeToken: nativeTokenBalance,
+                nativeTokenIcon: NativeTokenIcon,
+                assetToken: assetTokenBalance,
+                assetTokenIcon: AssetTokenIcon,
+              },
+            });
           }
         }
       })

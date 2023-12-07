@@ -5,6 +5,7 @@ import { formatBalance } from "@polkadot/util";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import { getWalletBySource, getWallets } from "@talismn/connect-wallets";
 import { Dispatch } from "react";
+import useGetNetwork from "../../app/hooks/useGetNetwork";
 import { TokenBalanceData } from "../../app/types";
 import { ActionType } from "../../app/types/enum";
 import { formatDecimalsFromToken } from "../../app/util/helper";
@@ -13,7 +14,6 @@ import dotAcpToast from "../../app/util/toast";
 import { PoolAction } from "../../store/pools/interface";
 import { WalletAction } from "../../store/wallet/interface";
 import { getAllLiquidityPoolsTokensMetadata } from "../poolServices";
-import useGetNetwork from "../../app/hooks/useGetNetwork";
 
 export const setupPolkadotApi = async () => {
   const { rpcUrl } = useGetNetwork();
@@ -70,9 +70,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 
   console.log(`${now}: balance of ${balance?.free} and a current nonce of ${nonce} and next nonce of ${nextNonce}`);
 
-  const balanceFormatted = formatDecimalsFromToken(Number(balance?.free.toString()), tokenDecimals as string).toFixed(
-    2
-  );
+  const balanceFormatted = formatDecimalsFromToken(balance?.free.toString(), tokenDecimals as string);
 
   const tokensInfo = {
     balance: balanceFormatted,
