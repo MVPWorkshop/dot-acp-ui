@@ -1,13 +1,13 @@
-import { SwapAction, SwapState } from "./interface";
 import { ActionType } from "../../app/types/enum";
+import { SwapAction, SwapState } from "./interface";
 
 export const initialSwapState: SwapState = {
   swapFinalized: false,
   swapGasFeesMessage: "",
   swapGasFee: "",
   swapLoading: false,
-  swapExactInTokenAmount: 0,
-  swapExactOutTokenAmount: 0,
+  swapExactInTokenAmount: "0",
+  swapExactOutTokenAmount: "0",
   isTokenCanNotCreateWarningSwap: false,
 };
 

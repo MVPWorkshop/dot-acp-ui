@@ -1,5 +1,5 @@
-import { PoolsState, PoolAction } from "./interface";
 import { ActionType } from "../../app/types/enum";
+import { PoolAction, PoolsState } from "./interface";
 
 export const initialPoolsState: PoolsState = {
   pools: [],
@@ -15,10 +15,10 @@ export const initialPoolsState: PoolsState = {
   createPoolLoading: false,
   addLiquidityLoading: false,
   withdrawLiquidityLoading: false,
-  exactNativeTokenAddLiquidity: 0,
-  exactAssetTokenAddLiquidity: 0,
-  exactNativeTokenWithdraw: 0,
-  exactAssetTokenWithdraw: 0,
+  exactNativeTokenAddLiquidity: "0",
+  exactAssetTokenAddLiquidity: "0",
+  exactNativeTokenWithdraw: "0",
+  exactAssetTokenWithdraw: "0",
   isTokenCanNotCreateWarningPools: false,
 };
 
