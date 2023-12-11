@@ -8,7 +8,7 @@ type NetworkConfig = {
 };
 
 export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
-  [NetworkKeys.Westmint]: {
+  [NetworkKeys.Westend]: {
     nativeTokenSymbol: "WND",
     rpcUrl: "wss://westmint-rpc.polkadot.io",
     parents: 1,

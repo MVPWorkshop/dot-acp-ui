@@ -79,7 +79,7 @@ export enum TokenPosition {
 }
 
 export enum NetworkKeys {
-  Westmint = "westmint",
+  Westend = "westend",
   Rococo = "rococo",
   Kusama = "kusama",
 }

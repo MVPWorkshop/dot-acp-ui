@@ -544,13 +544,14 @@ export const createPoolCardsArray = async (
   api: ApiPromise,
   dispatch: Dispatch<PoolAction>,
   pools: any,
-  selectedAccount?: WalletAccount,
-  nativeTokenDecimals?: string
+  selectedAccount?: WalletAccount
 ) => {
   const apiPool = api as ApiPromise;
-
   try {
     const poolCardsArray: PoolCardProps[] = [];
+
+    const tokenMetadata = api.registry.getChainProperties();
+    const nativeTokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
 
     await Promise.all(
       pools.map(async (pool: any) => {
@@ -578,10 +579,10 @@ export const createPoolCardsArray = async (
               assetTokenMetadata.toHuman()?.decimals
             );
 
-            if (nativeTokenDecimals) {
+            if (Array.isArray(nativeTokenDecimals) && nativeTokenDecimals?.[0]) {
               const nativeTokenBalance = formatDecimalsFromToken(
                 poolReserve?.[0]?.replace(/[, ]/g, ""),
-                nativeTokenDecimals
+                nativeTokenDecimals?.[0].toString()
               );
 
               poolCardsArray.push({

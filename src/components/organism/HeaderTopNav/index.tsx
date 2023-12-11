@@ -21,7 +21,7 @@ import type { Timeout } from "react-number-format/types/types";
 import type { Wallet, WalletAccount } from "@talismn/connect-wallets";
 import dotAcpToast from "../../../app/util/toast.ts";
 import { LottieSmall } from "../../../assets/loader/index.tsx";
-import SelectNetwork from "../../atom/Dropdown/index.tsx";
+import NetworkSelector from "../../atom/NetworkSelector/index.tsx";
 
 const HeaderTopNav = () => {
   const { state, dispatch } = useAppContext();
@@ -32,6 +32,7 @@ const HeaderTopNav = () => {
   const [modalStep, setModalStep] = useState<ModalStepProps>({ step: WalletConnectSteps.stepExtensions });
   const [walletConnectOpen, setWalletConnectOpen] = useState(false);
   const [supportedWallets, setSupportedWallets] = useState<Wallet[]>([] as Wallet[]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const walletConnected = LocalStorage.get("wallet-connected");
 
@@ -91,7 +92,7 @@ const HeaderTopNav = () => {
   return (
     <>
       <nav className="flex h-[73px] items-center justify-between px-[23px]">
-        <div className="pr-[140px]">
+        <div className="w-[400px]">
           <Logo />
         </div>
         <div className="flex gap-16 text-gray-200">
@@ -112,11 +113,14 @@ const HeaderTopNav = () => {
             {t("button.pool")}
           </NavLink>
         </div>
-        <SelectNetwork
-          items={[{ name: "Rococo" }, { name: "Westmint" }, { name: "Kusama" }]}
-          networkSelected={window.sessionStorage.getItem("network") as NetworkKeys}
-        />
-        <div className="w-[180px]">
+
+        <div className="flex w-[400px] items-center gap-8">
+          <NetworkSelector
+            items={[{ name: NetworkKeys.Rococo }, { name: NetworkKeys.Westend }, { name: NetworkKeys.Kusama }]}
+            networkSelected={window.sessionStorage.getItem("network") as NetworkKeys}
+            isDropdownOpen={isDropdownOpen}
+            setIsDropdownOpen={setIsDropdownOpen}
+          />
           {walletConnected ? (
             <>
               {walletConnectLoading ? (
