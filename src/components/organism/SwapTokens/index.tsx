@@ -40,6 +40,7 @@ import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -124,6 +125,7 @@ const SwapTokens = () => {
   });
 
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
   const [priceImpact, setPriceImpact] = useState<string>("");
   const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
@@ -1349,6 +1351,23 @@ const SwapTokens = () => {
               ),
           }}
           actionLabel="Swapped"
+        />
+        <ReviewTransactionModal
+          open={reviewModalOpen}
+          title="Review Swap"
+          priceImpact={"100"}
+          youPay={"1056.106"}
+          youReceive={"1056.106"}
+          expectedOutput={"100"}
+          minimumOutput={"100"}
+          tokenSymbolA={selectedTokens.tokenA.tokenSymbol}
+          tokenSymbolB={selectedTokens.tokenB.tokenSymbol}
+          onClose={() => {
+            setReviewModalOpen(false);
+          }}
+          onConfirmTransaction={() => {
+            console.log("confirm");
+          }}
         />
       </div>
       <WarningMessage show={lowTradingMinimum} message={t("pageError.tradingMinimum")} />
