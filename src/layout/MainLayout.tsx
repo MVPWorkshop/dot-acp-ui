@@ -7,14 +7,10 @@ import { useEffect } from "react";
 const MainLayout = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const network = searchParams.get("network");
-  const networkSession = sessionStorage.getItem("network");
+  const networkSession = window.sessionStorage.getItem("network");
 
   useEffect(() => {
-    if (network) {
-      sessionStorage.setItem("network", network);
-    }
-    if (networkSession) {
+    if (networkSession && searchParams) {
       setSearchParams({ network: networkSession });
     }
   }, []);
