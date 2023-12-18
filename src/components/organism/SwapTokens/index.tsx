@@ -575,6 +575,7 @@ const SwapTokens = () => {
   };
 
   const handleSwap = async () => {
+    setReviewModalOpen(false);
     if (waitingForTransaction) {
       clearTimeout(waitingForTransaction);
     }
@@ -1319,7 +1320,7 @@ const SwapTokens = () => {
         />
 
         <Button
-          onClick={() => (getSwapButtonProperties.disabled ? null : handleSwap())}
+          onClick={() => (getSwapButtonProperties.disabled ? null : setReviewModalOpen(true))}
           variant={ButtonVariants.btnInteractivePink}
           disabled={getSwapButtonProperties.disabled || swapLoading}
         >
@@ -1355,18 +1356,33 @@ const SwapTokens = () => {
         <ReviewTransactionModal
           open={reviewModalOpen}
           title="Review Swap"
-          priceImpact={"100"}
-          youPay={"1056.106"}
-          youReceive={"1056.106"}
-          expectedOutput={"100"}
-          minimumOutput={"100"}
+          priceImpact={priceImpact}
+          youPay={selectedTokenAValue.tokenValue}
+          youReceive={selectedTokenBValue.tokenValue}
+          tokenValueA={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokenBValue.tokenValue
+              : selectedTokenAValue.tokenValue
+          }
+          tokenValueB={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? formatDecimalsFromToken(
+                  formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals),
+                  selectedTokens.tokenB.decimals
+                )
+              : formatDecimalsFromToken(
+                  formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals),
+                  selectedTokens.tokenA.decimals
+                )
+          }
           tokenSymbolA={selectedTokens.tokenA.tokenSymbol}
           tokenSymbolB={selectedTokens.tokenB.tokenSymbol}
           onClose={() => {
             setReviewModalOpen(false);
           }}
+          inputType={inputEdited.inputType}
           onConfirmTransaction={() => {
-            console.log("confirm");
+            handleSwap();
           }}
         />
       </div>

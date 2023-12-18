@@ -1,7 +1,7 @@
 import { FC } from "react";
 import Modal from "../../atom/Modal";
 import Button from "../../atom/Button";
-import { ButtonVariants } from "../../../app/types/enum";
+import { ButtonVariants, InputEditedType } from "../../../app/types/enum";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 
 interface SwapSelectTokenModalProps {
@@ -10,10 +10,11 @@ interface SwapSelectTokenModalProps {
   youPay: string;
   youReceive: string;
   priceImpact: string;
-  expectedOutput: string;
-  minimumOutput: string;
+  tokenValueA?: string;
+  tokenValueB?: string;
   tokenSymbolA: string;
   tokenSymbolB: string;
+  inputType: string;
   onClose: () => void;
   onConfirmTransaction: () => void;
 }
@@ -24,16 +25,17 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
   youPay,
   youReceive,
   priceImpact,
-  expectedOutput,
-  minimumOutput,
+  tokenValueA,
+  tokenValueB,
   tokenSymbolA,
   tokenSymbolB,
+  inputType,
   onClose,
   onConfirmTransaction,
 }) => {
   return (
     <Modal isOpen={open} onClose={onClose} title={title}>
-      <div className="flex w-[460px] flex-col gap-5">
+      <div className="flex w-[360px] flex-col gap-5">
         <div className="flex flex-col items-start">
           <span className="font-inter text-small text-gray-200">You pay</span>
           <span className="flex w-full items-center justify-between font-unbounded-variable text-heading-4 font-bold text-gray-400">
@@ -44,25 +46,32 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
         </div>
         <div className="flex flex-col items-start">
           <span className="font-inter text-small text-gray-200">You receive</span>
-          <span className="font-unbounded-variable text-heading-4 font-bold text-gray-400">{youReceive}</span>
+          <span className="flex w-full items-center justify-between font-unbounded-variable text-heading-4 font-bold text-gray-400">
+            {youReceive}
+            <DotToken />
+          </span>
           <span className="font-inter text-medium text-gray-200">$300</span>
         </div>
         <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
         <div className="flex flex-col">
           <div className="flex justify-between">
             <span className="font-inter text-medium text-gray-300">Price impact</span>
-            <span className="font-inter text-medium text-gray-400">{priceImpact}</span>
+            <span className="font-inter text-medium text-gray-400">{priceImpact}%</span>
           </div>
           <div className="flex justify-between">
-            <span className="font-inter text-medium text-gray-300">Expected output</span>
+            <span className="font-inter text-medium text-gray-300">
+              {inputType == InputEditedType.exactIn ? "Expected output" : "Expected input"}
+            </span>
             <span className="font-inter text-medium text-gray-400">
-              {expectedOutput} {tokenSymbolA}
+              {tokenValueA} {tokenSymbolA}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="font-inter text-medium text-gray-300">Minimum output</span>
+            <span className="font-inter text-medium text-gray-300">
+              {inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}t
+            </span>
             <span className="font-inter text-medium text-gray-400">
-              {minimumOutput} {tokenSymbolB}
+              {tokenValueB} {tokenSymbolB}
             </span>
           </div>
         </div>

@@ -30,6 +30,7 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import CreatePool from "../CreatePool";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -94,6 +95,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   const [inputEdited, setInputEdited] = useState<InputEditedProps>({ inputType: InputEditedType.exactIn });
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [poolExists, setPoolExists] = useState<boolean>(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
     isError: false,
@@ -137,6 +139,7 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
   };
 
   const handlePool = async () => {
+    setReviewModalOpen(false);
     if (waitingForTransaction) {
       clearTimeout(waitingForTransaction);
     }
@@ -643,12 +646,38 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
             </>
           )}
           <Button
-            onClick={() => (getButtonProperties.disabled ? null : handlePool())}
+            onClick={() => (getButtonProperties.disabled ? null : setReviewModalOpen(true))}
             variant={ButtonVariants.btnInteractivePink}
             disabled={getButtonProperties.disabled || addLiquidityLoading}
           >
             {addLiquidityLoading ? <LottieMedium /> : getButtonProperties.label}
           </Button>
+          <ReviewTransactionModal
+            open={reviewModalOpen}
+            title="Review adding liquidity"
+            priceImpact={priceImpact}
+            youPay={selectedTokenA.tokenBalance}
+            youReceive={selectedTokenB.assetTokenBalance}
+            tokenValueA={
+              inputEdited.inputType === InputEditedType.exactIn
+                ? selectedTokenAssetValue?.tokenValue
+                : selectedTokenNativeValue?.tokenValue
+            }
+            tokenValueB={
+              inputEdited.inputType === InputEditedType.exactIn
+                ? formatDecimalsFromToken(assetTokenWithSlippage?.tokenValue, selectedTokenB.decimals)
+                : formatDecimalsFromToken(nativeTokenWithSlippage?.tokenValue, selectedTokenA.nativeTokenDecimals)
+            }
+            tokenSymbolA={selectedTokenA.nativeTokenSymbol}
+            tokenSymbolB={selectedTokenB.tokenSymbol}
+            onClose={() => {
+              setReviewModalOpen(false);
+            }}
+            inputType={inputEdited.inputType}
+            onConfirmTransaction={() => {
+              handlePool();
+            }}
+          />
           <PoolSelectTokenModal
             onSelect={setSelectedTokenB}
             onClose={() => setIsModalOpen(false)}
