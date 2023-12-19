@@ -42,7 +42,6 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
             {youPay}
             <DotToken />
           </span>
-          <span className="font-inter text-medium text-gray-200">$200</span>
         </div>
         <div className="flex flex-col items-start">
           <span className="font-inter text-small text-gray-200">You receive</span>
@@ -50,7 +49,6 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
             {youReceive}
             <DotToken />
           </span>
-          <span className="font-inter text-medium text-gray-200">$300</span>
         </div>
         <hr className="mb-0.5 mt-1 w-full border-[0.7px] border-gray-50" />
         <div className="flex flex-col">
