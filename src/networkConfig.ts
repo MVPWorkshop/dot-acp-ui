@@ -12,18 +12,18 @@ export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
     nativeTokenSymbol: "WND",
     rpcUrl: "wss://westmint-rpc.polkadot.io",
     parents: 1,
-    assethubSubscanUrl: "https://westmint.statescan.io/#/accounts/",
+    assethubSubscanUrl: "https://westend.subscan.io",
   },
   [NetworkKeys.Rococo]: {
     nativeTokenSymbol: "ROC",
     rpcUrl: "wss://rococo-asset-hub-rpc.polkadot.io/",
     parents: 1,
-    assethubSubscanUrl: "https://assethub-rococo.subscan.io/account/",
+    assethubSubscanUrl: "https://assethub-rococo.subscan.io",
   },
   [NetworkKeys.Kusama]: {
     nativeTokenSymbol: "KSM",
     rpcUrl: "wss://kusama-asset-hub-rpc.polkadot.io/",
     parents: 1,
-    assethubSubscanUrl: "https://assethub-kusama.subscan.io/account/",
+    assethubSubscanUrl: "https://assethub-kusama.subscan.io",
   },
 };

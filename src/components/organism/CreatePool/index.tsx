@@ -538,7 +538,9 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
           <WarningMessage
             show={isTransactionTimeout}
-            message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+            message={t("pageError.transactionTimeout", {
+              url: `${assethubSubscanUrl}/account/${selectedAccount.address}`,
+            })}
           />
         </div>
       )}

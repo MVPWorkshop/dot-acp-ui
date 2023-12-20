@@ -4,6 +4,7 @@ import { ReactComponent as ArrowRight } from "../../../assets/img/arrow-right.sv
 import { ReactComponent as OpenLinkArrow } from "../../../assets/img/open-link-arrow.svg";
 import Modal from "../../atom/Modal";
 import { useAppContext } from "../../../state";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
 
 interface SwapAndPoolSuccessModalProps {
   open: boolean;
@@ -30,6 +31,7 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
   tokenB,
   onClose,
 }) => {
+  const { assethubSubscanUrl } = useGetNetwork();
   const { state } = useAppContext();
   const { blockHashFinalized } = state;
   return (
@@ -52,7 +54,7 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
             </div>
           </div>
           <div className="flex flex-row items-center justify-center gap-1 font-unbounded-variable text-medium underline">
-            <a href={`https://assethub-rococo.subscan.io/block/${blockHashFinalized}`} target="_blank" rel="noreferrer">
+            <a href={`${assethubSubscanUrl}/block/${blockHashFinalized}`} target="_blank" rel="noreferrer">
               View in block explorer
             </a>
             <OpenLinkArrow />
