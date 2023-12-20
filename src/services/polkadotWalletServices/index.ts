@@ -112,7 +112,6 @@ export const setTokenBalance = async (
       dispatch({ type: ActionType.SET_POOLS_TOKEN_METADATA, payload: poolsTokenMetadata });
 
       const walletTokens: any = await getWalletTokensBalance(api, selectedAccount?.address);
-
       dispatch({ type: ActionType.SET_TOKEN_BALANCES, payload: walletTokens });
 
       LocalStorage.set("wallet-connected", selectedAccount);
