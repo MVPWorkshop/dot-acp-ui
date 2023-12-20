@@ -14,10 +14,8 @@ export type PoolCardProps = {
   lpTokenId: string | null;
   assetTokenId: string;
   totalTokensLocked: {
-    nativeToken: string;
-    nativeTokenIcon: string;
-    assetToken: string;
-    assetTokenIcon: string;
+    nativeToken: Token;
+    assetToken: Token;
   };
 };
 
@@ -61,4 +59,12 @@ export type TokenDecimalsErrorProps = {
   tokenSymbol: string;
   decimalsAllowed: number;
   isError: boolean;
+};
+
+export type Token = {
+  id?: string;
+  icon: string;
+  value: string;
+  decimals: string;
+  formattedValue: string;
 };

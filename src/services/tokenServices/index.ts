@@ -1,6 +1,9 @@
 import { ApiPromise } from "@polkadot/api";
+import type { AnyJson } from "@polkadot/types/types/codec";
 import { u8aToHex } from "@polkadot/util";
+import Decimal from "decimal.js";
 import useGetNetwork from "../../app/hooks/useGetNetwork";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 const { parents } = useGetNetwork();
 
@@ -208,4 +211,97 @@ export const getAssetTokenBFromAssetTokenA = async (
   const decodedAmount2 = api.createType("Option<u128>", response2);
 
   return decodedAmount2.toHuman();
+};
+
+export enum PriceCalcType {
+  NativeFromAsset = "NativeFromAsset",
+  AssetFromNative = "AssetFromNative",
+  AssetFromAsset = "AssetFromAsset",
+}
+
+export const sellMax = async ({
+  api,
+  priceCalcType,
+  tokenA,
+  tokenBinPool,
+}: {
+  api: ApiPromise;
+  priceCalcType: PriceCalcType;
+  tokenA: {
+    id: string;
+    value: string;
+    decimals: string;
+    formattedValue: string;
+  };
+  tokenBinPool: {
+    id: string;
+    value: string;
+    decimals: string;
+    formattedValue: string;
+  };
+}) => {
+  // Define a function that maps to the correct calculation method
+  let calculateBForA: (x: Decimal) => Promise<AnyJson>;
+
+  switch (priceCalcType) {
+    case PriceCalcType.AssetFromAsset:
+      calculateBForA = (tokenValueA) =>
+        getAssetTokenBFromAssetTokenA(api, tokenValueA.toString(), tokenA.id, tokenBinPool.id!);
+      break;
+    case PriceCalcType.AssetFromNative:
+      calculateBForA = (tokenValueA) => getAssetTokenFromNativeToken(api, tokenBinPool.id, tokenValueA.toString());
+      break;
+    case PriceCalcType.NativeFromAsset:
+      calculateBForA = (tokenValueA) => getNativeTokenFromAssetToken(api, tokenA.id, tokenValueA.toString());
+      break;
+    default:
+      throw new Error("Unsupported price calculation type");
+  }
+
+  let step = new Decimal(1);
+  if (new Decimal(tokenA.decimals).gt(1)) {
+    step = new Decimal(10).pow(new Decimal(tokenA.decimals).sub(new Decimal(tokenA.decimals).sub(2)));
+  }
+
+  // Use the findOptimalTokenA function with the appropriate calculation method
+  const optimalTokenA = await findOptimalTokenA({
+    tokenA: new Decimal(tokenA.value),
+    maxTokenB: new Decimal(tokenBinPool.value),
+    step,
+    calculateBForA: calculateBForA,
+  });
+
+  console.log("optimalTokenA", optimalTokenA);
+  console.log("optimalTokenA formatted", formatDecimalsFromToken(optimalTokenA, tokenA.decimals));
+  // Do something with optimalTokenA
+};
+
+export const findOptimalTokenA = async ({
+  tokenA,
+  maxTokenB,
+  step,
+  calculateBForA,
+}: {
+  tokenA: Decimal;
+  maxTokenB: Decimal;
+  step: Decimal;
+  calculateBForA: (x: Decimal) => Promise<AnyJson>;
+}): Promise<Decimal> => {
+  let low = new Decimal(0);
+  let high = tokenA;
+  let result = new Decimal(0);
+
+  while (low.lte(high)) {
+    const mid = low.plus(high).div(2).floor();
+    const yForMid = new Decimal(((await calculateBForA(mid)) || 0).toString().replace(/[, ]/g, ""));
+
+    if (yForMid.lte(maxTokenB)) {
+      result = mid;
+      low = mid.plus(step);
+    } else {
+      high = mid.minus(step);
+    }
+  }
+
+  return result;
 };

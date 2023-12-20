@@ -1,12 +1,12 @@
+import type { WalletAccount } from "@talismn/connect-wallets";
 import { FC, useEffect } from "react";
 import { RouterProvider } from "react-router-dom";
-import router from "./app/router";
-import { AppStateProvider } from "./state";
 import useStateAndDispatch from "./app/hooks/useStateAndDispatch";
-import { connectWalletAndFetchBalance } from "./services/polkadotWalletServices";
+import router from "./app/router";
 import LocalStorage from "./app/util/localStorage";
+import { connectWalletAndFetchBalance } from "./services/polkadotWalletServices";
 import { createPoolCardsArray } from "./services/poolServices";
-import type { WalletAccount } from "@talismn/connect-wallets";
+import { AppStateProvider } from "./state";
 
 const App: FC = () => {
   const { dispatch, state } = useStateAndDispatch();
@@ -22,7 +22,8 @@ const App: FC = () => {
 
   useEffect(() => {
     const updatePoolsCards = async () => {
-      if (api && pools) await createPoolCardsArray(api, dispatch, pools, selectedAccount, tokenBalances?.tokenDecimals);
+      if (api && pools.length && tokenBalances?.tokenDecimals)
+        await createPoolCardsArray(api, dispatch, pools, selectedAccount, tokenBalances.tokenDecimals);
     };
 
     updatePoolsCards().then();
