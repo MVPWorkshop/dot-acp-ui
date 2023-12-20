@@ -1375,8 +1375,16 @@ const SwapTokens = () => {
                   selectedTokens.tokenA.decimals
                 )
           }
-          tokenSymbolA={selectedTokens.tokenA.tokenSymbol}
-          tokenSymbolB={selectedTokens.tokenB.tokenSymbol}
+          tokenSymbolA={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokens.tokenB.tokenSymbol
+              : selectedTokens.tokenA.tokenSymbol
+          }
+          tokenSymbolB={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokens.tokenB.tokenSymbol
+              : selectedTokens.tokenA.tokenSymbol
+          }
           onClose={() => {
             setReviewModalOpen(false);
           }}

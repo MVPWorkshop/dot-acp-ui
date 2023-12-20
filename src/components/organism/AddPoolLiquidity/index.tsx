@@ -668,8 +668,16 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
                 ? formatDecimalsFromToken(assetTokenWithSlippage?.tokenValue, selectedTokenB.decimals)
                 : formatDecimalsFromToken(nativeTokenWithSlippage?.tokenValue, selectedTokenA.nativeTokenDecimals)
             }
-            tokenSymbolA={selectedTokenA.nativeTokenSymbol}
-            tokenSymbolB={selectedTokenB.tokenSymbol}
+            tokenSymbolA={
+              inputEdited.inputType === InputEditedType.exactIn
+                ? selectedTokenB.tokenSymbol
+                : selectedTokenA.nativeTokenSymbol
+            }
+            tokenSymbolB={
+              inputEdited.inputType === InputEditedType.exactIn
+                ? selectedTokenB.tokenSymbol
+                : selectedTokenA.nativeTokenSymbol
+            }
             onClose={() => {
               setReviewModalOpen(false);
             }}

@@ -12,9 +12,12 @@ interface SwapSelectTokenModalProps {
   priceImpact: string;
   tokenValueA?: string;
   tokenValueB?: string;
+  tokenValueASecond?: string;
+  tokenValueBSecond?: string;
   tokenSymbolA: string;
   tokenSymbolB: string;
   inputType: string;
+  showAll?: boolean;
   onClose: () => void;
   onConfirmTransaction: () => void;
 }
@@ -26,10 +29,13 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
   youReceive,
   priceImpact,
   tokenValueA,
+  tokenValueASecond,
   tokenValueB,
+  tokenValueBSecond,
   tokenSymbolA,
   tokenSymbolB,
   inputType,
+  showAll,
   onClose,
   onConfirmTransaction,
 }) => {
@@ -56,22 +62,53 @@ const ReviewTransactionModal: FC<SwapSelectTokenModalProps> = ({
             <span className="font-inter text-medium text-gray-300">Price impact</span>
             <span className="font-inter text-medium text-gray-400">{priceImpact}%</span>
           </div>
-          <div className="flex justify-between">
-            <span className="font-inter text-medium text-gray-300">
-              {inputType == InputEditedType.exactIn ? "Expected output" : "Expected input"}
-            </span>
-            <span className="font-inter text-medium text-gray-400">
-              {tokenValueA} {tokenSymbolA}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="font-inter text-medium text-gray-300">
-              {inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}t
-            </span>
-            <span className="font-inter text-medium text-gray-400">
-              {tokenValueB} {tokenSymbolB}
-            </span>
-          </div>
+          {showAll ? (
+            <>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">Expected output</span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueA} {tokenSymbolA}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">Minimum output</span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueB} {tokenSymbolA}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">Expected output</span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueASecond} {tokenSymbolB}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">Minimum output</span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueBSecond} {tokenSymbolB}
+                </span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">
+                  {inputType == InputEditedType.exactIn ? "Expected output" : "Expected input"}
+                </span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueA} {tokenSymbolA}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-inter text-medium text-gray-300">
+                  {inputType === InputEditedType.exactIn ? "Minimum output" : "Maximum input"}
+                </span>
+                <span className="font-inter text-medium text-gray-400">
+                  {tokenValueB} {tokenSymbolB}
+                </span>
+              </div>
+            </>
+          )}
         </div>
         <div className="flex flex-col">
           <Button onClick={onConfirmTransaction} variant={ButtonVariants.btnInteractivePink}>

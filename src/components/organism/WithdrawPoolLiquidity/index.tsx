@@ -603,6 +603,7 @@ const WithdrawPoolLiquidity = () => {
         />
         <ReviewTransactionModal
           open={reviewModalOpen}
+          showAll={true}
           title="Review remove liquidity"
           priceImpact={priceImpact}
           youPay={
@@ -612,10 +613,15 @@ const WithdrawPoolLiquidity = () => {
           }
           youReceive={formattedTokenBValue()}
           tokenValueA={
+            selectedTokenNativeValue?.tokenValue &&
+            new Decimal(selectedTokenNativeValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
+          }
+          tokenValueASecond={
             selectedTokenAssetValue?.tokenValue &&
             new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
           }
-          tokenValueB={formatDecimalsFromToken(assetTokenWithSlippage.tokenValue, selectedTokenB.decimals)}
+          tokenValueB={formatDecimalsFromToken(nativeTokenWithSlippage.tokenValue, selectedTokenA.nativeTokenDecimals)}
+          tokenValueBSecond={formatDecimalsFromToken(assetTokenWithSlippage.tokenValue, selectedTokenB.decimals)}
           tokenSymbolA={selectedTokenA.nativeTokenSymbol}
           tokenSymbolB={selectedTokenB.tokenSymbol}
           onClose={() => {
