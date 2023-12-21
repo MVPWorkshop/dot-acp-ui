@@ -143,8 +143,6 @@ const SwapTokens = () => {
   };
 
   const tokenANumber = new Decimal(selectedTokenAValue.tokenValue || 0);
-  console.log("tokenAumber:", tokenANumber.toNumber());
-  console.log("selectedTokenAValue:", selectedTokenAValue.tokenValue);
   const tokenBNumber = new Decimal(selectedTokenBValue.tokenValue || 0);
 
   const handleSwapNativeForAssetGasFee = async () => {
@@ -450,8 +448,6 @@ const SwapTokens = () => {
         return { label: t("button.enterAmount"), disabled: true };
       }
       if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber.gt(tokenBalanceNumber)) {
-        console.log("insuficiet:", tokenANumber.toNumber());
-        console.log("tokenBalanceNumber:", tokenBalanceNumber.toNumber());
         return {
           label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
           disabled: true,
