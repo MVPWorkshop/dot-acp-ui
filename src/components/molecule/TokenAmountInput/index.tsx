@@ -120,16 +120,17 @@ const TokenAmountInput = ({
           {tokenId && tokenText && Number(tokenBalance) !== 0
             ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
             : tokenBalance || 0}
-          {tokenText && onMaxClick && (
-            // <div className="w-11 h-5 px-1.5 py-1 flex-col justify-start items-start gap-2 inline-flex">
-            <button
-              className="inline-flex h-5 w-11 flex-col items-start justify-start gap-2 px-1.5"
-              onClick={onMaxClick}
-            >
-              MAX
-            </button>
-            // </div>
-          )}
+          {tokenText &&
+            onMaxClick &&
+            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP &&
+            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP == "true" && (
+              <button
+                className="inline-flex h-5 w-11 flex-col items-start justify-start gap-2 px-1.5 text-pink"
+                onClick={onMaxClick}
+              >
+                MAX
+              </button>
+            )}
         </div>
       </div>
     </div>

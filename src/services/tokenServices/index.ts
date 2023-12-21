@@ -219,6 +219,71 @@ export enum PriceCalcType {
   AssetFromAsset = "AssetFromAsset",
 }
 
+export type SellMaxToken = {
+  id: string;
+  value: string;
+  decimals: string;
+  formattedValue: string;
+  minAmount: string;
+};
+
+// Not in use, needs to be better implemented to replace sellMax
+export const sellMax2 = async ({
+  api,
+  priceCalcType,
+  tokenA,
+  tokenBinPool,
+}: {
+  api: ApiPromise;
+  priceCalcType: PriceCalcType;
+  tokenA: SellMaxToken;
+  tokenBinPool: SellMaxToken;
+}) => {
+  let priceB: string;
+  let amountA = new Decimal(0);
+
+  switch (priceCalcType) {
+    case PriceCalcType.AssetFromAsset:
+      priceB = (await getAssetTokenBFromAssetTokenA(api, "1", tokenA.id, tokenBinPool.id!))!
+        .toString()
+        .replace(/[, ]/g, "");
+      break;
+    case PriceCalcType.AssetFromNative:
+      priceB = (await getAssetTokenFromNativeToken(api, tokenBinPool.id, "1000000000000"))!
+        .toString()
+        .replace(/[, ]/g, "");
+      break;
+    case PriceCalcType.NativeFromAsset:
+      priceB = (await getNativeTokenFromAssetToken(api, tokenA.id, "10"))!.toString().replace(/[, ]/g, "");
+      break;
+    default:
+      throw new Error("Unsupported price calculation type");
+  }
+
+  const amountB = new Decimal(tokenA.value).div(priceB).floor();
+
+  if (amountB.lt(tokenBinPool.value)) {
+    if (amountB.plus(tokenBinPool.minAmount).lte(tokenBinPool.value)) {
+      amountA = amountB.mul(priceB).floor();
+    }
+    console.log("amountB", amountB.toString());
+    console.log("amountB formatted", formatDecimalsFromToken(amountB, tokenA.decimals));
+    // Do something with amountB
+  } else {
+    // If the amount of tokenB is greater than the max amount of tokenB in the pool, use the max amount of tokenB in the pool
+    const amountB2 = new Decimal(tokenBinPool.value).sub(tokenBinPool.minAmount);
+    if (amountB2.gte(tokenBinPool.minAmount)) {
+      // Ensure that the amount of tokenB is greater than the min amount of tokenB in the pool
+      amountA = amountB2.mul(priceB).floor();
+    }
+    if (amountA.gt(tokenA.minAmount)) {
+      // We can't sell less than the min amount of tokenA
+      amountA = new Decimal(0);
+    }
+  }
+  console.log("amountA", amountA.toString());
+  console.log("amountA formatted", formatDecimalsFromToken(amountA, tokenA.decimals));
+};
 export const sellMax = async ({
   api,
   priceCalcType,
@@ -227,18 +292,8 @@ export const sellMax = async ({
 }: {
   api: ApiPromise;
   priceCalcType: PriceCalcType;
-  tokenA: {
-    id: string;
-    value: string;
-    decimals: string;
-    formattedValue: string;
-  };
-  tokenBinPool: {
-    id: string;
-    value: string;
-    decimals: string;
-    formattedValue: string;
-  };
+  tokenA: SellMaxToken;
+  tokenBinPool: SellMaxToken;
 }) => {
   // Define a function that maps to the correct calculation method
   let calculateBForA: (x: Decimal) => Promise<AnyJson>;
@@ -260,6 +315,7 @@ export const sellMax = async ({
 
   let step = new Decimal(1);
   if (new Decimal(tokenA.decimals).gt(1)) {
+    // this precision can be adjusted eg to increse sub(2)
     step = new Decimal(10).pow(new Decimal(tokenA.decimals).sub(new Decimal(tokenA.decimals).sub(2)));
   }
 
@@ -271,9 +327,7 @@ export const sellMax = async ({
     calculateBForA: calculateBForA,
   });
 
-  console.log("optimalTokenA", optimalTokenA);
-  console.log("optimalTokenA formatted", formatDecimalsFromToken(optimalTokenA, tokenA.decimals));
-  // Do something with optimalTokenA
+  return formatDecimalsFromToken(optimalTokenA, tokenA.decimals);
 };
 
 export const findOptimalTokenA = async ({
@@ -293,6 +347,8 @@ export const findOptimalTokenA = async ({
 
   while (low.lte(high)) {
     const mid = low.plus(high).div(2).floor();
+    // FIXME: calculateBForA is calling in the loop and it contacts RPC server every time
+    // we should offload this calculation on client side
     const yForMid = new Decimal(((await calculateBForA(mid)) || 0).toString().replace(/[, ]/g, ""));
 
     if (yForMid.lte(maxTokenB)) {
