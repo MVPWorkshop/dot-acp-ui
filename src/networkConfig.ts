@@ -12,7 +12,7 @@ export const NETWORKS: Record<NetworkKeys, NetworkConfig> = {
     nativeTokenSymbol: "WND",
     rpcUrl: "wss://westmint-rpc.polkadot.io",
     parents: 1,
-    assethubSubscanUrl: "https://westend.subscan.io",
+    assethubSubscanUrl: "https://westmint.statescan.io/#",
   },
   [NetworkKeys.Rococo]: {
     nativeTokenSymbol: "ROC",

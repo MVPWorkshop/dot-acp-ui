@@ -1,10 +1,10 @@
 import { FC } from "react";
+import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { ReactComponent as ArrowLeft } from "../../../assets/img/arrow-left.svg";
 import { ReactComponent as ArrowRight } from "../../../assets/img/arrow-right.svg";
 import { ReactComponent as OpenLinkArrow } from "../../../assets/img/open-link-arrow.svg";
-import Modal from "../../atom/Modal";
 import { useAppContext } from "../../../state";
-import useGetNetwork from "../../../app/hooks/useGetNetwork";
+import Modal from "../../atom/Modal";
 
 interface SwapAndPoolSuccessModalProps {
   open: boolean;
@@ -31,7 +31,7 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
   tokenB,
   onClose,
 }) => {
-  const { assethubSubscanUrl } = useGetNetwork();
+  const { assethubSubscanUrl, nativeTokenSymbol } = useGetNetwork();
   const { state } = useAppContext();
   const { blockHashFinalized } = state;
   return (
@@ -54,7 +54,11 @@ const SwapAndPoolSuccessModal: FC<SwapAndPoolSuccessModalProps> = ({
             </div>
           </div>
           <div className="flex flex-row items-center justify-center gap-1 font-unbounded-variable text-medium underline">
-            <a href={`${assethubSubscanUrl}/block/${blockHashFinalized}`} target="_blank" rel="noreferrer">
+            <a
+              href={`${assethubSubscanUrl}/block${nativeTokenSymbol == "WND" ? "s" : ""}/${blockHashFinalized}`}
+              target="_blank"
+              rel="noreferrer"
+            >
               View in block explorer
             </a>
             <OpenLinkArrow />
