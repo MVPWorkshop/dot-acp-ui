@@ -1218,14 +1218,7 @@ const SwapTokens = () => {
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
-        <button
-          className="absolute top-[170px] z-50"
-          onClick={() => {
-            handleSwitchTokens();
-          }}
-        >
-          <SwitchArrow />
-        </button>
+
         <TokenAmountInput
           tokenText={selectedTokens.tokenB?.tokenSymbol}
           tokenBalance={selectedTokens.tokenB?.tokenBalance}
@@ -1241,7 +1234,14 @@ const SwapTokens = () => {
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
-
+        <button
+          className="absolute top-[170px]"
+          onClick={() => {
+            handleSwitchTokens();
+          }}
+        >
+          <SwitchArrow />
+        </button>
         <div className="mt-1 text-small">{swapGasFeesMessage}</div>
 
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
