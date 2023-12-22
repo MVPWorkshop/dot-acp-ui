@@ -131,6 +131,8 @@ const SwapTokens = () => {
   const [priceImpact, setPriceImpact] = useState<string>("");
   const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
 
+  const [isMaxValueLessThenMinAmount, setIsMaxValueLessThenMinAmount] = useState<boolean>(false);
+
   const nativeToken = {
     tokenId: "",
     assetTokenMetadata: {
@@ -586,6 +588,7 @@ const SwapTokens = () => {
     }
     setSwapSuccessfulReset(false);
     setIsTransactionTimeout(false);
+    setIsMaxValueLessThenMinAmount(false);
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -943,6 +946,7 @@ const SwapTokens = () => {
   // if it is asset token selling and it is drain (from user wallet or pool) we need to substrate min balance
   // if it is native token drain from the pool we need to substrate existential deposit
   const onMaxClick = async () => {
+    setIsMaxValueLessThenMinAmount(false);
     const nativeTokenExistentialDeposit = tokenBalances!.existentialDeposit.replace(/[, ]/g, "");
     // tokenb moze biti native token i onda ga nece naci u poolu, u tom slucaju treba naci pool za tokenA
     let poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
@@ -1015,8 +1019,10 @@ const SwapTokens = () => {
       priceCalcType,
     });
     dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
-    if (new Decimal(maxValueA).lt(minAmountA)) {
-      dispatch({ type: ActionType.SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP, payload: true });
+    const minAmountFormattedA = formatDecimalsFromToken(minAmountA, selectedTokens.tokenA.decimals);
+
+    if (new Decimal(maxValueA).lt(minAmountFormattedA)) {
+      setIsMaxValueLessThenMinAmount(true);
       return;
     }
     tokenAValue(maxValueA);
@@ -1093,6 +1099,8 @@ const SwapTokens = () => {
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
   ]);
   useEffect(() => {
+    setIsMaxValueLessThenMinAmount(false);
+    setIsTransactionTimeout(false);
     if (selectedTokenBValue.tokenValue === "") {
       setTokenAValueForSwap({ tokenValue: "0" });
       setTokenBValueForSwap({ tokenValue: "0" });
@@ -1596,6 +1604,7 @@ const SwapTokens = () => {
         show={isTransactionTimeout}
         message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
       />
+      <WarningMessage show={isMaxValueLessThenMinAmount} message={t("pageError.maxValueLessThanMinAmount")} />
     </div>
   );
 };
