@@ -46,6 +46,7 @@ export enum ActionType {
   SET_ASSET_LOADING = "SET_ASSET_LOADING",
   SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS = "SET_TOKEN_CAN_NOT_CREATE_WARNING_POOLS",
   SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP = "SET_TOKEN_CAN_NOT_CREATE_WARNING_SWAP",
+  SET_BLOCK_HASH_FINALIZED = "SET_BLOCK_HASH_FINALIZED",
 }
 
 export enum TokenSelection {
@@ -79,7 +80,7 @@ export enum TokenPosition {
 }
 
 export enum NetworkKeys {
-  Westmint = "westmint",
+  Westend = "westend",
   Rococo = "rococo",
   Kusama = "kusama",
 }

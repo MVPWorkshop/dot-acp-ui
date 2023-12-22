@@ -7,6 +7,7 @@ import { ActionType, ServiceResponseStatus } from "../../app/types/enum";
 import { formatDecimalsFromToken } from "../../app/util/helper";
 import dotAcpToast from "../../app/util/toast";
 import { SwapAction } from "../../store/swap/interface";
+import { WalletAction } from "../../store/wallet/interface";
 
 const { parents } = useGetNetwork();
 
@@ -46,7 +47,7 @@ export const swapNativeForAssetExactIn = async (
   tokenADecimals: string,
   tokenBDecimals: string,
   reverse: boolean,
-  dispatch: Dispatch<SwapAction>
+  dispatch: Dispatch<SwapAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -79,7 +80,7 @@ export const swapNativeForAssetExactIn = async (
   const wallet = getWalletBySource(account.wallet?.extensionName);
 
   result
-    .signAndSend(account.address, { signer: wallet?.signer }, (response) => {
+    .signAndSend(account.address, { signer: wallet?.signer }, async (response) => {
       if (response.status.isInBlock) {
         dotAcpToast.success(`Completed at block hash #${response.status.asInBlock.toString()}`, {
           style: {
@@ -105,6 +106,8 @@ export const swapNativeForAssetExactIn = async (
         }
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
+
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
 
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
@@ -144,7 +147,7 @@ export const swapNativeForAssetExactOut = async (
   tokenADecimals: string,
   tokenBDecimals: string,
   reverse: boolean,
-  dispatch: Dispatch<SwapAction>
+  dispatch: Dispatch<SwapAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -204,6 +207,7 @@ export const swapNativeForAssetExactOut = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
 
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
@@ -242,7 +246,7 @@ export const swapAssetForAssetExactIn = async (
   assetTokenBValue: string,
   tokenADecimals: string,
   tokenBDecimals: string,
-  dispatch: Dispatch<SwapAction>
+  dispatch: Dispatch<SwapAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -311,6 +315,7 @@ export const swapAssetForAssetExactIn = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
 
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,
@@ -349,7 +354,7 @@ export const swapAssetForAssetExactOut = async (
   assetTokenBValue: string,
   tokenADecimals: string,
   tokenBDecimals: string,
-  dispatch: Dispatch<SwapAction>
+  dispatch: Dispatch<SwapAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -418,6 +423,7 @@ export const swapAssetForAssetExactOut = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactSwapAmounts(response.toHuman(), tokenADecimals, tokenBDecimals, dispatch);
 
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
           dispatch({ type: ActionType.SET_SWAP_FINALIZED, payload: true });
           dispatch({
             type: ActionType.SET_SWAP_GAS_FEES_MESSAGE,

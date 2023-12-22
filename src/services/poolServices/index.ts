@@ -12,6 +12,7 @@ import dotAcpToast from "../../app/util/toast";
 import NativeTokenIcon from "../../assets/img/dot-token.svg";
 import AssetTokenIcon from "../../assets/img/test-token.svg";
 import { PoolAction } from "../../store/pools/interface";
+import { WalletAction } from "../../store/wallet/interface";
 
 const { parents, nativeTokenSymbol } = useGetNetwork();
 
@@ -113,7 +114,7 @@ export const createPool = async (
   minAssetTokenValue: string,
   nativeTokenDecimals: string,
   assetTokenDecimals: string,
-  dispatch: Dispatch<PoolAction>
+  dispatch: Dispatch<PoolAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -199,7 +200,7 @@ export const addLiquidity = async (
   minAssetTokenValue: string,
   nativeTokenDecimals: string,
   assetTokenDecimals: string,
-  dispatch: Dispatch<PoolAction>
+  dispatch: Dispatch<PoolAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -271,6 +272,7 @@ export const addLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactAddedLiquidityInPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
 
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
@@ -297,7 +299,7 @@ export const removeLiquidity = async (
   minAssetTokenValue: string,
   nativeTokenDecimals: string,
   assetTokenDecimals: string,
-  dispatch: Dispatch<PoolAction>
+  dispatch: Dispatch<PoolAction | WalletAction>
 ) => {
   const firstArg = api
     .createType("MultiLocation", {
@@ -361,6 +363,7 @@ export const removeLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactWithdrawnLiquidityFromPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
 
+          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
@@ -545,13 +548,14 @@ export const createPoolCardsArray = async (
   api: ApiPromise,
   dispatch: Dispatch<PoolAction>,
   pools: any,
-  selectedAccount?: WalletAccount,
-  nativeTokenDecimals?: string
+  selectedAccount?: WalletAccount
 ) => {
   const apiPool = api as ApiPromise;
-
   try {
     const poolCardsArray: PoolCardProps[] = [];
+
+    const tokenMetadata = api.registry.getChainProperties();
+    const nativeTokenDecimals = tokenMetadata?.tokenDecimals.toHuman()?.toString().replace(/[, ]/g, "");
 
     await Promise.all(
       pools.map(async (pool: any) => {

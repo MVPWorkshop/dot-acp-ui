@@ -10,7 +10,7 @@ import { AppStateProvider } from "./state";
 
 const App: FC = () => {
   const { dispatch, state } = useStateAndDispatch();
-  const { api, pools, selectedAccount, tokenBalances } = state;
+  const { api, pools, selectedAccount } = state;
 
   const walletConnected: WalletAccount = LocalStorage.get("wallet-connected");
 
@@ -22,12 +22,11 @@ const App: FC = () => {
 
   useEffect(() => {
     const updatePoolsCards = async () => {
-      if (api && pools.length && tokenBalances?.tokenDecimals)
-        await createPoolCardsArray(api, dispatch, pools, selectedAccount, tokenBalances.tokenDecimals);
+      if (api && pools.length) await createPoolCardsArray(api, dispatch, pools, selectedAccount);
     };
 
     updatePoolsCards().then();
-  }, [pools, selectedAccount, tokenBalances]);
+  }, [pools, selectedAccount]);
 
   return (
     <AppStateProvider state={state} dispatch={dispatch}>
