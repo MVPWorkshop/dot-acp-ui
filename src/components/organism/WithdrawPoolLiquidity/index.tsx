@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { LpTokenAsset } from "../../../app/types";
-import { ActionType, ButtonVariants, LiquidityPageType } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, LiquidityPageType } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
   formatDecimalsFromToken,
@@ -28,6 +28,7 @@ import AmountPercentage from "../../molecule/AmountPercentage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -86,6 +87,7 @@ const WithdrawPoolLiquidity = () => {
   const [minimumTokenAmountExceeded, setMinimumTokenAmountExceeded] = useState<boolean>(false);
   const [withdrawAmountPercentage, setWithdrawAmountPercentage] = useState<number>(100);
   const [maxPercentage, setMaxPercentage] = useState<number>(100);
+  const [reviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
   const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
@@ -118,6 +120,7 @@ const WithdrawPoolLiquidity = () => {
   };
 
   const handlePool = async () => {
+    setReviewModalOpen(false);
     const lpToken = Math.floor(Number(lpTokensAmountToBurn) * (withdrawAmountPercentage / 100)).toString();
     if (waitingForTransaction) {
       clearTimeout(waitingForTransaction);
@@ -586,7 +589,7 @@ const WithdrawPoolLiquidity = () => {
           </>
         )}
         <Button
-          onClick={() => (getWithdrawButtonProperties.disabled ? null : handlePool())}
+          onClick={() => (getWithdrawButtonProperties.disabled ? null : setReviewModalOpen(true))}
           variant={ButtonVariants.btnInteractivePink}
           disabled={getWithdrawButtonProperties.disabled || withdrawLiquidityLoading}
         >
@@ -597,6 +600,37 @@ const WithdrawPoolLiquidity = () => {
           onClose={() => setIsModalOpen(false)}
           open={isModalOpen}
           title={t("button.selectToken")}
+        />
+        <ReviewTransactionModal
+          open={reviewModalOpen}
+          showAll={true}
+          title="Review remove liquidity"
+          priceImpact={priceImpact}
+          youPay={
+            selectedTokenNativeValue?.tokenValue
+              ? new Decimal(selectedTokenNativeValue?.tokenValue).mul(withdrawAmountPercentage).div(100).toFixed()
+              : ""
+          }
+          youReceive={formattedTokenBValue()}
+          tokenValueA={
+            selectedTokenNativeValue?.tokenValue &&
+            new Decimal(selectedTokenNativeValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
+          }
+          tokenValueASecond={
+            selectedTokenAssetValue?.tokenValue &&
+            new Decimal(selectedTokenAssetValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
+          }
+          tokenValueB={formatDecimalsFromToken(nativeTokenWithSlippage.tokenValue, selectedTokenA.nativeTokenDecimals)}
+          tokenValueBSecond={formatDecimalsFromToken(assetTokenWithSlippage.tokenValue, selectedTokenB.decimals)}
+          tokenSymbolA={selectedTokenA.nativeTokenSymbol}
+          tokenSymbolB={selectedTokenB.tokenSymbol}
+          onClose={() => {
+            setReviewModalOpen(false);
+          }}
+          inputType={InputEditedType.exactIn}
+          onConfirmTransaction={() => {
+            handlePool();
+          }}
         />
         <SwapAndPoolSuccessModal
           open={successModalOpen}
@@ -619,7 +653,7 @@ const WithdrawPoolLiquidity = () => {
       <WarningMessage show={isTokenCanNotCreateWarningPools} message={t("pageError.tokenCanNotCreateWarning")} />
       <WarningMessage
         show={isTransactionTimeout}
-        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}/account/${selectedAccount.address}` })}
       />
     </div>
   );
