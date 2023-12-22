@@ -38,9 +38,9 @@ import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
-import ReviewTransactionModal from "../ReviewTransactionModal";
 
 type SwapTokenProps = {
   tokenA: TokenProps;
@@ -1413,7 +1413,9 @@ const SwapTokens = () => {
       <WarningMessage show={isTokenCanNotCreateWarningSwap} message={t("pageError.tokenCanNotCreateWarning")} />
       <WarningMessage
         show={isTransactionTimeout}
-        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}/account/${selectedAccount.address}` })}
+        message={t("pageError.transactionTimeout", {
+          url: `${assethubSubscanUrl}/account${nativeTokenSymbol == "WND" ? "s" : ""}/${selectedAccount.address}`,
+        })}
       />
     </div>
   );
