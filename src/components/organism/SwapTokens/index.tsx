@@ -15,6 +15,7 @@ import {
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
 import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
+import { ReactComponent as SwitchArrow } from "../../../assets/img/switch-arrow.svg";
 import { LottieMedium } from "../../../assets/loader";
 import { setTokenBalanceAfterAssetsSwapUpdate, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { createPoolCardsArray, getPoolReserves } from "../../../services/poolServices";
@@ -118,6 +119,7 @@ const SwapTokens = () => {
   const [lowMinimalAmountAssetToken, setLowMinimalAmountAssetToken] = useState<boolean>(false);
   const [minimumBalanceAssetToken, setMinimumBalanceAssetToken] = useState<string>("0");
   const [swapSuccessfulReset, setSwapSuccessfulReset] = useState<boolean>(false);
+  const [switchTokensEnabled, setSwitchTokensEnabled] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
     isError: false,
@@ -238,6 +240,7 @@ const SwapTokens = () => {
           inputType === InputEditedType.exactIn
             ? calculateSlippageReduce(assetTokenNoDecimals, slippageValue)
             : calculateSlippageAdd(assetTokenNoDecimals, slippageValue);
+
         if (inputType === InputEditedType.exactIn) {
           setTokenAValueForSwap({ tokenValue: value });
           setTokenBValueForSwap({ tokenValue: assetTokenWithSlippage });
@@ -815,18 +818,56 @@ const SwapTokens = () => {
     }
   };
 
+  const handleSwitchTokens = () => {
+    const selectedTokenA: TokenProps = selectedTokens.tokenA;
+    const selectedTokenB: TokenProps = selectedTokens.tokenB;
+
+    setSwitchTokensEnabled(true);
+
+    setSelectedTokens({
+      tokenA: {
+        tokenSymbol: selectedTokenB.tokenSymbol,
+        tokenBalance: selectedTokenB.tokenBalance.toString(),
+        tokenId: selectedTokenB.tokenId,
+        decimals: selectedTokenB.decimals,
+      },
+      tokenB: {
+        tokenSymbol: selectedTokenA.tokenSymbol,
+        tokenBalance: selectedTokenA.tokenBalance.toString(),
+        tokenId: selectedTokenA.tokenId,
+        decimals: selectedTokenA.decimals,
+      },
+    });
+  };
+
   useEffect(() => {
-    if (
-      selectedTokenBValue?.tokenValue &&
-      tokenSelected.tokenSelected === TokenPosition.tokenA &&
-      parseFloat(selectedTokenBValue?.tokenValue) > 0
-    ) {
-      tokenBValue(selectedTokenBValue.tokenValue);
+    if (switchTokensEnabled) {
+      if (inputEdited.inputType === InputEditedType.exactIn) {
+        tokenBValue(selectedTokenAValue.tokenValue);
+      } else if (inputEdited.inputType === InputEditedType.exactOut) {
+        tokenAValue(selectedTokenBValue.tokenValue);
+      }
+    } else {
+      if (
+        selectedTokenBValue?.tokenValue &&
+        tokenSelected.tokenSelected === TokenPosition.tokenA &&
+        parseFloat(selectedTokenBValue?.tokenValue) > 0
+      ) {
+        tokenBValue(selectedTokenBValue.tokenValue);
+      }
+
+      if (
+        selectedTokenAValue?.tokenValue &&
+        tokenSelected.tokenSelected === TokenPosition.tokenB &&
+        tokenANumber.gt(0)
+      ) {
+        tokenAValue(selectedTokenAValue.tokenValue);
+      }
     }
 
-    if (selectedTokenAValue?.tokenValue && tokenSelected.tokenSelected === TokenPosition.tokenB && tokenANumber.gt(0)) {
-      tokenAValue(selectedTokenAValue.tokenValue);
-    }
+    return () => {
+      setSwitchTokensEnabled(false);
+    };
   }, [selectedTokens]);
 
   useEffect(() => {
@@ -1171,7 +1212,9 @@ const SwapTokens = () => {
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenAValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
-          onSetTokenValue={(value) => tokenAValue(value.toString())}
+          onSetTokenValue={(value) => {
+            tokenAValue(value.toString());
+          }}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
@@ -1185,11 +1228,20 @@ const SwapTokens = () => {
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenBValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
-          onSetTokenValue={(value) => tokenBValue(value.toString())}
+          onSetTokenValue={(value) => {
+            tokenBValue(value.toString());
+          }}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
-
+        <button
+          className="absolute top-[170px]"
+          onClick={() => {
+            handleSwitchTokens();
+          }}
+        >
+          <SwitchArrow />
+        </button>
         <div className="mt-1 text-small">{swapGasFeesMessage}</div>
 
         <div className="flex w-full flex-col gap-2 rounded-lg bg-purple-50 px-4 py-6">
