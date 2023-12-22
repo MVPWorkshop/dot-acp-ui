@@ -38,6 +38,7 @@ import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
 import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import SwapSelectTokenModal from "../SwapSelectTokenModal";
 
@@ -124,6 +125,7 @@ const SwapTokens = () => {
   });
 
   const [isTransactionTimeout, setIsTransactionTimeout] = useState<boolean>(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
   const [waitingForTransaction, setWaitingForTransaction] = useState<NodeJS.Timeout>();
   const [priceImpact, setPriceImpact] = useState<string>("");
   const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
@@ -445,7 +447,7 @@ const SwapTokens = () => {
       ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
-      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber > tokenBalanceNumber) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber.gt(tokenBalanceNumber)) {
         return {
           label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
           disabled: true,
@@ -485,7 +487,7 @@ const SwapTokens = () => {
       }
       if (
         selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        tokenANumber < tokenBalanceNumber &&
+        tokenANumber.lt(tokenBalanceNumber) &&
         !tooManyDecimalsError.isError
       ) {
         return { label: t("button.swap"), disabled: false };
@@ -573,6 +575,7 @@ const SwapTokens = () => {
   };
 
   const handleSwap = async () => {
+    setReviewModalOpen(false);
     if (waitingForTransaction) {
       clearTimeout(waitingForTransaction);
     }
@@ -1317,7 +1320,7 @@ const SwapTokens = () => {
         />
 
         <Button
-          onClick={() => (getSwapButtonProperties.disabled ? null : handleSwap())}
+          onClick={() => (getSwapButtonProperties.disabled ? null : setReviewModalOpen(true))}
           variant={ButtonVariants.btnInteractivePink}
           disabled={getSwapButtonProperties.disabled || swapLoading}
         >
@@ -1350,6 +1353,46 @@ const SwapTokens = () => {
           }}
           actionLabel="Swapped"
         />
+        <ReviewTransactionModal
+          open={reviewModalOpen}
+          title="Review Swap"
+          priceImpact={priceImpact}
+          youPay={selectedTokenAValue.tokenValue}
+          youReceive={selectedTokenBValue.tokenValue}
+          tokenValueA={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokenBValue.tokenValue
+              : selectedTokenAValue.tokenValue
+          }
+          tokenValueB={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? formatDecimalsFromToken(
+                  formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals),
+                  selectedTokens.tokenB.decimals
+                )
+              : formatDecimalsFromToken(
+                  formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals),
+                  selectedTokens.tokenA.decimals
+                )
+          }
+          tokenSymbolA={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokens.tokenB.tokenSymbol
+              : selectedTokens.tokenA.tokenSymbol
+          }
+          tokenSymbolB={
+            inputEdited.inputType === InputEditedType.exactIn
+              ? selectedTokens.tokenB.tokenSymbol
+              : selectedTokens.tokenA.tokenSymbol
+          }
+          onClose={() => {
+            setReviewModalOpen(false);
+          }}
+          inputType={inputEdited.inputType}
+          onConfirmTransaction={() => {
+            handleSwap();
+          }}
+        />
       </div>
       <WarningMessage show={lowTradingMinimum} message={t("pageError.tradingMinimum")} />
       <WarningMessage
@@ -1370,7 +1413,9 @@ const SwapTokens = () => {
       <WarningMessage show={isTokenCanNotCreateWarningSwap} message={t("pageError.tokenCanNotCreateWarning")} />
       <WarningMessage
         show={isTransactionTimeout}
-        message={t("pageError.transactionTimeout", { url: `${assethubSubscanUrl}${selectedAccount.address}` })}
+        message={t("pageError.transactionTimeout", {
+          url: `${assethubSubscanUrl}/account${nativeTokenSymbol == "WND" ? "s" : ""}/${selectedAccount.address}`,
+        })}
       />
     </div>
   );

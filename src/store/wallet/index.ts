@@ -10,6 +10,7 @@ export const initialWalletState: WalletState = {
   walletConnectLoading: false,
   extensions: [],
   assetLoading: false,
+  blockHashFinalized: "",
 };
 
 export const walletReducer = (state: WalletState, action: WalletAction): WalletState => {
@@ -28,6 +29,8 @@ export const walletReducer = (state: WalletState, action: WalletAction): WalletS
       return { ...state, extensions: action.payload };
     case ActionType.SET_ASSET_LOADING:
       return { ...state, assetLoading: action.payload };
+    case ActionType.SET_BLOCK_HASH_FINALIZED:
+      return { ...state, blockHashFinalized: action.payload };
     default:
       return state;
   }
