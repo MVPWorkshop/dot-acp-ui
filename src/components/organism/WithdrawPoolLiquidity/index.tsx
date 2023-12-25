@@ -7,7 +7,13 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { LpTokenAsset } from "../../../app/types";
-import { ActionType, ButtonVariants, InputEditedType, LiquidityPageType } from "../../../app/types/enum";
+import {
+  ActionType,
+  ButtonVariants,
+  InputEditedType,
+  LiquidityPageType,
+  TransactionTypes,
+} from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
   formatDecimalsFromToken,
@@ -604,14 +610,15 @@ const WithdrawPoolLiquidity = () => {
         <ReviewTransactionModal
           open={reviewModalOpen}
           showAll={true}
+          transactionType={TransactionTypes.withdraw}
           title="Review remove liquidity"
           priceImpact={priceImpact}
-          youPay={
+          inputValueA={
             selectedTokenNativeValue?.tokenValue
               ? new Decimal(selectedTokenNativeValue?.tokenValue).mul(withdrawAmountPercentage).div(100).toFixed()
               : ""
           }
-          youReceive={formattedTokenBValue()}
+          inputValueB={formattedTokenBValue()}
           tokenValueA={
             selectedTokenNativeValue?.tokenValue &&
             new Decimal(selectedTokenNativeValue?.tokenValue).times(withdrawAmountPercentage / 100).toString()
