@@ -4,8 +4,15 @@ import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
+import {
+  ActionType,
+  ButtonVariants,
+  InputEditedType,
+  TokenPosition,
+  TokenSelection,
+  TransactionTypes,
+} from "../../../app/types/enum";
 import { InputEditedProps, PoolCardProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
-import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
 import {
   calculateSlippageAdd,
   calculateSlippageReduce,
@@ -1640,8 +1647,9 @@ const SwapTokens = () => {
           open={reviewModalOpen}
           title="Review Swap"
           priceImpact={priceImpact}
-          youPay={selectedTokenAValue.tokenValue}
-          youReceive={selectedTokenBValue.tokenValue}
+          transactionType={TransactionTypes.swap}
+          inputValueA={selectedTokenAValue.tokenValue}
+          inputValueB={selectedTokenBValue.tokenValue}
           tokenValueA={
             inputEdited.inputType === InputEditedType.exactIn
               ? selectedTokenBValue.tokenValue

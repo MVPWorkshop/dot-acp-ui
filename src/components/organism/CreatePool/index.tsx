@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { TokenDecimalsErrorProps } from "../../../app/types";
-import { ActionType, ButtonVariants } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, TransactionTypes } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
   checkIfPoolAlreadyExists,
@@ -29,6 +29,7 @@ import TokenAmountInput from "../../molecule/TokenAmountInput";
 import AddPoolLiquidity from "../AddPoolLiquidity";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
 import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
+import ReviewTransactionModal from "../ReviewTransactionModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -94,6 +95,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
   const [poolExists, setPoolExists] = useState<boolean>(false);
   const [assetTokenMinValueExceeded, setAssetTokenMinValueExceeded] = useState<boolean>(false);
   const [assetTokenMinValue, setAssetTokenMinValue] = useState<string>("");
+  const [reviewModalOpen, setReviewModalOpen] = useState<boolean>(false);
   const [tooManyDecimalsError, setTooManyDecimalsError] = useState<TokenDecimalsErrorProps>({
     tokenSymbol: "",
     isError: false,
@@ -489,13 +491,27 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
             </div>
 
             <Button
-              onClick={() => (getButtonProperties.disabled ? null : handlePool())}
+              onClick={() => (getButtonProperties.disabled ? null : setReviewModalOpen(true))}
               variant={ButtonVariants.btnInteractivePink}
               disabled={getButtonProperties.disabled || createPoolLoading || addLiquidityLoading}
             >
               {createPoolLoading || addLiquidityLoading ? <LottieMedium /> : getButtonProperties.label}
             </Button>
-
+            <ReviewTransactionModal
+              open={reviewModalOpen}
+              title="Review create pool"
+              transactionType={TransactionTypes.createPool}
+              inputValueA={selectedTokenNativeValue ? selectedTokenNativeValue.tokenValue : ""}
+              tokenValueA={selectedTokenA.nativeTokenSymbol}
+              inputValueB={selectedTokenAssetValue ? selectedTokenAssetValue.tokenValue : ""}
+              tokenValueB={selectedTokenB.tokenSymbol}
+              onClose={() => {
+                setReviewModalOpen(false);
+              }}
+              onConfirmTransaction={() => {
+                handlePool();
+              }}
+            />
             <PoolSelectTokenModal
               onSelect={setSelectedTokenB}
               onClose={() => setIsModalOpen(false)}

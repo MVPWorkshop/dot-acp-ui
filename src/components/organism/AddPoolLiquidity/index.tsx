@@ -7,7 +7,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
 import { POOLS_PAGE } from "../../../app/router/routes";
 import { InputEditedProps, TokenDecimalsErrorProps } from "../../../app/types";
-import { ActionType, ButtonVariants, InputEditedType } from "../../../app/types/enum";
+import { ActionType, ButtonVariants, InputEditedType, TransactionTypes } from "../../../app/types/enum";
 import {
   calculateSlippageReduce,
   checkIfPoolAlreadyExists,
@@ -655,9 +655,10 @@ const AddPoolLiquidity = ({ tokenBId }: AddPoolLiquidityProps) => {
           <ReviewTransactionModal
             open={reviewModalOpen}
             title="Review adding liquidity"
+            transactionType={TransactionTypes.add}
             priceImpact={priceImpact}
-            youPay={selectedTokenA.tokenBalance}
-            youReceive={selectedTokenB.assetTokenBalance}
+            inputValueA={selectedTokenNativeValue ? selectedTokenNativeValue?.tokenValue : ""}
+            inputValueB={selectedTokenAssetValue ? selectedTokenAssetValue?.tokenValue : ""}
             tokenValueA={
               inputEdited.inputType === InputEditedType.exactIn
                 ? selectedTokenAssetValue?.tokenValue

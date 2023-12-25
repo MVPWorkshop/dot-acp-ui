@@ -89,3 +89,10 @@ export enum WalletConnectSteps {
   stepExtensions = "extensions",
   stepAddresses = "addresses",
 }
+
+export enum TransactionTypes {
+  swap = "swap",
+  add = "add",
+  withdraw = "withdraw",
+  createPool = "createPool",
+}

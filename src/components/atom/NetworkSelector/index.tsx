@@ -35,7 +35,7 @@ const NetworkSelector = ({ networkSelected, items, isDropdownOpen, setIsDropdown
   });
 
   return (
-    <div ref={wrapperRef} className="relative z-[100] flex align-middle">
+    <div ref={wrapperRef} className="relative z-[10] flex align-middle">
       <button
         className="flex items-center gap-9 rounded-lg bg-purple-200 px-4 py-3"
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
