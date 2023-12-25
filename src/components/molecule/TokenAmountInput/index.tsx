@@ -5,8 +5,8 @@ import { NumericFormat } from "react-number-format";
 import useClickOutside from "../../../app/hooks/useClickOutside";
 import { ButtonVariants } from "../../../app/types/enum";
 import { formatDecimalsFromToken } from "../../../app/util/helper";
-import Button from "../../atom/Button";
 import { LottieSmall } from "../../../assets/loader";
+import Button from "../../atom/Button";
 
 type TokenAmountInputProps = {
   tokenText: string;
@@ -23,6 +23,7 @@ type TokenAmountInputProps = {
   withdrawAmountPercentage?: number;
   onClick: () => void;
   onSetTokenValue: (value: string) => void;
+  onMaxClick?: () => void;
 };
 
 const TokenAmountInput = ({
@@ -39,6 +40,7 @@ const TokenAmountInput = ({
   withdrawAmountPercentage,
   onSetTokenValue,
   onClick,
+  onMaxClick,
 }: TokenAmountInputProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLInputElement>(null);
@@ -118,6 +120,17 @@ const TokenAmountInput = ({
           {tokenId && tokenText && Number(tokenBalance) !== 0
             ? formatDecimalsFromToken(Number(tokenBalance?.replace(/[, ]/g, "")), tokenDecimals as string)
             : tokenBalance || 0}
+          {tokenText &&
+            onMaxClick &&
+            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP &&
+            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP == "true" && (
+              <button
+                className="inline-flex h-5 w-11 flex-col items-start justify-start gap-2 px-1.5 text-pink"
+                onClick={onMaxClick}
+              >
+                MAX
+              </button>
+            )}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
-import { InputEditedProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
+import { InputEditedProps, PoolCardProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
 import { ActionType, ButtonVariants, InputEditedType, TokenPosition, TokenSelection } from "../../../app/types/enum";
 import {
   calculateSlippageAdd,
@@ -14,8 +14,8 @@ import {
   formatInputTokenValue,
 } from "../../../app/util/helper";
 import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { ReactComponent as SwitchArrow } from "../../../assets/img/switch-arrow.svg";
+import { ReactComponent as AssetTokenIcon } from "../../../assets/img/test-token.svg";
 import { LottieMedium } from "../../../assets/loader";
 import { setTokenBalanceAfterAssetsSwapUpdate, setTokenBalanceUpdate } from "../../../services/polkadotWalletServices";
 import { createPoolCardsArray, getPoolReserves } from "../../../services/poolServices";
@@ -30,10 +30,13 @@ import {
   swapNativeForAssetExactOut,
 } from "../../../services/swapServices";
 import {
+  PriceCalcType,
+  SellMaxToken,
   getAssetTokenAFromAssetTokenB,
   getAssetTokenBFromAssetTokenA,
   getAssetTokenFromNativeToken,
   getNativeTokenFromAssetToken,
+  sellMax,
 } from "../../../services/tokenServices";
 import { useAppContext } from "../../../state";
 import Button from "../../atom/Button";
@@ -132,6 +135,8 @@ const SwapTokens = () => {
   const [priceImpact, setPriceImpact] = useState<string>("");
   const [assetBPriceOfOneAssetA, setAssetBPriceOfOneAssetA] = useState<string>("");
 
+  const [isMaxValueLessThenMinAmount, setIsMaxValueLessThenMinAmount] = useState<boolean>(false);
+
   const nativeToken = {
     tokenId: "",
     assetTokenMetadata: {
@@ -144,8 +149,8 @@ const SwapTokens = () => {
     },
   };
 
-  const tokenANumber = new Decimal(selectedTokenAValue.tokenValue || 0);
-  const tokenBNumber = new Decimal(selectedTokenBValue.tokenValue || 0);
+  const tokenADecimal = new Decimal(selectedTokenAValue.tokenValue || 0);
+  const tokenBDecimal = new Decimal(selectedTokenBValue.tokenValue || 0);
 
   const handleSwapNativeForAssetGasFee = async () => {
     const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
@@ -314,15 +319,12 @@ const SwapTokens = () => {
         if (assetTokenPrice) {
           assetTokenPrice === "0" ? setLowTradingMinimum(true) : setLowTradingMinimum(false);
           const assetTokenNoSemicolons = assetTokenPrice.toString()?.replace(/[, ]/g, "");
-          const assetTokenNoDecimals = formatDecimalsFromToken(
-            parseFloat(assetTokenNoSemicolons),
-            selectedTokens.tokenA.decimals
-          );
+          const assetTokenNoDecimals = formatDecimalsFromToken(assetTokenNoSemicolons, selectedTokens.tokenA.decimals);
           const assetTokenWithSlippage = calculateSlippageAdd(assetTokenNoDecimals, slippageValue);
 
           setTokenAValueForSwap({ tokenValue: assetTokenWithSlippage });
           setTokenBValueForSwap({ tokenValue: value });
-          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals.toString() });
+          setSelectedTokenAValue({ tokenValue: assetTokenNoDecimals });
         }
       }
     }
@@ -437,20 +439,20 @@ const SwapTokens = () => {
   };
 
   const getSwapButtonProperties = useMemo(() => {
-    const tokenBalanceNumber = new Decimal(tokenBalances?.balance || 0);
+    const tokenBalanceDecimal = new Decimal(tokenBalances?.balance || 0);
     if (tokenBalances?.assets) {
       if (selectedTokens.tokenA.tokenSymbol === "" || selectedTokens.tokenB.tokenSymbol === "") {
         return { label: t("button.selectToken"), disabled: true };
       }
       if (
-        tokenANumber.lte(0) ||
-        tokenBNumber.lte(0) ||
+        tokenADecimal.lte(0) ||
+        tokenBDecimal.lte(0) ||
         selectedTokenAValue?.tokenValue === "" ||
         selectedTokenBValue?.tokenValue === ""
       ) {
         return { label: t("button.enterAmount"), disabled: true };
       }
-      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenANumber.gt(tokenBalanceNumber)) {
+      if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenADecimal.gt(tokenBalanceDecimal)) {
         return {
           label: t("button.insufficientTokenAmount", { token: nativeTokenSymbol }),
           disabled: true,
@@ -464,7 +466,7 @@ const SwapTokens = () => {
       }
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
-        tokenANumber.gt(
+        tokenADecimal.gt(
           formatDecimalsFromToken(
             selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, ""),
             selectedTokens.tokenA.decimals
@@ -476,13 +478,21 @@ const SwapTokens = () => {
           disabled: true,
         };
       }
-      if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol && tokenBNumber.gt(nativeTokensInPool)) {
+      if (
+        selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol &&
+        nativeTokensInPool &&
+        tokenBDecimal.gt(nativeTokensInPool)
+      ) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
         };
       }
-      if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol && tokenBNumber.gt(assetTokensInPool)) {
+      if (
+        selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
+        assetTokensInPool &&
+        tokenBDecimal.gt(assetTokensInPool)
+      ) {
         return {
           label: t("button.insufficientTokenLiquidity", { token: selectedTokens.tokenB.tokenSymbol }),
           disabled: true,
@@ -490,7 +500,7 @@ const SwapTokens = () => {
       }
       if (
         selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol &&
-        tokenANumber.lt(tokenBalanceNumber) &&
+        tokenADecimal.lt(tokenBalanceDecimal) &&
         !tooManyDecimalsError.isError
       ) {
         return { label: t("button.swap"), disabled: false };
@@ -498,16 +508,16 @@ const SwapTokens = () => {
       if (
         selectedTokens.tokenA.tokenSymbol !== nativeTokenSymbol &&
         selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol &&
-        tokenANumber.gt(0) &&
-        tokenBNumber.gt(0) &&
+        tokenADecimal.gt(0) &&
+        tokenBDecimal.gt(0) &&
         !tooManyDecimalsError.isError
       ) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (tokenANumber.gt(0) && tokenBNumber.gt(0) && !tooManyDecimalsError.isError) {
+      if (tokenADecimal.gt(0) && tokenBDecimal.gt(0) && !tooManyDecimalsError.isError) {
         return { label: t("button.swap"), disabled: false };
       }
-      if (tokenANumber.gt(0) && tokenBNumber.gt(0) && tooManyDecimalsError.isError) {
+      if (tokenADecimal.gt(0) && tokenBDecimal.gt(0) && tooManyDecimalsError.isError) {
         return { label: t("button.swap"), disabled: true };
       }
     } else {
@@ -584,6 +594,7 @@ const SwapTokens = () => {
     }
     setSwapSuccessfulReset(false);
     setIsTransactionTimeout(false);
+    setIsMaxValueLessThenMinAmount(false);
     if (api) {
       const tokenA = formatInputTokenValue(tokenAValueForSwap.tokenValue, selectedTokens.tokenA.decimals);
       const tokenB = formatInputTokenValue(tokenBValueForSwap.tokenValue, selectedTokens.tokenB.decimals);
@@ -758,13 +769,13 @@ const SwapTokens = () => {
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
         if (poolsCards) {
           const poolNative = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenA.tokenId);
-          if (poolNative) setNativeTokensInPool(poolNative?.totalTokensLocked.nativeToken);
+          if (poolNative) setNativeTokensInPool(poolNative?.totalTokensLocked.nativeToken.formattedValue);
         }
       }
       if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol) {
         if (poolsCards) {
           const poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
-          if (poolAsset) setAssetTokensInPool(poolAsset?.totalTokensLocked.assetToken);
+          if (poolAsset) setAssetTokensInPool(poolAsset?.totalTokensLocked.assetToken.formattedValue);
         }
       }
     }
@@ -782,8 +793,8 @@ const SwapTokens = () => {
 
           if (poolAssetTokenB && poolAssetTokenA) {
             if (
-              parseFloat(poolAssetTokenB?.totalTokensLocked.nativeToken) < 1 ||
-              parseFloat(poolAssetTokenA?.totalTokensLocked.nativeToken) < 1
+              parseFloat(poolAssetTokenB?.totalTokensLocked.nativeToken.formattedValue) < 1 ||
+              parseFloat(poolAssetTokenA?.totalTokensLocked.nativeToken.formattedValue) < 1
             ) {
               setLiquidityLow(true);
             } else {
@@ -814,6 +825,220 @@ const SwapTokens = () => {
         } else {
           setLowMinimalAmountAssetToken(false);
         }
+      }
+    }
+  };
+
+  type TransactionValues = {
+    formattedValueA: string;
+    formattedValueB: string;
+    priceCalcType: PriceCalcType;
+    valueA: string;
+    valueB: string;
+    minAmountA: string;
+    minAmountB: string;
+  };
+  /**
+   * Token A is asset token
+   * Token B is native token
+   * @param param0
+   */
+  const getMaxClickNativeFromAssetValues = ({
+    assetTokenMinBalance,
+    nativeTokenExistentialDeposit,
+    poolAsset,
+  }: {
+    assetTokenMinBalance: string;
+    nativeTokenExistentialDeposit: string;
+    poolAsset: PoolCardProps;
+  }): TransactionValues => {
+    const priceCalcType = PriceCalcType.NativeFromAsset;
+
+    // ovde oduzeti
+    const valueA = new Decimal(selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, ""))
+      .minus(assetTokenMinBalance) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+    const formattedValueA = formatDecimalsFromToken(valueA, selectedTokens.tokenA.decimals);
+
+    const valueB = new Decimal(poolAsset.totalTokensLocked.nativeToken.value)
+      .minus(nativeTokenExistentialDeposit) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+
+    const formattedValueB = formatDecimalsFromToken(valueB, poolAsset.totalTokensLocked.nativeToken.decimals);
+    return {
+      formattedValueA,
+      formattedValueB,
+      valueA,
+      valueB,
+      priceCalcType,
+      minAmountA: assetTokenMinBalance,
+      minAmountB: nativeTokenExistentialDeposit,
+    };
+  };
+
+  /**
+   * Token A is native token
+   * Token B is asset token
+   * @param param0
+   */
+  const getMaxClickAssetFromNativeValues = ({
+    assetTokenMinBalance,
+    nativeTokenExistentialDeposit,
+    poolAsset,
+  }: {
+    assetTokenMinBalance: string;
+    nativeTokenExistentialDeposit: string;
+    poolAsset: PoolCardProps;
+  }): TransactionValues => {
+    const priceCalcType = PriceCalcType.AssetFromNative;
+
+    const valueA = new Decimal(
+      formatInputTokenValue(selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, ""), selectedTokens.tokenA.decimals)
+    )
+      .minus(nativeTokenExistentialDeposit) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+    const formattedValueA = formatDecimalsFromToken(valueA, selectedTokens.tokenA.decimals);
+
+    const valueB = new Decimal(poolAsset.totalTokensLocked.assetToken.value)
+      .minus(assetTokenMinBalance) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+
+    const formattedValueB = formatDecimalsFromToken(valueB, selectedTokens.tokenB.decimals);
+
+    return {
+      formattedValueA,
+      formattedValueB,
+      valueA,
+      valueB,
+      priceCalcType,
+      minAmountA: nativeTokenExistentialDeposit,
+      minAmountB: assetTokenMinBalance,
+    };
+  };
+
+  const getMaxAssetFromAssetValues = ({
+    assetTokenMinAmountA,
+    assetTokenMinAmountB,
+    poolAsset,
+  }: {
+    assetTokenMinAmountA: string;
+    assetTokenMinAmountB: string;
+    poolAsset: PoolCardProps;
+  }): TransactionValues => {
+    const priceCalcType = PriceCalcType.AssetFromAsset;
+    const valueA = new Decimal(selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, ""))
+      .minus(assetTokenMinAmountA) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+    const formattedValueA = formatDecimalsFromToken(valueA, selectedTokens.tokenA.decimals);
+
+    const valueB = new Decimal(poolAsset.totalTokensLocked.assetToken.value)
+      .minus(assetTokenMinAmountB) // TODO: substract this later if it is required, eg after calculation
+      .toFixed();
+    const formattedValueB = poolAsset.totalTokensLocked.assetToken.formattedValue;
+
+    return {
+      formattedValueA,
+      formattedValueB,
+      valueA,
+      valueB,
+      priceCalcType,
+      minAmountA: assetTokenMinAmountA,
+      minAmountB: assetTokenMinAmountB,
+    };
+  };
+
+  // some of tokens can be full drain for either from pool or from user balance
+  // if it is native token selling and it is drain we need to substrate fee and existential deposit
+  // if it is asset token selling and it is drain (from user wallet or pool) we need to substrate min balance
+  // if it is native token drain from the pool we need to substrate existential deposit
+  const onMaxClick = async () => {
+    setIsMaxValueLessThenMinAmount(false);
+    const nativeTokenExistentialDeposit = tokenBalances!.existentialDeposit.replace(/[, ]/g, "");
+    // tokenb moze biti native token i onda ga nece naci u poolu, u tom slucaju treba naci pool za tokenA
+    let poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
+
+    let formattedValueA: string,
+      formattedValueB: string,
+      priceCalcType: PriceCalcType,
+      valueA: string,
+      valueB: string,
+      minAmountA: string,
+      minAmountB: string;
+    if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol) {
+      if (!poolAsset) {
+        throw new Error("Pool asset not found");
+      }
+      const assetTokenInfoB: any = await api!.query.assets.asset(selectedTokens.tokenB.tokenId);
+      const assetTokenMinBalanceB = assetTokenInfoB.toHuman()?.minBalance.replace(/[, ]/g, "");
+      ({ formattedValueA, formattedValueB, priceCalcType, valueA, valueB, minAmountA, minAmountB } =
+        getMaxClickAssetFromNativeValues({
+          assetTokenMinBalance: assetTokenMinBalanceB,
+          nativeTokenExistentialDeposit,
+          poolAsset,
+        }));
+    } else if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
+      poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenA.tokenId);
+      if (!poolAsset) {
+        throw new Error("Pool asset not found");
+      }
+      const assetTokenInfoA: any = await api!.query.assets.asset(selectedTokens.tokenA.tokenId);
+      const assetTokenMinBalanceA = assetTokenInfoA.toHuman()?.minBalance.replace(/[, ]/g, "");
+      ({ formattedValueA, formattedValueB, priceCalcType, valueA, valueB, minAmountA, minAmountB } =
+        getMaxClickNativeFromAssetValues({
+          assetTokenMinBalance: assetTokenMinBalanceA,
+          nativeTokenExistentialDeposit,
+          poolAsset,
+        }));
+    } else {
+      if (!poolAsset) {
+        throw new Error("Pool asset not found");
+      }
+      const assetTokenInfoA: any = await api!.query.assets.asset(selectedTokens.tokenA.tokenId);
+      const assetTokenMinAmountA = assetTokenInfoA.toHuman()?.minBalance.replace(/[, ]/g, "");
+      const assetTokenInfoB: any = await api!.query.assets.asset(selectedTokens.tokenB.tokenId);
+      const assetTokenMinAmountB = assetTokenInfoB.toHuman()?.minBalance.replace(/[, ]/g, "");
+      ({ formattedValueA, formattedValueB, priceCalcType, valueA, valueB, minAmountA, minAmountB } =
+        getMaxAssetFromAssetValues({ assetTokenMinAmountA, assetTokenMinAmountB, poolAsset }));
+    }
+
+    const tokenA: SellMaxToken = {
+      id: selectedTokens.tokenA.tokenId,
+      decimals: selectedTokens.tokenA.decimals,
+      value: valueA,
+      formattedValue: formattedValueA,
+      minAmount: minAmountA,
+    };
+
+    const tokenBinPool: SellMaxToken = {
+      id: selectedTokens.tokenB.tokenId,
+      decimals: selectedTokens.tokenB.decimals,
+      value: valueB,
+      formattedValue: formattedValueB,
+      minAmount: minAmountB,
+    };
+
+    dispatch({ type: ActionType.SET_SWAP_LOADING, payload: true });
+    const maxValueA = await sellMax({
+      api: api!,
+      tokenA,
+      tokenBinPool,
+      priceCalcType,
+    });
+    dispatch({ type: ActionType.SET_SWAP_LOADING, payload: false });
+    const minAmountFormattedA = formatDecimalsFromToken(minAmountA, selectedTokens.tokenA.decimals);
+
+    if (new Decimal(maxValueA).lt(minAmountFormattedA)) {
+      setIsMaxValueLessThenMinAmount(true);
+      return;
+    }
+    tokenAValue(maxValueA);
+    if (selectedTokens.tokenA.tokenSymbol === nativeTokenSymbol && tokenBalances) {
+      // reduce gas fee if amount is lower then balance in wallet
+      const fee = convertToBaseUnit(swapGasFee);
+      const maxValueWithFee = new Decimal(maxValueA).plus(fee);
+      const nativeTokenBalance = new Decimal(tokenBalances.balance);
+      if (nativeTokenBalance.lt(maxValueWithFee)) {
+        tokenAValue(nativeTokenBalance.minus(fee).toFixed());
       }
     }
   };
@@ -859,12 +1084,19 @@ const SwapTokens = () => {
       if (
         selectedTokenAValue?.tokenValue &&
         tokenSelected.tokenSelected === TokenPosition.tokenB &&
-        tokenANumber.gt(0)
+        tokenADecimal.gt(0)
       ) {
         tokenAValue(selectedTokenAValue.tokenValue);
       }
     }
 
+    if (
+      selectedTokenAValue?.tokenValue &&
+      tokenSelected.tokenSelected === TokenPosition.tokenB &&
+      tokenADecimal.gt(0)
+    ) {
+      tokenAValue(selectedTokenAValue.tokenValue);
+    }
     return () => {
       setSwitchTokensEnabled(false);
     };
@@ -914,6 +1146,8 @@ const SwapTokens = () => {
     tokenAValueForSwap.tokenValue && tokenBValueForSwap.tokenValue,
   ]);
   useEffect(() => {
+    setIsMaxValueLessThenMinAmount(false);
+    setIsTransactionTimeout(false);
     if (selectedTokenBValue.tokenValue === "") {
       setTokenAValueForSwap({ tokenValue: "0" });
       setTokenBValueForSwap({ tokenValue: "0" });
@@ -1212,11 +1446,10 @@ const SwapTokens = () => {
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenAValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenA)}
-          onSetTokenValue={(value) => {
-            tokenAValue(value.toString());
-          }}
+          onSetTokenValue={(value) => tokenAValue(value)}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
+          onMaxClick={onMaxClick}
         />
 
         <TokenAmountInput
@@ -1228,9 +1461,7 @@ const SwapTokens = () => {
           tokenIcon={<DotToken />}
           tokenValue={selectedTokenBValue?.tokenValue}
           onClick={() => fillTokenPairsAndOpenModal(TokenSelection.TokenB)}
-          onSetTokenValue={(value) => {
-            tokenBValue(value.toString());
-          }}
+          onSetTokenValue={(value) => tokenBValue(value)}
           disabled={!selectedAccount || swapLoading || !tokenBalances?.assets || poolsTokenMetadata.length === 0}
           assetLoading={assetLoading}
         />
@@ -1469,6 +1700,7 @@ const SwapTokens = () => {
           url: `${assethubSubscanUrl}/account${nativeTokenSymbol == "WND" ? "s" : ""}/${selectedAccount.address}`,
         })}
       />
+      <WarningMessage show={isMaxValueLessThenMinAmount} message={t("pageError.maxValueLessThanMinAmount")} />
     </div>
   );
 };

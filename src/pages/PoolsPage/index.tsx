@@ -1,13 +1,14 @@
+import { t } from "i18next";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { POOLS_ADD_LIQUIDITY } from "../../app/router/routes";
-import Button from "../../components/atom/Button";
+import { PoolCardProps } from "../../app/types";
 import { ButtonVariants } from "../../app/types/enum";
 import { ReactComponent as TokenIcon } from "../../assets/img/token-icon.svg";
+import { LottieLarge } from "../../assets/loader";
+import Button from "../../components/atom/Button";
 import { useAppContext } from "../../state";
 import PoolDataCard from "./PoolDataCard";
-import { LottieLarge } from "../../assets/loader";
-import { t } from "i18next";
 
 const PoolsPage = () => {
   const { state } = useAppContext();
@@ -55,16 +56,16 @@ const PoolsPage = () => {
           </div>
         ) : pools.length > 0 && poolsCards.length > 0 ? (
           <div className="grid grid-cols-3 gap-4">
-            {poolsCards.map((item: any, index: number) => {
+            {poolsCards.map((item: PoolCardProps, index: number) => {
               return (
                 <div key={index}>
                   <PoolDataCard
                     tokenPair={item.name}
-                    nativeTokens={item.totalTokensLocked.nativeToken}
-                    assetTokens={item.totalTokensLocked.assetToken}
+                    nativeTokens={item.totalTokensLocked.nativeToken.formattedValue}
+                    assetTokens={item.totalTokensLocked.assetToken.formattedValue}
                     lpTokenAsset={item.lpTokenAsset}
-                    assetTokenIcon={item.totalTokensLocked.assetTokenIcon}
-                    nativeTokenIcon={item.totalTokensLocked.nativeTokenIcon}
+                    assetTokenIcon={item.totalTokensLocked.assetToken.icon}
+                    nativeTokenIcon={item.totalTokensLocked.nativeToken.icon}
                     assetTokenId={item.assetTokenId}
                     lpTokenId={item.lpTokenId}
                   />
