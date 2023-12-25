@@ -28,8 +28,8 @@ import WarningMessage from "../../atom/WarningMessage";
 import TokenAmountInput from "../../molecule/TokenAmountInput";
 import AddPoolLiquidity from "../AddPoolLiquidity";
 import PoolSelectTokenModal from "../PoolSelectTokenModal";
-import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 import ReviewTransactionModal from "../ReviewTransactionModal";
+import SwapAndPoolSuccessModal from "../SwapAndPoolSuccessModal";
 
 type AssetTokenProps = {
   tokenSymbol: string;
@@ -133,8 +133,8 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
           selectedAccount,
           nativeTokenValue,
           assetTokenValue,
-          nativeTokenWithSlippage.tokenValue.toString(),
-          assetTokenWithSlippage.tokenValue.toString(),
+          nativeTokenWithSlippage.tokenValue,
+          assetTokenWithSlippage.tokenValue,
           selectedTokenA.nativeTokenDecimals,
           selectedTokenB.decimals,
           dispatch
@@ -232,13 +232,14 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
     if (selectedTokenAssetValue && api && selectedTokenB.assetTokenId) {
       const assetTokenInfo: any = await api.query.assets.asset(selectedTokenB.assetTokenId);
       const assetTokenMinBalance = assetTokenInfo.toHuman()?.minBalance;
-      const formattedMinTokenAmount = assetTokenMinBalance?.replace(/[, ]/g, "");
+      if (!assetTokenMinBalance) return;
+      const formattedMinTokenAmount = assetTokenMinBalance.replace(/[, ]/g, "");
       const assetTokenMinBalanceFormatted = formatDecimalsFromToken(formattedMinTokenAmount, selectedTokenB.decimals);
 
-      if (new Decimal(selectedTokenAssetValue.tokenValue).gte(assetTokenMinBalanceFormatted)) {
+      if (new Decimal(selectedTokenAssetValue.tokenValue || 0).gte(assetTokenMinBalanceFormatted || 0)) {
         setAssetTokenMinValueExceeded(false);
       } else {
-        setAssetTokenMinValue(assetTokenMinBalanceFormatted.toString());
+        setAssetTokenMinValue(assetTokenMinBalanceFormatted);
         setAssetTokenMinValueExceeded(true);
       }
     }

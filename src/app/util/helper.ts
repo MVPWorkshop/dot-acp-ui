@@ -43,7 +43,7 @@ export const formatInputTokenValue = (base: Decimal.Value, decimals: string) => 
 };
 
 export const formatDecimalsFromToken = (base: Decimal.Value, decimals: string) => {
-  return new Decimal(base || 0).dividedBy(Math.pow(10, parseFloat(decimals))).toFixed();
+  return new Decimal(base || 0).dividedBy(Math.pow(10, parseFloat(decimals || "0"))).toFixed();
 };
 
 export const checkIfPoolAlreadyExists = (id: string, poolArray: AnyJson[]) => {

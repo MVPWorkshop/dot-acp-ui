@@ -122,8 +122,8 @@ const TokenAmountInput = ({
             : tokenBalance || 0}
           {tokenText &&
             onMaxClick &&
-            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP &&
-            process.env.ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP == "true" && (
+            process.env.VITE_ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP &&
+            process.env.VITE_ENABLE_EXPERIMENTAL_MAX_TOKENS_SWAP == "true" && (
               <button
                 className="inline-flex h-5 w-11 flex-col items-start justify-start gap-2 px-1.5 text-pink"
                 onClick={onMaxClick}
