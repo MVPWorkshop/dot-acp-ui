@@ -239,7 +239,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       if (new Decimal(selectedTokenAssetValue.tokenValue || 0).gte(assetTokenMinBalanceFormatted || 0)) {
         setAssetTokenMinValueExceeded(false);
       } else {
-        setAssetTokenMinValue(assetTokenMinBalanceFormatted.toString());
+        setAssetTokenMinValue(assetTokenMinBalanceFormatted);
         setAssetTokenMinValueExceeded(true);
       }
     }
