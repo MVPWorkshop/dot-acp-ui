@@ -1,10 +1,10 @@
-import { FC } from "react";
 import classNames from "classnames";
-import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
-import Modal from "../../atom/Modal";
-import { formatDecimalsFromToken } from "../../../app/util/helper";
-import { ReactComponent as CheckIcon } from "../../../assets/img/selected-token-check.svg";
+import { FC } from "react";
 import { TokenProps } from "../../../app/types";
+import { formatDecimalsFromToken } from "../../../app/util/helper";
+import { ReactComponent as DotToken } from "../../../assets/img/dot-token.svg";
+import { ReactComponent as CheckIcon } from "../../../assets/img/selected-token-check.svg";
+import Modal from "../../atom/Modal";
 
 interface SelectTokenPayload {
   id: string;

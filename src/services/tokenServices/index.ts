@@ -1,6 +1,9 @@
 import { ApiPromise } from "@polkadot/api";
+import type { AnyJson } from "@polkadot/types/types/codec";
 import { u8aToHex } from "@polkadot/util";
+import Decimal from "decimal.js";
 import useGetNetwork from "../../app/hooks/useGetNetwork";
+import { formatDecimalsFromToken } from "../../app/util/helper";
 
 const { parents } = useGetNetwork();
 
@@ -208,4 +211,153 @@ export const getAssetTokenBFromAssetTokenA = async (
   const decodedAmount2 = api.createType("Option<u128>", response2);
 
   return decodedAmount2.toHuman();
+};
+
+export enum PriceCalcType {
+  NativeFromAsset = "NativeFromAsset",
+  AssetFromNative = "AssetFromNative",
+  AssetFromAsset = "AssetFromAsset",
+}
+
+export type SellMaxToken = {
+  id: string;
+  value: string;
+  decimals: string;
+  formattedValue: string;
+  minAmount: string;
+};
+
+// Not in use, needs to be better implemented to replace sellMax
+export const sellMax2 = async ({
+  api,
+  priceCalcType,
+  tokenA,
+  tokenBinPool,
+}: {
+  api: ApiPromise;
+  priceCalcType: PriceCalcType;
+  tokenA: SellMaxToken;
+  tokenBinPool: SellMaxToken;
+}) => {
+  let priceB: string;
+  let amountA = new Decimal(0);
+
+  switch (priceCalcType) {
+    case PriceCalcType.AssetFromAsset:
+      priceB = (await getAssetTokenBFromAssetTokenA(api, "1", tokenA.id, tokenBinPool.id!))!
+        .toString()
+        .replace(/[, ]/g, "");
+      break;
+    case PriceCalcType.AssetFromNative:
+      priceB = (await getAssetTokenFromNativeToken(api, tokenBinPool.id, "1000000000000"))!
+        .toString()
+        .replace(/[, ]/g, "");
+      break;
+    case PriceCalcType.NativeFromAsset:
+      priceB = (await getNativeTokenFromAssetToken(api, tokenA.id, "10"))!.toString().replace(/[, ]/g, "");
+      break;
+    default:
+      throw new Error("Unsupported price calculation type");
+  }
+
+  const amountB = new Decimal(tokenA.value).div(priceB).floor();
+
+  if (amountB.lt(tokenBinPool.value)) {
+    if (amountB.plus(tokenBinPool.minAmount).lte(tokenBinPool.value)) {
+      amountA = amountB.mul(priceB).floor();
+    }
+    console.log("amountB", amountB.toString());
+    console.log("amountB formatted", formatDecimalsFromToken(amountB, tokenA.decimals));
+    // Do something with amountB
+  } else {
+    // If the amount of tokenB is greater than the max amount of tokenB in the pool, use the max amount of tokenB in the pool
+    const amountB2 = new Decimal(tokenBinPool.value).sub(tokenBinPool.minAmount);
+    if (amountB2.gte(tokenBinPool.minAmount)) {
+      // Ensure that the amount of tokenB is greater than the min amount of tokenB in the pool
+      amountA = amountB2.mul(priceB).floor();
+    }
+    if (amountA.gt(tokenA.minAmount)) {
+      // We can't sell less than the min amount of tokenA
+      amountA = new Decimal(0);
+    }
+  }
+  console.log("amountA", amountA.toString());
+  console.log("amountA formatted", formatDecimalsFromToken(amountA, tokenA.decimals));
+};
+export const sellMax = async ({
+  api,
+  priceCalcType,
+  tokenA,
+  tokenBinPool,
+}: {
+  api: ApiPromise;
+  priceCalcType: PriceCalcType;
+  tokenA: SellMaxToken;
+  tokenBinPool: SellMaxToken;
+}) => {
+  // Define a function that maps to the correct calculation method
+  let calculateBForA: (x: Decimal) => Promise<AnyJson>;
+
+  switch (priceCalcType) {
+    case PriceCalcType.AssetFromAsset:
+      calculateBForA = (tokenValueA) =>
+        getAssetTokenBFromAssetTokenA(api, tokenValueA.toString(), tokenA.id, tokenBinPool.id!);
+      break;
+    case PriceCalcType.AssetFromNative:
+      calculateBForA = (tokenValueA) => getAssetTokenFromNativeToken(api, tokenBinPool.id, tokenValueA.toString());
+      break;
+    case PriceCalcType.NativeFromAsset:
+      calculateBForA = (tokenValueA) => getNativeTokenFromAssetToken(api, tokenA.id, tokenValueA.toString());
+      break;
+    default:
+      throw new Error("Unsupported price calculation type");
+  }
+
+  let step = new Decimal(1);
+  if (new Decimal(tokenA.decimals).gt(1)) {
+    // this precision can be adjusted eg to increse sub(2)
+    step = new Decimal(10).pow(new Decimal(tokenA.decimals).sub(new Decimal(tokenA.decimals).sub(2)));
+  }
+
+  // Use the findOptimalTokenA function with the appropriate calculation method
+  const optimalTokenA = await findOptimalTokenA({
+    tokenA: new Decimal(tokenA.value),
+    maxTokenB: new Decimal(tokenBinPool.value),
+    step,
+    calculateBForA: calculateBForA,
+  });
+
+  return formatDecimalsFromToken(optimalTokenA, tokenA.decimals);
+};
+
+export const findOptimalTokenA = async ({
+  tokenA,
+  maxTokenB,
+  step,
+  calculateBForA,
+}: {
+  tokenA: Decimal;
+  maxTokenB: Decimal;
+  step: Decimal;
+  calculateBForA: (x: Decimal) => Promise<AnyJson>;
+}): Promise<Decimal> => {
+  let low = new Decimal(0);
+  let high = tokenA;
+  let result = new Decimal(0);
+
+  while (low.lte(high)) {
+    const mid = low.plus(high).div(2).floor();
+    // FIXME: calculateBForA is calling in the loop and it contacts RPC server every time
+    // we should offload this calculation on client side
+    const yForMid = new Decimal(((await calculateBForA(mid)) || 0).toString().replace(/[, ]/g, ""));
+
+    if (yForMid.lte(maxTokenB)) {
+      result = mid;
+      low = mid.plus(step);
+    } else {
+      high = mid.minus(step);
+    }
+  }
+
+  return result;
 };
