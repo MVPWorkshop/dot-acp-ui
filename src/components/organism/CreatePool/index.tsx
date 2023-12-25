@@ -236,7 +236,7 @@ const CreatePool = ({ tokenBSelected }: CreatePoolProps) => {
       const formattedMinTokenAmount = assetTokenMinBalance.replace(/[, ]/g, "");
       const assetTokenMinBalanceFormatted = formatDecimalsFromToken(formattedMinTokenAmount, selectedTokenB.decimals);
 
-      if (new Decimal(selectedTokenAssetValue.tokenValue).gte(assetTokenMinBalanceFormatted)) {
+      if (new Decimal(selectedTokenAssetValue.tokenValue || 0).gte(assetTokenMinBalanceFormatted || 0)) {
         setAssetTokenMinValueExceeded(false);
       } else {
         setAssetTokenMinValue(assetTokenMinBalanceFormatted.toString());
