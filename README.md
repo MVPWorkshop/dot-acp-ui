@@ -26,7 +26,7 @@
 
 ## Description
 
-This project is part of Polkadot initiative for building front-end and UI for Asset Conversion Pallet on Polkadot's AssetHub. Link to the proposal here. Currently, it is possible to deploy this pallet on [Westend](https://dot-acp-westmint.mvpworkshop.co) and [Rococo](https://dot-acp-rococo.mvpworkshop.co).
+This project is part of Polkadot initiative for building front-end and UI for Asset Conversion Pallet on Polkadot's AssetHub. Link to the proposal [here](https://polkadot.polkassembly.io/referenda/68). Currently, the app is deployed on Westend, Rococo and Kusama - [here](https://dotacp-demo.mvpworkshop.co/swap?network=kusama).
 
 
 ## Useful links
