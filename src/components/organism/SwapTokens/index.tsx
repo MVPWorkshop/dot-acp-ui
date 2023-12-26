@@ -4,6 +4,7 @@ import { t } from "i18next";
 import { useEffect, useMemo, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import useGetNetwork from "../../../app/hooks/useGetNetwork";
+import { InputEditedProps, PoolCardProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
 import {
   ActionType,
   ButtonVariants,
@@ -12,7 +13,6 @@ import {
   TokenSelection,
   TransactionTypes,
 } from "../../../app/types/enum";
-import { InputEditedProps, PoolCardProps, TokenDecimalsErrorProps, TokenProps } from "../../../app/types";
 import {
   calculateSlippageAdd,
   calculateSlippageReduce,
@@ -776,13 +776,25 @@ const SwapTokens = () => {
       if (selectedTokens.tokenB.tokenSymbol === nativeTokenSymbol) {
         if (poolsCards) {
           const poolNative = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenA.tokenId);
-          if (poolNative) setNativeTokensInPool(poolNative?.totalTokensLocked.nativeToken.formattedValue);
+          if (poolNative)
+            setNativeTokensInPool(
+              formatDecimalsFromToken(
+                poolNative.totalTokensLocked.nativeToken.value,
+                poolNative.totalTokensLocked.nativeToken.decimals
+              )
+            );
         }
       }
       if (selectedTokens.tokenB.tokenSymbol !== nativeTokenSymbol) {
         if (poolsCards) {
           const poolAsset = poolsCards.find((pool) => pool.assetTokenId === selectedTokens.tokenB.tokenId);
-          if (poolAsset) setAssetTokensInPool(poolAsset?.totalTokensLocked.assetToken.formattedValue);
+          if (poolAsset)
+            setAssetTokensInPool(
+              formatDecimalsFromToken(
+                poolAsset.totalTokensLocked.assetToken.value,
+                poolAsset.totalTokensLocked.assetToken.decimals
+              )
+            );
         }
       }
     }
@@ -861,7 +873,6 @@ const SwapTokens = () => {
   }): TransactionValues => {
     const priceCalcType = PriceCalcType.NativeFromAsset;
 
-    // ovde oduzeti
     const valueA = new Decimal(selectedTokens.tokenA.tokenBalance.replace(/[, ]/g, ""))
       .minus(assetTokenMinBalance) // TODO: substract this later if it is required, eg after calculation
       .toFixed();
