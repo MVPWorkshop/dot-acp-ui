@@ -26,7 +26,7 @@ const NetworkSelector = ({ networkSelected, items, isDropdownOpen, setIsDropdown
   const wrapperRef = useRef<HTMLInputElement>(null);
 
   const switchNetwork = (network: string) => {
-    window.sessionStorage.setItem("network", network);
+    window.localStorage.setItem("network", network);
     window.location.reload();
   };
 
