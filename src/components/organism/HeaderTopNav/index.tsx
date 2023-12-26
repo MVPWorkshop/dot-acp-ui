@@ -117,7 +117,7 @@ const HeaderTopNav = () => {
         <div className="flex w-[400px] items-center gap-8">
           <NetworkSelector
             items={[{ name: NetworkKeys.Rococo }, { name: NetworkKeys.Westend }, { name: NetworkKeys.Kusama }]}
-            networkSelected={window.sessionStorage.getItem("network") as NetworkKeys}
+            networkSelected={window.localStorage.getItem("network") as NetworkKeys}
             isDropdownOpen={isDropdownOpen}
             setIsDropdownOpen={setIsDropdownOpen}
           />
