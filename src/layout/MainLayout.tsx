@@ -10,7 +10,12 @@ const MainLayout = () => {
   const networkSession = window.localStorage.getItem("network");
 
   useEffect(() => {
-    if (networkSession && searchParams) {
+    const networkParam = searchParams.get("network");
+    console.log(networkParam);
+    if (networkSession && networkParam) {
+      window.localStorage.setItem("network", networkParam);
+      setSearchParams({ network: networkParam });
+    } else if (networkSession) {
       setSearchParams({ network: networkSession });
     }
   }, []);
