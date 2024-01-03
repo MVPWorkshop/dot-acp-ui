@@ -11,7 +11,7 @@ const MainLayout = () => {
 
   useEffect(() => {
     const networkParam = searchParams.get("network");
-    console.log(networkParam);
+
     if (networkSession && networkParam) {
       window.localStorage.setItem("network", networkParam);
       setSearchParams({ network: networkParam });
