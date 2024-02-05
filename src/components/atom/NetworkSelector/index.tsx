@@ -6,6 +6,7 @@ import { ReactComponent as KusamaIcon } from "../../../assets/img/kusama-icon.sv
 import { ReactComponent as SelectedNetworkCheck } from "../../../assets/img/selected-token-check.svg";
 import { ReactComponent as DownArrow } from "../../../assets/img/down-arrow.svg";
 import useClickOutside from "../../../app/hooks/useClickOutside";
+import { useSearchParams } from "react-router-dom";
 
 type Item = {
   name: string;
@@ -24,8 +25,14 @@ type SelectNetworkProps = {
 
 const NetworkSelector = ({ networkSelected, items, isDropdownOpen, setIsDropdownOpen }: SelectNetworkProps) => {
   const wrapperRef = useRef<HTMLInputElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const switchNetwork = (network: string) => {
+    const networkParam = searchParams.get("network");
+    if (networkParam) {
+      searchParams.delete("network");
+      setSearchParams(searchParams);
+    }
     window.localStorage.setItem("network", network);
     window.location.reload();
   };
