@@ -7,9 +7,8 @@ import { useEffect } from "react";
 const MainLayout = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const networkSession = window.localStorage.getItem("network");
-
   useEffect(() => {
+    const networkSession = window.localStorage.getItem("network");
     const networkParam = searchParams.get("network");
 
     if (networkSession && networkParam) {

@@ -266,8 +266,6 @@ export const sellMax2 = async ({
     if (amountB.plus(tokenBinPool.minAmount).lte(tokenBinPool.value)) {
       amountA = amountB.mul(priceB).floor();
     }
-    console.log("amountB", amountB.toString());
-    console.log("amountB formatted", formatDecimalsFromToken(amountB, tokenA.decimals));
     // Do something with amountB
   } else {
     // If the amount of tokenB is greater than the max amount of tokenB in the pool, use the max amount of tokenB in the pool
@@ -281,8 +279,6 @@ export const sellMax2 = async ({
       amountA = new Decimal(0);
     }
   }
-  console.log("amountA", amountA.toString());
-  console.log("amountA formatted", formatDecimalsFromToken(amountA, tokenA.decimals));
 };
 export const sellMax = async ({
   api,
