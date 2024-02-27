@@ -46,23 +46,31 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   });
 
   const myAssetTokenData = [];
+  const assetTokensDataPromises = [];
 
   for (const item of allChainAssets) {
     const cleanedTokenId = item?.tokenId?.[0]?.replace(/[, ]/g, "");
-    const tokenAsset = await api.query.assets.account(cleanedTokenId, walletAddress);
-
-    if (tokenAsset.toHuman()) {
-      const assetTokenMetadata = await api.query.assets.metadata(cleanedTokenId);
-
-      const resultObject = {
-        tokenId: cleanedTokenId,
-        assetTokenMetadata: assetTokenMetadata.toHuman(),
-        tokenAsset: tokenAsset.toHuman(),
-      };
-
-      myAssetTokenData.push(resultObject);
-    }
+    assetTokensDataPromises.push(
+      Promise.all([
+        api.query.assets.account(cleanedTokenId, walletAddress),
+        api.query.assets.metadata(cleanedTokenId),
+      ]).then(([tokenAsset, assetTokenMetadata]) => {
+        if (tokenAsset.toHuman()) {
+          const resultObject = {
+            tokenId: cleanedTokenId,
+            assetTokenMetadata: assetTokenMetadata.toHuman(),
+            tokenAsset: tokenAsset.toHuman(),
+          };
+          return resultObject;
+        }
+        return null;
+      })
+    );
   }
+
+  const results = await Promise.all(assetTokensDataPromises);
+
+  myAssetTokenData.push(...results.filter((result) => result !== null));
 
   const ss58Format = tokenMetadata?.ss58Format.toHuman();
   const tokenDecimals = tokenMetadata?.tokenDecimals.toHuman();
