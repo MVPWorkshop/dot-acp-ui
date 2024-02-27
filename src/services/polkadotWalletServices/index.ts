@@ -46,11 +46,11 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
   });
 
   const myAssetTokenData = [];
-  const assetTokesDataPromises = [];
+  const assetTokensDataPromises = [];
 
   for (const item of allChainAssets) {
     const cleanedTokenId = item?.tokenId?.[0]?.replace(/[, ]/g, "");
-    assetTokesDataPromises.push(
+    assetTokensDataPromises.push(
       Promise.all([
         api.query.assets.account(cleanedTokenId, walletAddress),
         api.query.assets.metadata(cleanedTokenId),
@@ -68,7 +68,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
     );
   }
 
-  const results = await Promise.all(assetTokesDataPromises);
+  const results = await Promise.all(assetTokensDataPromises);
 
   myAssetTokenData.push(...results.filter((result) => result !== null));
 
