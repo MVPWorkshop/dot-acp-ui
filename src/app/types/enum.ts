@@ -83,6 +83,7 @@ export enum NetworkKeys {
   Westend = "westend",
   Rococo = "rococo",
   Kusama = "kusama",
+  Polkadot = "polkadot",
 }
 
 export enum WalletConnectSteps {

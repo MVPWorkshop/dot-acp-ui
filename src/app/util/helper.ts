@@ -5,7 +5,6 @@ import { t } from "i18next";
 import { UrlParamType } from "../types";
 
 export const init = () => {
-  // Sentry
   Sentry.init({
     dsn: process.env.VITE_SENTRY_DSN,
   });
@@ -24,6 +23,7 @@ export const urlTo = (path: string, params?: UrlParamType) => {
   for (const param in params) {
     path = path?.replace(new RegExp(`:${param}`, "g"), params[param as keyof UrlParamType]);
   }
+
   return path;
 };
 
