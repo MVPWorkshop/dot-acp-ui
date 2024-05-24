@@ -37,7 +37,7 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --no-frozen-lockfile
         if: ${{ steps.cache.outputs.cache-hit != 'true' }}
 
       - run: cp .env.dev .env
