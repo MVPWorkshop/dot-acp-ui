@@ -80,7 +80,7 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
 
   const balanceFormatted = formatDecimalsFromToken(balance?.free.toString(), tokenDecimals as string);
 
-  const tokensInfo = {
+  return {
     balance: balanceFormatted,
     ss58Format,
     existentialDeposit: existentialDeposit.toHuman(),
@@ -88,8 +88,6 @@ export const getWalletTokensBalance = async (api: ApiPromise, walletAddress: str
     tokenSymbol: Array.isArray(tokenSymbol) ? tokenSymbol?.[0] : "",
     assets: myAssetTokenData,
   };
-
-  return tokensInfo;
 };
 
 export const assetTokenData = async (id: string, api: ApiPromise) => {

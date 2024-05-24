@@ -3,6 +3,7 @@ import { NetworkKeys } from "../../../app/types/enum";
 import RococoIcon from "../../../assets/img/rococo-icon.svg?react";
 import WestendIcon from "../../../assets/img/westend-icon.svg?react";
 import KusamaIcon from "../../../assets/img/kusama-icon.svg?react";
+import PolkadotIcon from "../../../assets/img/dot-token.svg?react";
 import SelectedNetworkCheck from "../../../assets/img/selected-token-check.svg?react";
 import DownArrow from "../../../assets/img/down-arrow.svg?react";
 import useClickOutside from "../../../app/hooks/useClickOutside";
@@ -52,6 +53,7 @@ const NetworkSelector = ({ networkSelected, items, isDropdownOpen, setIsDropdown
           {networkSelected === NetworkKeys.Kusama && <KusamaIcon width={20} height={20} />}
           {networkSelected === NetworkKeys.Rococo && <RococoIcon width={20} height={20} />}
           {networkSelected === NetworkKeys.Westend && <WestendIcon width={20} height={20} />}
+          {networkSelected === NetworkKeys.Polkadot && <PolkadotIcon width={20} height={20} />}
           {networkSelected}
         </span>
         <DownArrow />
@@ -68,6 +70,7 @@ const NetworkSelector = ({ networkSelected, items, isDropdownOpen, setIsDropdown
                   {item.name.toLowerCase() === NetworkKeys.Kusama && <KusamaIcon width={20} height={20} />}
                   {item.name.toLowerCase() === NetworkKeys.Rococo && <RococoIcon width={20} height={20} />}
                   {item.name.toLowerCase() === NetworkKeys.Westend && <WestendIcon width={20} height={20} />}
+                  {item.name.toLowerCase() === NetworkKeys.Polkadot && <PolkadotIcon width={20} height={20} />}
                   {item.name}
                 </span>
                 {networkSelected === item.name.toLowerCase() && <SelectedNetworkCheck />}

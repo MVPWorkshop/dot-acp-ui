@@ -272,7 +272,10 @@ export const addLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactAddedLiquidityInPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
 
-          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
+          dispatch({
+            type: ActionType.SET_BLOCK_HASH_FINALIZED,
+            payload: response.status.asFinalized.toString(),
+          });
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_ADD_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
@@ -363,7 +366,10 @@ export const removeLiquidity = async (
         if (response.status.type === ServiceResponseStatus.Finalized && !response.dispatchError) {
           exactWithdrawnLiquidityFromPool(response.toHuman(), nativeTokenDecimals, assetTokenDecimals, dispatch);
 
-          dispatch({ type: ActionType.SET_BLOCK_HASH_FINALIZED, payload: response.status.asFinalized.toString() });
+          dispatch({
+            type: ActionType.SET_BLOCK_HASH_FINALIZED,
+            payload: response.status.asFinalized.toString(),
+          });
           dispatch({ type: ActionType.SET_SUCCESS_MODAL_OPEN, payload: true });
           dispatch({ type: ActionType.SET_WITHDRAW_LIQUIDITY_LOADING, payload: false });
           const allPools = await getAllPools(api);
@@ -469,11 +475,11 @@ export const checkAddPoolLiquidityGasFee = async (
 export const getAllLiquidityPoolsTokensMetadata = async (api: ApiPromise) => {
   const poolsTokenData = [];
   const pools = await getAllPools(api);
+
   if (pools) {
     const poolsAssetTokenIds = pools?.map((pool: any) => {
-      if (pool?.[0]?.[1].interior?.X2) {
-        const poolsTokenIds = pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
-        return poolsTokenIds;
+      if (pool?.[0]?.[1].interior?.X2?.[1]?.GeneralIndex) {
+        return pool?.[0]?.[1]?.interior?.X2?.[1]?.GeneralIndex.replace(/[, ]/g, "").toString();
       }
     });
 

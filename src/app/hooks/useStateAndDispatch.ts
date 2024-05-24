@@ -45,7 +45,7 @@ const useStateAndDispatch = () => {
       }
     };
 
-    callApiSetup();
+    callApiSetup().then();
   }, []);
 
   return { state, dispatch };
